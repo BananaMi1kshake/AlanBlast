@@ -1,6 +1,6 @@
 import { inBounds, placementIndices } from "./geometry.js";
 import { scorePlacement } from "./scoring.js";
-import { DEFAULT_THEME, nextTheme } from "./themes.js";
+import { DEFAULT_THEME, nextTheme, visualProfile } from "./themes.js";
 
 import { HAND_SIZE, SHAPES, SIZE } from "./pieces.js";
 
@@ -9,7 +9,7 @@ export { HAND_SIZE, SHAPES, SIZE } from "./pieces.js";
 export function createGame() {
   return {
     board: Array(SIZE * SIZE).fill(null), score: 0, combo: 0, comboWindow: 0,
-    theme: DEFAULT_THEME, hand: Array(HAND_SIZE).fill(null), bag: [], exhausted: false,
+    theme: DEFAULT_THEME, material: visualProfile({ theme: DEFAULT_THEME }).material, hand: Array(HAND_SIZE).fill(null), bag: [], exhausted: false,
   };
 }
 
@@ -72,8 +72,9 @@ export function placePiece(game, slot, x, y) {
     shape.cells.length, rows.length + columns.length, game, fullBoardClear,
   );
   const theme = fullBoardClear ? nextTheme(game.theme) : game.theme;
+  const material = visualProfile(fullBoardClear ? { theme } : game).material;
   return {
-    game: { ...game, board, hand, score: game.score + points, combo, comboWindow, theme },
+    game: { ...game, board, hand, score: game.score + points, combo, comboWindow, theme, material },
     points, rows, columns, cleared, fullBoardClear, bonus,
   };
 }

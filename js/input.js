@@ -164,6 +164,7 @@ export function bindInput(view, getGame, place, playSound) {
   tray.addEventListener("pointercancel", cancelDrag);
   tray.addEventListener("lostpointercapture", cancelDrag);
   window.addEventListener("resize", reset);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) reset(); });
   window.visualViewport?.addEventListener("resize", reset);
   window.visualViewport?.addEventListener("scroll", () => { if (drag || returning) reset(); });
   window.addEventListener("scroll", () => { if (drag || returning) reset(); }, { passive: true });

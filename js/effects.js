@@ -1,3 +1,4 @@
+import { MATERIALS, visualProfile } from "./themes.js";
 import { placementIndices } from "./geometry.js";
 import { SHAPES, SIZE } from "./pieces.js";
 import { MOTION } from "./motion.js";
@@ -42,14 +43,15 @@ export function createEffects(layer, cells, motion) {
     element.style.top = `${(y + .5) / SIZE * 100}%`;
   }
 
-  function burst(indices, count, colors, duration, confetti = false) {
+  function burst(indices, count, colors, duration, material, confetti = false) {
     for (let i = 0; i < count; i++) {
       if (particles.size >= MOTION.particleLimit) remove(particles.values().next().value);
       const particle = node(confetti ? "fx-particle confetti" : "fx-particle");
+      particle.dataset.material = material;
       position(particle, [indices[i % indices.length]]);
       particle.style.backgroundColor = colors[i % colors.length];
       const angle = i * 2.4;
-      const distance = (confetti ? 45 : 14) + (i % 6) * (confetti ? 10 : 4);
+      const distance = ((confetti ? 45 : 14) + (i % 6) * (confetti ? 10 : 4)) * MATERIALS[material].spread;
       const x = Math.round(Math.cos(angle) * distance);
       const y = Math.round(Math.sin(angle) * distance + (confetti ? 20 : 0));
       particles.add(particle);
@@ -65,6 +67,8 @@ export function createEffects(layer, cells, motion) {
   function placement(previous, result, slot, x, y) {
     if (motion.matches) return;
     const id = previous.hand[slot];
+    const { material } = visualProfile(previous);
+    const profile = MATERIALS[material];
     const parts = placementIndices(SHAPES[id], x, y);
     const palette = getComputedStyle(document.documentElement);
     const colors = new Map();
@@ -80,8 +84,8 @@ export function createEffects(layer, cells, motion) {
       snaps.get(i)?.cancel();
       if (result.game.board[i] === null) continue;
       const snap = cells[i].animate([
-        { transform: "scale(1.08,.9)" },
-        { transform: "scale(.96,1.05)", offset: .56 },
+        { transform: `scale(${profile.impact.join(",")})` },
+        { transform: `scale(${profile.rebound.join(",")})`, offset: .56 },
         { transform: "scale(1)" },
       ], { duration: MOTION.placement, easing: "ease-out" });
       snaps.set(i, snap);
@@ -92,6 +96,7 @@ export function createEffects(layer, cells, motion) {
     const duration = lines > 1 ? MOTION.multiClear : MOTION.singleClear;
     if (lines) {
       const wave = node(result.fullBoardClear ? "fx-wave all" : "fx-wave");
+      wave.dataset.material = material;
       play(wave, [
         { opacity: result.fullBoardClear ? .9 : Math.min(.7, .38 + lines * .1), transform: "scale(.8)" },
         { opacity: 0, transform: "scale(1.06)" },
@@ -101,6 +106,7 @@ export function createEffects(layer, cells, motion) {
         snaps.get(i)?.cancel();
         snaps.delete(i);
         const ghost = node("fx-cleared");
+        ghost.dataset.material = material;
         ghost.style.gridArea = `${Math.floor(i / SIZE) + 1} / ${i % SIZE + 1}`;
         ghost.style.setProperty("--block", colorAt(i));
         ghosts.set(i, ghost);
@@ -108,7 +114,7 @@ export function createEffects(layer, cells, motion) {
         play(ghost, [
           { transform: "scale(1)", opacity: 1 },
           { transform: "scale(1.04)", opacity: 1, offset: .24 },
-          { transform: "scale(.12) rotate(8deg)", opacity: 0 },
+          { transform: profile.dissolve, opacity: 0 },
         ], { duration: duration * .68, delay });
         live.get(ghost).onfinish = () => { ghosts.delete(i); remove(ghost); };
       }
@@ -120,13 +126,13 @@ export function createEffects(layer, cells, motion) {
         : result.cleared.map(colorAt);
       const count = result.fullBoardClear ? 48 : Math.min(36, 8 + lines * 7 + Math.min(8, result.game.combo));
       burst(sources, count, burstColors, result.fullBoardClear ? MOTION.allClear * .82 : duration + 140,
-        result.fullBoardClear);
+        material, result.fullBoardClear);
     } else {
-      burst(parts, Math.min(8, parts.length + 3), [colorAt(parts[0]), palette.getPropertyValue("--particle").trim()], MOTION.placement + 110);
+      burst(parts, Math.min(8, parts.length + 3), [colorAt(parts[0]), palette.getPropertyValue("--particle").trim()], MOTION.placement + 110, material);
     }
 
-    // Only the current labels remain onscreen. Board effects may overlap independently.
-    for (const label of layer.querySelectorAll(".fx-score")) remove(label);
+    // Keep an all-clear total visible if the next piece lands during the celebration.
+    for (const label of layer.querySelectorAll(result.fullBoardClear ? ".fx-score" : ".fx-score:not(.full-total)")) remove(label);
     const score = node(result.fullBoardClear ? "fx-score full-total" : "fx-score", `+${result.points}`);
     if (!result.fullBoardClear) position(score, lines ? result.cleared : parts);
     play(score, [
@@ -136,14 +142,13 @@ export function createEffects(layer, cells, motion) {
     ], { duration: MOTION.floatingScore });
 
     const combo = result.game.combo;
-    if (result.fullBoardClear || combo > previous.combo) {
+    if (result.fullBoardClear || (combo > previous.combo && !layer.querySelector(".fx-banner.all-clear"))) {
       for (const label of layer.querySelectorAll(".fx-banner")) remove(label);
       const message = result.fullBoardClear ? "ALL CLEAR"
         : combo >= 10 ? "Incredible" : combo >= 7 ? "Amazing" : combo >= 4 ? "Great" : "Nice";
       const banner = node("fx-banner");
       banner.dataset.intensity = result.fullBoardClear || combo >= 7 ? "high" : "normal";
       banner.classList.toggle("all-clear", result.fullBoardClear);
-      banner.classList.toggle("low", parseFloat(score.style.top) < 43);
       banner.append(node("fx-title", message), node("fx-detail", result.fullBoardClear
         ? `+${result.bonus} bonus` : `Combo ×${combo}`));
       play(banner, pop, { duration: result.fullBoardClear ? MOTION.allClear : MOTION.combo });

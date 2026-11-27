@@ -9,20 +9,20 @@ export function moveFeedback({ lines, combo, fullBoardClear, record, over }) {
   return { sounds, vibration };
 }
 
-export function createFeedback(audio, haptics, settings) {
+export function createFeedback(audio, haptics, settings, currentMaterial = () => undefined) {
   function configure() {
     audio.configure(settings);
     haptics.configure(settings);
   }
 
   function cue(name) {
-    audio.play([{ name }]);
+    audio.play([{ name, material: currentMaterial() }]);
     if (name === "invalid") haptics.play(name);
   }
 
   function move(result) {
     const { sounds, vibration } = moveFeedback(result);
-    audio.play(sounds);
+    audio.play(sounds.map(cue => ({ ...cue, material: result.material ?? currentMaterial() })));
     if (vibration) haptics.play(vibration);
   }
 

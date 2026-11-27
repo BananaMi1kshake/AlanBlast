@@ -32,3 +32,11 @@ for (const misses of [1, 2, 3]) {
     assert.equal(clear.comboWindow, 3);
   });
 }
+
+test("Classic audit scoring examples follow configured values", () => {
+  const fresh = { combo: 0, comboWindow: 0 };
+  assert.equal(scorePlacement(5, 0, fresh, false).points, 5);
+  assert.equal(scorePlacement(3, 1, fresh, false).points, 13);
+  assert.equal(scorePlacement(2, 2, { combo: 3, comboWindow: 1 }, true).points, 202);
+  assert.equal(scorePlacement(5, 4, { combo: 6, comboWindow: 3 }, false).points, 495);
+});

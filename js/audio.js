@@ -1,3 +1,4 @@
+import { MATERIALS } from "./themes.js";
 import { SOUNDS } from "./sound-bank.js";
 
 const ASSETS = new URL("../audio/", import.meta.url);
@@ -81,17 +82,23 @@ export function createAudio({
       const response = await fetchAsset(new URL("sounds.json", directory), { mode: "same-origin", redirect: "error" });
       if (!response.ok) return;
       const assets = await response.json();
-      await Promise.all(Object.keys(SOUNDS).map(async name => {
-        const files = Array.isArray(assets?.[name]) ? assets[name] : [assets?.[name]];
-        for (const file of files) {
-          const url = localAsset(file, directory);
-          const buffer = url && await load(url);
-          if (buffer) {
-            buffers.set(name, buffer);
-            return;
+      async function preloadSet(set, prefix = "") {
+        await Promise.all(Object.keys(SOUNDS).map(async name => {
+          const files = Array.isArray(set?.[name]) ? set[name] : [set?.[name]];
+          for (const file of files) {
+            const url = localAsset(file, directory);
+            const buffer = url && await load(url);
+            if (buffer) {
+              buffers.set(prefix + name, buffer);
+              return;
+            }
           }
-        }
-      }));
+        }));
+      }
+      await Promise.all([
+        preloadSet(assets),
+        ...Object.keys(MATERIALS).map(id => preloadSet(assets?.materials?.[id], id + ":")),
+      ]);
     } catch {
       // The manifest is optional. Every sound can be synthesized locally.
     }
@@ -143,11 +150,11 @@ export function createAudio({
   function schedule(entries) {
     const cues = [];
     let priority = 0;
-    for (const { name, combo = 1, delay = 0 } of entries) {
+    for (const { name, combo = 1, delay = 0, material } of entries) {
       const sound = SOUNDS[name];
       if (!sound) continue;
       priority = Math.max(priority, sound.priority);
-      const buffer = buffers.get(name);
+      const buffer = buffers.get(`${material}:${name}`) ?? buffers.get(name);
       if (buffer) cues.push({ buffer, at: delay });
       else for (const cue of sound.notes(combo)) cues.push({ ...cue, at: cue.at + delay });
     }

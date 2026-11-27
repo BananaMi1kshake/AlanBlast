@@ -180,3 +180,24 @@ test("combo musical steps ascend, add harmonies and stabilize at high values", (
   assert.deepEqual(comboVoicing(Number.MAX_SAFE_INTEGER), comboVoicing(9));
   assert.ok(SOUNDS.clear4.notes(9).length > SOUNDS.clear1.notes(9).length);
 });
+
+test("material replacement prefers the variation and falls through to the base and procedure", async () => {
+  const { context, sources } = audioFixture();
+  const manifest = { place: "base.wav", materials: { wood: { place: "wood.wav" }, yarn: { place: "missing.wav" } } };
+  const audio = createAudio({
+    createContext: () => context,
+    fetchAsset: async url => {
+      const file = url.pathname.split("/").at(-1);
+      if (file === "sounds.json") return { ok: true, json: async () => manifest };
+      return { ok: file !== "missing.wav", arrayBuffer: async () => file === "wood.wav" ? "long" : "base" };
+    },
+  });
+  audio.activate();
+  await ioTick();
+  audio.play([{ name: "place", material: "wood" }]);
+  audio.play([{ name: "place", material: "yarn" }]);
+  audio.play([{ name: "invalid", material: "wood" }]);
+  assert.deepEqual(sources.map(source => source.kind), ["buffer", "buffer", "oscillator", "oscillator"]);
+  assert.equal(sources[0].startArgs[2], 3);
+  assert.equal(sources[1].startArgs[2], .22);
+});

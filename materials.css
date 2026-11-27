@@ -1,0 +1,92 @@
+/* Profiles are inherited by board, tray and drag ghost. Clear effects pin the departing profile. */
+:root, [data-material] {
+  --grain: none;
+  --grain-size: 100% 100%;
+  --facet: linear-gradient(155deg, #ffffff62, #ffffff08 42%, #121b4335);
+  --edge: inset 0 -3px #11263348, inset 0 1px #ffffff90, inset 1px 0 #ffffff30;
+  --corner: 14%;
+  --world-detail: none;
+  --world-size: auto;
+  --board-detail: none;
+  --well: inset 0 1px #0002;
+  --particle-shape: inset(0 round 2px);
+  --wave-finish: radial-gradient(circle, #fffde064, transparent 72%);
+}
+[data-material="yarn"] {
+  --grain: url("./assets/materials/yarn.svg");
+  --grain-size: 56% 56%;
+  --facet: linear-gradient(145deg, #fff5, #21122665);
+  --edge: inset 0 1px 2px #fff6, inset 0 -3px 3px #37223769;
+  --corner: 25%;
+  --world-detail: repeating-linear-gradient(110deg, #ffc98b12 0 1px, transparent 1px 5px);
+  --board-detail: repeating-linear-gradient(110deg, #fff1 0 1px, transparent 1px 6px);
+  --well: inset 0 0 3px #1109197a;
+  --particle-shape: polygon(0 35%, 100% 29%, 96% 54%, 8% 69%);
+  --wave-finish: repeating-radial-gradient(ellipse, #fdbcf24b 0 2px, transparent 2px 11px);
+}
+[data-material="jelly"] {
+  --facet: radial-gradient(ellipse 75% 52% at 28% -2%, #fff 5%, #fffb 26%, transparent 70%), radial-gradient(ellipse at 76% 76%, #fff8, transparent 59%), linear-gradient(155deg, #521d5c51, transparent 46%, #8b216b39);
+  --edge: inset 0 2px 3px #fff9, inset 0 -3px 5px #58174675, inset 2px 0 4px #ffddeb88;
+  --corner: 32%;
+  --world-detail: radial-gradient(circle at 26% 24%, #ffe2fd22 0 18%, transparent 19%), radial-gradient(circle at 66% 77%, #ffc4e622 0 24%, transparent 25%);
+  --world-size: 142px 176px;
+  --board-detail: radial-gradient(ellipse at 48% 15%, #fff2, transparent 63%);
+  --well: inset 0 2px 5px #20052d70;
+  --particle-shape: ellipse(33% 48% at 50% 48%);
+  --wave-finish: radial-gradient(circle, #ffd7f18c, transparent 67%);
+}
+[data-material="wood"] {
+  --grain: url("./assets/materials/wood.svg");
+  --facet: linear-gradient(135deg, #fff3 0 10%, transparent 10% 85%, #28140a66 85%);
+  --edge: inset 0 0 0 1px #42230c96, inset 0 2px #fff9, inset -2px -3px #542b1768;
+  --corner: 7%;
+  --world-detail: repeating-linear-gradient(0deg, #14302632 0 2px, transparent 2px 66px), linear-gradient(110deg, #dfad5d1e, transparent 60%);
+  --board-detail: repeating-linear-gradient(0deg, #17090c3d 0 2px, transparent 2px 42px);
+  --well: inset 1px 2px #0004, inset -1px -1px #fff1;
+  --particle-shape: polygon(1% 19%, 100% 5%, 78% 75%, 24% 100%);
+  --wave-finish: linear-gradient(115deg, transparent 5%, #ffc37b7a 42%, transparent 79%);
+}
+[data-material="crystal"] {
+  --facet: conic-gradient(from 25deg at 36% 40%, #fff9 0 17%, #fff2 17% 29%, #34245885 29% 47%, #fff5 47% 63%, #702b7975 63% 78%, #fff7 78% 88%, #fff1 88%);
+  --edge: inset 0 0 0 1px #fffa, inset 0 1px 3px #fff9, inset 0 -2px #19133d70;
+  --corner: 21% 8% 22% 8%;
+  --world-detail: conic-gradient(from 46deg at 71% 0%, #ca8aff1f, transparent, #ca8aff28, transparent 60%, #fff1);
+  --board-detail: linear-gradient(144deg, #fff2, transparent 30% 62%, #ceb9ff30);
+  --well: inset 0 0 0 1px #b09eff22;
+  --particle-shape: polygon(50% 0, 100% 50%, 53% 100%, 0 58%);
+  --wave-finish: conic-gradient(from 12deg, #f9ecff55, transparent, #c8b9ff8c, transparent, #f9ecff55);
+}
+[data-material="ceramic"] {
+  --facet: linear-gradient(164deg, #fff8 0 8%, #fff4 12% 17%, transparent 23% 42%, #fff5 44% 48%, transparent 50%), radial-gradient(ellipse at 35% 24%, #fff3, #172c4442);
+  --edge: inset 0 0 0 1px #ffffffad, inset 0 0 0 3px #21325335, inset 0 -4px #15223765;
+  --corner: 10%;
+  --world-detail: repeating-linear-gradient(0deg, #c5caff24 0 1px, transparent 1px 34px), repeating-linear-gradient(90deg, #c5caff24 0 1px, transparent 1px 34px);
+  --board-detail: linear-gradient(165deg, #fff3, transparent 32%);
+  --well: inset 0 0 0 1px #fff3;
+  --particle-shape: polygon(0 10%, 76% 0, 100% 69%, 66% 100%, 12% 81%);
+  --wave-finish: linear-gradient(152deg, transparent 19%, #fffc 48%, transparent 68%);
+}
+[data-material="ice"] {
+  --grain: url("./assets/materials/ice.svg");
+  --facet: radial-gradient(ellipse at 8% 6%, #fff9, transparent 68%), linear-gradient(120deg, #3582ba5c, #fff5);
+  --edge: inset 0 0 0 1px #e6fcffbb, inset 0 2px 4px #fff9, inset -2px -3px #12558070;
+  --corner: 9% 17% 10% 21%;
+  --world-detail: repeating-linear-gradient(146deg, #d4f9ff19 0 1px, transparent 1px 46px);
+  --board-detail: linear-gradient(139deg, #b8ffff29, transparent 30%, #c5f4ff24);
+  --well: inset 0 0 0 1px #d4f9ff27, inset 0 0 5px #113c6370;
+  --particle-shape: polygon(38% 0, 67% 0, 66% 28%, 96% 9%, 100% 42%, 72% 58%, 86% 87%, 58% 100%, 51% 73%, 7% 95%, 0 63%, 28% 47%);
+  --wave-finish: radial-gradient(ellipse, #e9ffffa5 12%, #b7eaff68 34%, transparent 68%);
+}
+[data-material="confectionery"] {
+  --grain: url("./assets/materials/wafer.svg");
+  --grain-size: 43% 43%;
+  --facet: linear-gradient(135deg, #fffaff69, #ffd29226 55%, #57301964);
+  --edge: inset 0 0 0 1px #7e492867, inset 0 2px #ffeadbe0, inset 0 -4px #7d482f7a;
+  --corner: 19% 23% 19% 24%;
+  --world-detail: radial-gradient(circle at 2px 2px, #ffdec735 0 1px, transparent 2px);
+  --world-size: 15px 15px;
+  --board-detail: radial-gradient(circle at 3px 3px, #ffcbd630 0 1px, transparent 2px);
+  --well: inset 0 0 0 1px #f8a99430, inset 0 -2px #13070849;
+  --particle-shape: polygon(26% 0, 74% 4%, 100% 35%, 92% 78%, 56% 100%, 11% 84%, 0 31%);
+  --wave-finish: repeating-radial-gradient(circle, #ffe2a34f 0 3px, transparent 5px 13px);
+}

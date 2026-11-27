@@ -48,3 +48,7 @@ A custom file replaces the whole event, including its procedural pitch variation
 Run the local server described in the [main README](../README.md), then open `http://localhost:8000/tools/sound-preview.html`. The tool is enabled on loopback hosts and is separate from gameplay and its saves. Pick a combo level, adjust volume, and audition individual sound or vibration events. It is outside the offline shell.
 
 Web Audio needs a browser-approved gesture. Audio is suspended and old cues are cleared when the page goes into the background. Some browsers may require another interaction after foregrounding or a system audio interruption. Vibration requests can be declined due to device hardware, browser policy, or operating-system settings.
+
+### Optional material overrides
+
+A `materials` entry can override an event for one material. For example, `{"materials":{"wood":{"place":"wood-tap.wav"}}}` plays the replacement when a Wood piece lands. A missing or unsupported material file falls back to the global event file, then to synthesis. Variant files in the manifest are precached like global files.
