@@ -42,11 +42,20 @@
               <button type="button" id="reset">Reset lab</button>
             </div>
           </form>
-          <div class="actions">
-            <button type="button" id="inspect">Inspect legal sequences</button>
-            <button type="button" id="deal">Benchmark a deal</button>
-          </div>
+          <fieldset class="dealer">
+            <legend>Seeded dealer</legend>
+            <label>Seed <input id="seed" type="number" step="1" value="5656"></label>
+            <label>Strategy <select id="strategy"><option value="">Weighted</option></select></label>
+            <div id="weights"></div>
+            <label>Witness goal <select id="goal"></select></label>
+            <div class="actions">
+              <button type="button" id="inspect">Inspect current hand</button>
+              <button type="button" id="deal">Deal V2</button>
+              <button type="button" id="compare">Compare V1 and V2</button>
+            </div>
+          </fieldset>
           <pre id="result" role="status"></pre>
+          <div id="steps" class="actions" aria-label="Witness board steps"></div>
         </section>
         <iframe id="sandbox" title="Isolated playable AlanBlox sandbox"></iframe>
       </div>

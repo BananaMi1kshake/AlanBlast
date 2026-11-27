@@ -1,3 +1,5 @@
+import { SEARCH_GOALS } from "../js/solver.js";
+import { STRATEGY_WEIGHTS } from "../js/generator.js";
 import { createGame, SHAPES, SIZE } from "../js/game.js";
 import { MATERIALS, PALETTES, WORLDS, visualProfile } from "../js/themes.js";
 
@@ -18,6 +20,25 @@ option($("material"), "", "Follow world");
 for (const [id, name] of Object.entries(PALETTES)) option($("palette"), id, name);
 for (const [id, profile] of Object.entries(MATERIALS)) option($("material"), id, profile.name);
 for (const [id, world] of Object.entries(WORLDS)) option($("world"), id, world.name);
+const labels = {
+  standard: "Standard", completion: "Any complete hand", line: "Line clear", cleanup: "Board cleanup",
+  reduction: "Maximum final reduction", minimum: "Minimum at any step", allClear: "All-clear",
+};
+for (const [id, value] of Object.entries(STRATEGY_WEIGHTS)) {
+  option($("strategy"), id, labels[id]);
+  const label = document.createElement("label");
+  label.textContent = labels[id] + " weight";
+  const input = document.createElement("input");
+  input.type = "number";
+  input.min = "0";
+  input.step = "1";
+  input.value = value;
+  input.dataset.strategy = id;
+  label.append(input);
+  $("weights").append(label);
+}
+for (const goal of SEARCH_GOALS) option($("goal"), goal, labels[goal]);
+$("goal").value = "allClear";
 const slots = Array.from({ length: 3 }, (_, slot) => {
   const label = document.createElement("label");
   label.textContent = `Piece ${slot + 1}`;
@@ -119,21 +140,54 @@ function apply() {
   } catch (error) { result.textContent = error.message; }
 }
 
-function analyze(deal) {
+function analyze(action) {
   let game;
   try { game = read(); } catch (error) { result.textContent = error.message; return; }
+  const seed = Number($("seed").value);
+  if (!Number.isSafeInteger(seed)) { result.textContent = "Enter an integer seed."; return; }
+  const weights = Object.fromEntries([...$("weights").querySelectorAll("input")].map(input => [input.dataset.strategy, Number(input.value)]));
+  if (Object.values(weights).some(value => !Number.isFinite(value) || value < 0)) {
+    result.textContent = "Weights must be finite and nonnegative.";
+    return;
+  }
+  const strategy = $("strategy").value || undefined;
+  const goal = $("goal").value;
+  $("steps").replaceChildren();
   worker?.terminate();
   const request = new Worker("./lab-worker.js", { type: "module" });
   worker = request;
   result.textContent = "Searching…";
   request.onmessage = ({ data }) => {
     if (worker !== request) return;
-    const { generation, inspection } = data;
+    const { generations, inspection, states, completions } = data;
     const lines = [];
-    if (generation) lines.push(`Deal ${generation.status} in ${generation.ms.toFixed(2)} ms. Rejected ${generation.stats.rejected}; fallback ${generation.stats.fallbacks}.`);
+    for (const generation of generations) {
+      const { version, status, ms, stats, hand } = generation;
+      lines.push(`${version.toUpperCase()} ${status} in ${ms.toFixed(2)} ms, ${stats.rejected} rejected, ${stats.fallbacks} solvability fallbacks.`);
+      if (version === "v2") lines.push(`Requested ${labels[stats.requested]}. Delivered ${labels[stats.delivered]}${stats.guided ? " by guided search" : ""}. ${stats.goalTimeouts} goal budgets exhausted.`);
+      if (hand) lines.push(hand.map(id => SHAPES[id].name).join(", "));
+    }
+    if (action === "deal" && generations[0].status === "solvable") {
+      frameAPI()?.load(states[0]);
+      write(states[0]);
+    }
+    if (completions) lines.push(`${completions.complete ? "" : "At least "}${completions.solutions} complete sequence(s), ${completions.visited} visited.`);
     if (inspection) {
-      lines.push(`${inspection.complete ? "" : "At least "}${inspection.solutions} sequence(s), ${inspection.visited} visited.`);
-      if (inspection.first) lines.push(...inspection.first.map(({ id, x, y }, i) => `${i + 1}. ${SHAPES[id].name} at column ${x + 1}, row ${y + 1}`));
+      lines.push(`${labels[goal]}: ${inspection.status}, ${inspection.checks} checks.`);
+      if (inspection.sequence) {
+        lines.push(`Minimum ${inspection.minimumOccupied}, final ${inspection.finalOccupied}, reduction ${inspection.reduction}.`);
+        lines.push(...inspection.sequence.map(({ id, x, y }, i) => `${i + 1}. ${SHAPES[id].name} at column ${x + 1}, row ${y + 1}`));
+        states.forEach((state, i) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = i ? `Step ${i}` : "Start board";
+          button.addEventListener("click", () => {
+            frameAPI()?.load(state, { holdDeal: true });
+            write(state);
+          });
+          $("steps").append(button);
+        });
+      }
     }
     result.textContent = lines.join("\n");
     request.terminate();
@@ -142,7 +196,7 @@ function analyze(deal) {
     if (worker === request) result.textContent = "The worker could not run.";
     request.terminate();
   };
-  request.postMessage({ game, deal });
+  request.postMessage({ game, action, options: { seed, weights, strategy, goal } });
 }
 
 $("state").addEventListener("submit", event => { event.preventDefault(); apply(); });
@@ -154,12 +208,17 @@ $("read").addEventListener("click", () => {
 $("reset").addEventListener("click", () => {
   worker?.terminate();
   worker = undefined;
+  $("steps").replaceChildren();
   $("preset").value = "empty";
   preset("empty");
   iframe.contentWindow.location.reload();
 });
-$("inspect").addEventListener("click", () => analyze(false));
-$("deal").addEventListener("click", () => analyze(true));
+$("inspect").addEventListener("click", () => analyze("inspect"));
+$("deal").addEventListener("click", () => analyze("deal"));
+$("compare").addEventListener("click", () => analyze("compare"));
+$("strategy").addEventListener("change", event => {
+  $("goal").value = event.target.value === "standard" ? "completion" : event.target.value || "allClear";
+});
 iframe.addEventListener("load", () => { if (frameAPI()) apply(); });
 preset("demo");
 $("preset").value = "demo";

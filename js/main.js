@@ -120,7 +120,7 @@ if (needsHand(game)) deal();
 if (labAccess) {
   window.alanbloxLab = {
     snapshot: () => structuredClone({ game, highScore }),
-    load(next) {
+    load(next, { holdDeal = false } = {}) {
       cancelDeal?.();
       input.reset();
       view.resetFeedback();
@@ -133,7 +133,7 @@ if (labAccess) {
       retryHand.hidden = true;
       view.tray.removeAttribute("aria-busy");
       update();
-      if (needsHand(game)) deal();
+      if (!holdDeal && needsHand(game)) deal();
     },
   };
 }

@@ -12,7 +12,7 @@ The project focuses on responsive controls, rewarding audiovisual feedback, colo
 
 ## Features and roadmap
 
-### Playable through Phase 5.5
+### Playable through Phase 5.6
 
 - Classic 8×8 puzzle board.
 - Three block pieces per round.
@@ -120,6 +120,12 @@ See the [Classic parity and scoring audit](CLASSIC_PARITY.md) for evidence, the 
 - [x] Reproducible gameplay simulation and isolated gameplay lab
 - [x] Eight material worlds with six independently configurable palettes
 
+### Phase 5.6 — All-clear opportunities
+
+- [x] Weighted, solvability-preserving dealer objectives
+- [x] Seeded V1/V2 comparisons and intermediate witness replay
+- [x] Independent solver benchmark and balance report
+
 ### Phase 6 — Release
 
 - [ ] GitHub Pages deployment
@@ -149,12 +155,9 @@ Tune the provisional constants in `js/scoring.js`. Scores are carried forward as
 
 ### Solvable hand generation
 
-1. As before, shuffle a bag with one copy of each of the **38 fixed orientations** using Fisher–Yates. Propose the next three pieces, crossing into a fresh bag as needed. A duplicate can occur across a bag boundary.
-2. Try up to **12** candidates. For each, search every distinct ordering and legal position until a completion sequence is found or all possibilities are exhausted. The simulation uses precomputed placement masks and clears completed rows and columns together after each placement. It leaves the live board untouched.
-3. Consume rejected proposals from the bag. If none works, search directly over legal placements of any of the 38 orientations, allowing duplicates at every step. The deterministic fallback tries larger shapes first and memoizes dead board states by placements remaining. It can prove failure only after exhausting all permitted sequences. Its returned order does not expose the sequence used to establish solvability.
-4. Search runs in a Web Worker. After a ten-second deadline the deal stays pending, and **Retry deal** starts a fresh search with a 30-second deadline. Timing out or failing to start the worker does not count as game over. Reloading resumes a pending deal from the saved board and bag.
+Each newly revealed tray has a legal completion sequence. The dealer reserves a solvable shuffle-bag hand, then may search for a line clear, net cleanup, or full-board clear within that tray. The default request mix is 40% Standard, 30% line clear, 20% cleanup, and 10% all-clear. A missed objective returns the reserved hand. An all-clear may occur before the tray is spent, and no piece is changed after it is revealed.
 
-Filtering changes the distribution of revealed hands. The proposal bag still contains each orientation once per shuffle, but pieces that fit more boards survive filtering more often. Fallback may also repeat a shape. The board affects generation only through solvability. The generator uses no score, high score, session length, losses, player identity, engagement, or spending. Revealed pieces are never replaced, and the deal guarantees one solution, with other placements free to fail.
+The worker receives only the board and remaining bag. A base timeout leaves the deal pending and can be retried. The [V2 generation report](GENERATION_V2.md) documents the algorithms, seeded baseline, balance comparison, and playtesting targets.
 
 ### Visual feedback
 
@@ -184,7 +187,8 @@ Run the automated tests with Node.js 20 or newer. No dependency installation is 
 
 ```sh
 npm test
-node scripts/benchmark-hands.js
+node scripts/benchmark-hands.js v2
+node scripts/simulate-generation.js v2
 ```
 
 The benchmark checks 10,000 seeded deals using a separate array-based backtracking solver and adds 250 full-board tests for proven impossibility. It reports time by board scenario, candidate rejections, fallbacks, and per-orientation frequencies. Timings cover generation only, excluding worker startup and independent validation.
@@ -218,7 +222,7 @@ AI development agents should refer to `AGENTS.md` for project-specific requireme
 
 ## Project Status
 
-Phases 1 through 5.5 are playable. The next phase covers release testing and polish.
+Phases 1 through 5.6 are playable. The next phase covers release testing and polish.
 
 ## Disclaimer
 

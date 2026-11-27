@@ -28,7 +28,7 @@ Run the local server from the [README](README.md) and open `http://localhost:800
 
 Choose a scenario, edit eight rows of eight dots or color digits, select up to three pieces, and enter score and combo values. Set a world, then choose a palette and material independently or let them follow the world. **Apply to sandbox** loads the fixture. Drag, tap, or use the keyboard in the embedded board. **Read sandbox** copies the current state into the controls. The material swatches at the bottom use one palette for direct comparisons.
 
-Use **Single line**, **Intersecting clears**, or **Full-board clear** then put the first piece at column 6, row 4. The **Exact-fit five-cell bar** fits at column 4, row 8. Keep palette and material on **Follow world** to inspect an entire all-clear transition. **Inspect legal sequences** reports a bounded count and one witness, and **Benchmark a deal** runs a bounded worker search and reports execution time, rejections, fallback, and a completion witness if available. **Reset lab** clears the test state.
+Use **Single line**, **Intersecting clears**, or **Full-board clear** then put the first piece at column 6, row 4. The **Exact-fit five-cell bar** fits at column 4, row 8. Keep palette and material on **Follow world** to inspect an entire all-clear transition. **Inspect current hand** reports a bounded count and a witness for the selected goal. **Deal V2** and **Compare V1 and V2** test the seeded dealer. Step buttons replay intermediate boards. [Dealer lab guide](GENERATION_V2.md) **Reset lab** clears the test state.
 
 ## Verification notes
 
