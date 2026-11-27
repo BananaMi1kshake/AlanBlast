@@ -1,8 +1,8 @@
 import { SHAPES, SIZE } from "./game.js";
 import { makePiece } from "./view.js";
+import { MOTION } from "./motion.js";
 
 const DRAG_DISTANCE = 5;
-const TOUCH_LIFT = 56;
 const directions = {
   ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1],
 };
@@ -11,6 +11,15 @@ export function bindInput(view, getGame, place) {
   const { board, tray, cells, slots } = view;
   let selected = null;
   let drag = null;
+  let returning;
+
+  function finishReturn() {
+    if (!returning) return;
+    returning.animation.cancel();
+    returning.button.classList.remove("returning");
+    returning.ghost.remove();
+    returning = null;
+  }
 
   function select(slot) {
     selected = slot;
@@ -32,33 +41,43 @@ export function bindInput(view, getGame, place) {
 
   function positionDrag(event) {
     const { shape, metrics, ghost } = drag;
-    const { origin, step, unit, gap } = metrics;
+    const { origin, step, gap } = metrics;
     const width = shape.width * step - gap;
     const height = shape.height * step - gap;
     const left = event.clientX - width / 2;
-    const lift = event.pointerType === "touch" ? TOUCH_LIFT : 0;
+    const lift = event.pointerType === "touch" ? MOTION.touchLift : 0;
     const top = event.clientY - height / 2 - lift;
     const x = Math.round((left - origin.left) / step);
     const y = Math.round((top - origin.top) / step);
     const valid = view.preview(getGame(), shape, x, y);
-    ghost.style.setProperty("--unit", `${unit}px`);
-    ghost.style.setProperty("--gap", `${gap}px`);
     ghost.style.transform = `translate3d(${left}px, ${top}px, 0)`;
     ghost.classList.toggle("invalid", !valid);
     return { x, y, valid };
   }
 
-  function stopDrag() {
+  function stopDrag(animateReturn = false) {
     if (!drag) return;
-    const { button, pointerId, ghost } = drag;
+    const { button, pointerId, ghost, trayRect, scale } = drag;
     drag = null;
     if (button.hasPointerCapture(pointerId)) button.releasePointerCapture(pointerId);
-    if (ghost) ghost.remove();
+    if (ghost && animateReturn && !view.motion.matches) {
+      finishReturn();
+      button.classList.add("returning");
+      const animation = ghost.animate([
+        { transform: ghost.style.transform, opacity: .7 },
+        { transform: `translate3d(${trayRect.left}px, ${trayRect.top}px, 0) scale(${scale})`, opacity: 1 },
+      ], { duration: MOTION.return, easing: "ease-out", fill: "both" });
+      returning = { button, ghost, animation };
+      animation.onfinish = finishReturn;
+    } else {
+      ghost?.remove();
+    }
     button.classList.remove("dragging");
     view.preview(getGame());
   }
 
   function reset() {
+    finishReturn();
     stopDrag();
     select(null);
   }
@@ -67,6 +86,7 @@ export function bindInput(view, getGame, place) {
     if (drag || !event.isPrimary || event.button !== 0) return;
     const button = event.target.closest("button[data-slot]");
     if (!button || button.disabled) return;
+    finishReturn();
     const slot = Number(button.dataset.slot);
     const shape = SHAPES[getGame().hand[slot]];
     if (!shape) return;
@@ -80,11 +100,21 @@ export function bindInput(view, getGame, place) {
       if (Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) < DRAG_DISTANCE) return;
       const origin = cells[0].getBoundingClientRect();
       const step = cells[1].getBoundingClientRect().left - origin.left;
-      drag.metrics = { origin, step, unit: origin.width, gap: step - origin.width };
-      drag.ghost = makePiece(drag.shape);
+      const gap = step - origin.width;
+      drag.metrics = { origin, step, gap };
+      drag.trayRect = drag.button.firstElementChild.getBoundingClientRect();
+      drag.scale = drag.trayRect.width / (drag.shape.width * step - gap);
+      drag.ghost = document.createElement("span");
       drag.ghost.classList.add("floating");
       drag.ghost.setAttribute("aria-hidden", "true");
+      const piece = makePiece(drag.shape);
+      piece.style.setProperty("--unit", `${origin.width}px`);
+      piece.style.setProperty("--gap", `${gap}px`);
+      drag.ghost.append(piece);
       document.body.append(drag.ghost);
+      if (!view.motion.matches) piece.animate([
+        { transform: `scale(${drag.scale})` }, { transform: "scale(1)" },
+      ], { duration: MOTION.pickup, easing: "ease-out" });
       drag.button.classList.add("dragging");
       select(drag.slot);
     }
@@ -105,13 +135,15 @@ export function bindInput(view, getGame, place) {
     const { x, y, valid } = positionDrag(event);
     const { slot, button } = drag;
     const restoreFocus = document.activeElement === button;
-    reset();
     if (valid) {
+      reset();
       place(slot, x, y);
       if (restoreFocus && button.disabled) {
         slots.find(candidate => !candidate.disabled)?.focus({ preventScroll: true });
       }
     } else {
+      stopDrag(true);
+      select(null);
       view.announce("That piece does not fit here.");
     }
   });
@@ -125,7 +157,12 @@ export function bindInput(view, getGame, place) {
   tray.addEventListener("pointercancel", cancelDrag);
   tray.addEventListener("lostpointercapture", cancelDrag);
   window.addEventListener("resize", reset);
-  window.addEventListener("scroll", () => { if (drag) reset(); }, { passive: true });
+  window.addEventListener("scroll", () => { if (drag || returning) reset(); }, { passive: true });
+  view.motion.addEventListener("change", () => {
+    if (!view.motion.matches) return;
+    finishReturn();
+    drag?.ghost?.firstElementChild.getAnimations().forEach(animation => animation.cancel());
+  });
 
   tray.addEventListener("click", event => {
     const button = event.target.closest("button[data-slot]");

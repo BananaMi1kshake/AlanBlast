@@ -27,11 +27,15 @@
     <section class="scoreboard" aria-label="Scores">
       <div class="score-card"><span>Score</span><strong id="score">0</strong></div>
       <div class="score-card best"><span>Best</span><strong id="high-score">0</strong></div>
-      <div class="score-card"><span>Combo</span><strong id="combo">0</strong></div>
+      <div class="score-card combo-card">
+        <span>Combo</span><strong id="combo">0</strong>
+        <div id="combo-window" class="combo-window" aria-hidden="true"><i></i><i></i><i></i></div>
+      </div>
     </section>
 
     <div class="board-frame">
       <div id="board" class="board" role="grid" aria-label="Puzzle board" aria-describedby="controls" aria-rowcount="8" aria-colcount="8"></div>
+      <div id="effects" class="fx-layer" aria-hidden="true"></div>
       <div id="game-over" class="game-over" hidden>
         <div>
           <h2>Game over</h2>

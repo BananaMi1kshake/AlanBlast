@@ -20,24 +20,25 @@ const input = bindInput(view, () => game, (slot, x, y) => {
   const result = placePiece(game, slot, x, y);
   if (!result) return false;
   input.reset();
+  const record = result.game.score > highScore;
   game = result.game;
-  lastMove = result;
+  lastMove = { result, slot, x, y };
   const over = update();
   const lines = result.rows.length + result.columns.length;
   const summary = lines ? `Cleared ${lines} ${lines === 1 ? "line" : "lines"}. ` : "";
   const combo = lines ? ` Combo ${game.combo}, ${game.combo} times line points.` : "";
   const bonus = result.fullBoardClear ? ` Full-board clear! ${result.bonus} bonus points and a new palette.` : "";
-  view.announce(`${summary}Scored ${result.points} points.${combo}${bonus}${over ? " Game over. No remaining piece fits." : ""}`);
+  view.announce(`${summary}Scored ${result.points} points.${record ? " New high score." : ""}${combo}${bonus}${over ? " Game over. No remaining piece fits." : ""}`);
   if (over) playAgain.focus({ preventScroll: true });
   if (needsHand(game)) deal();
   return true;
 });
 
-function update() {
+function update(refill = false) {
   highScore = Math.max(highScore, game.score);
   const over = isGameOver(game);
-  view.render(game, highScore, over, lastMove);
   saveProgress(game, highScore);
+  view.render(game, highScore, over, lastMove, refill);
   return over;
 }
 
@@ -64,7 +65,7 @@ function deal(timeout = DEAL_TIMEOUT, focusTray = false) {
       return;
     }
     game = { ...game, hand: result.hand, bag: result.bag };
-    update();
+    update(true);
     if (focusTray || view.board.contains(document.activeElement)) view.slots[0].focus({ preventScroll: true });
   }, timeout);
 }
@@ -72,6 +73,7 @@ function deal(timeout = DEAL_TIMEOUT, focusTray = false) {
 function restart() {
   cancelDeal?.();
   input.reset();
+  view.resetFeedback();
   game = createGame();
   lastMove = undefined;
   update();
