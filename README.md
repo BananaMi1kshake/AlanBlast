@@ -12,10 +12,10 @@ The project focuses on responsive controls, rewarding audiovisual feedback, colo
 
 ## Features and roadmap
 
-### Playable in Phase 7
+### Playable in Phase 8
 
 - Shared 8×8 puzzle board with endless Classic and a 48-level Adventure campaign.
-- Offline Daily Challenges, an interactive tutorial, a collectible material library, local statistics, and achievements.
+- Offline Daily Challenges, an interactive tutorial, a library of 24 materials, local statistics, and achievements.
 - Portable local save backups and opt-in installation guidance.
 - Main menu with separate Classic and Adventure resume options.
 - Adventure gem, score, line, combo, and all-clear objectives, with sequential world unlocks.
@@ -147,6 +147,15 @@ See the [Classic parity and scoring audit](CLASSIC_PARITY.md) for evidence, the 
 
 See the [Phase 7 guide](PHASE_7.md) for rules, backup format, screenshots, and the release-candidate checklist.
 
+### Phase 8 — Visual release candidate
+
+- [x] Alan Studio and AlanBlox startup and a mode-first menu
+- [x] Twenty-four distinct surfaces and a separate cosmetic shuffle
+- [x] Save recovery, offline upgrade checks, and visual preview tools
+- [x] Portable backups and release verification
+
+See [release candidate 0.8.0-rc.1](RELEASE_CANDIDATE.md) for the visual review, screenshots, deployment steps, and device checklist.
+
 ### Release testing
 
 - [ ] GitHub Pages deployment
@@ -209,8 +218,7 @@ python3 -m http.server 8000 --bind 127.0.0.1
 Run the automated tests with Node.js 20 or newer. No dependency installation is needed.
 
 ```sh
-npm test
-node scripts/benchmark-hands.js v2
+npm run verify:release
 node scripts/simulate-generation.js v2
 node scripts/validate-adventure.js
 ```
@@ -242,7 +250,7 @@ AI development agents should refer to `AGENTS.md` for project-specific requireme
 
 ## Project Status
 
-Classic, the 48-level Adventure campaign, and Daily Challenge are playable in release candidate 0.7.0. See the [Phase 7 guide](PHASE_7.md) for verification and open device testing.
+Classic, the 48-level Adventure campaign, and Daily Challenge are playable in release candidate 0.8.0-rc.1. See the [release notes](RELEASE_CANDIDATE.md) for verification and open device testing.
 
 ## Disclaimer
 

@@ -43,3 +43,5 @@
 @media (prefers-reduced-motion: reduce) {
   .launch[data-stage] [data-brand-art] { animation: none; }
 }
+.launch { transition: opacity 140ms ease; }
+.launch[data-leaving] { opacity: 0; }

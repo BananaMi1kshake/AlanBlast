@@ -8,7 +8,7 @@ import { loadSettings, SETTINGS_KEY, APPEARANCE_MODES } from "./settings.js";
 import { isSavedGame, loadProgress, CLASSIC_KEY } from "./storage.js";
 import { THEMES, MATERIALS, PALETTES } from "./themes.js";
 
-export const APP_VERSION = "0.7.0";
+export const APP_VERSION = "0.8.0-rc.1";
 export const BACKUP_LIMIT = 2 * 1024 * 1024;
 export const BACKUP_NOTICE = "alanblox.backup-change";
 const FORMAT = "alanblox-backup";

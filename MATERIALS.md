@@ -39,3 +39,30 @@ In two full-board-clear traces under Chromium 4× CPU throttling, median frame i
 ## Material collection
 
 Phase 7 lets players discover materials through Adventure completions and Classic all-clears. The automatic, favorite-first, and fixed-favorite options apply to the next Classic run. Adventure uses each puzzle’s authored material. See the [Phase 7 discovery rules](PHASE_7.md#material-discovery-and-appearance).
+
+## Phase 8 library and discovery
+
+The original eight material IDs, world associations, discovery routes, and appearance settings still apply. The new surfaces are collectible cosmetics for Classic. Adventure campaign and Daily puzzle definitions keep their authored materials. All profiles share the same shape footprints and collision rules.
+
+| Material | Unlock condition | Surface |
+| --- | --- | --- |
+| Paper | Complete 1 Adventure level or place 40 Classic cells | Folded corners, crease faces and paper edges |
+| Denim | Clear 8 Classic lines | Diagonal twill and a contrasting seam |
+| Metal | Reach Classic combo 3 or complete 8 Adventure levels | Horizontal brushed grain and a specular band |
+| Marble | Complete 6 Adventure levels | Polished branching mineral veins |
+| Stained Glass | Win a Daily Challenge | Dark leading and colored translucent panes |
+| Plush | Complete 4 Adventure levels | Soft nap with a broad rounded highlight |
+| Sand | Clear two Classic lines together or complete 10 Adventure levels | Granular speckles and ripple lines |
+| Terrazzo | Score 500 in Classic or complete 14 Adventure levels | Irregular contrasting mineral chips |
+| Circuit | Win on 2 different Daily dates or reach Classic combo 6 | Thin illuminated traces and a chip |
+| Brick | Complete 12 Adventure levels | Staggered mortar lines and rough faces |
+| Clay | Complete 16 Adventure levels | Soft hand-formed edges and a fingerprint |
+| Holographic | Win on 3 Daily dates or complete 26 Adventure levels | Layered iridescent bands |
+| Honeycomb | Complete 20 Adventure levels | Hexagonal cell relief |
+| Galaxy | Complete 40 Adventure levels or score 5,000 in Classic | Nebula band and sharply defined stars |
+| Wicker | Complete 24 Adventure levels | Alternating interlaced fibers |
+| Glitter | Complete 32 Adventure levels or win on 5 Daily dates | Colored flecks and sharp reflective sparkles |
+
+Classic automatic and favorite-first runs start using a separate stored cosmetic shuffle after at least one expanded material is discovered. Its pool contains the original eight and expanded materials discovered at the start of that run. Every pool member appears before the cycle reshuffles, and the next appearance cannot repeat the current one. Existing active sessions retain the ordered original rotation. Fixed favorites stay fixed. All-clear discovery numbers for the original eight are still independent of the appearance equipped. Progression for the expanded set requires no further Classic all-clears.
+
+The dedicated textures are cached at installation. Holographic uses CSS. Each profile supplies a static surface, particle silhouette, impact and rebound, dissolve, and finishing wave. The material styles apply to the board, tray, drag ghost, preview, effects, and collection. Browser captures use an identical board and Ocean palette for comparison. [Comparison sheet](docs/phase-8-screenshots/material-contact.webp) · [Individual worlds](docs/phase-8-screenshots/material-worlds/)

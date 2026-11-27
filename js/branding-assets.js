@@ -1,7 +1,6 @@
-// Paths are relative to the application root. Originals belong in assets/branding/
-// and runtime copies must also be listed in the service worker shell.
+// Runtime copies are derived from the source PNGs under assets/branding.
 export const BRANDING = Object.freeze({
-  studioLogo: null,
-  gameLogo: null,
-  splashBackground: null,
+  studioLogo: "./assets/branding/runtime/studio-logo.webp",
+  gameLogo: "./assets/branding/runtime/game-logo.webp",
+  splashBackground: "./assets/branding/runtime/splash-background.webp",
 });

@@ -1,3 +1,4 @@
+import { previewStorage } from "./sandbox.js";
 import { loadAdventure } from "./adventure-storage.js";
 import { loadCampaign } from "./campaign.js";
 import { ACHIEVEMENTS, adventureProgress, MATERIAL_ORDER, restoreDiscoveries, STAT_NAMES } from "./profile.js";
@@ -9,13 +10,14 @@ import { MATERIALS, WORLDS } from "./themes.js";
 import { paintWorld } from "./world-art.js";
 
 const $ = id => document.getElementById(id);
-const settings = loadSettings();
+const preview = previewStorage();
+const settings = loadSettings(preview);
 const type = new URLSearchParams(location.search).get("view");
 const view = ["stats", "achievements"].includes(type) ? type : "materials";
 const fragment = $("progress-content");
 const number = new Intl.NumberFormat();
 createMotionPreference(settings);
-registerOffline();
+if (!preview) registerOffline();
 
 function node(tag, text, className) {
   const result = document.createElement(tag);
@@ -39,7 +41,7 @@ function materials(profile) {
     settings.materialMode = mode.value;
     settings.favoriteMaterial = favorite.value;
     favorite.disabled = mode.value === "automatic";
-    saveSettings(settings);
+    saveSettings(settings, preview);
   };
   for (const [index, id] of MATERIAL_ORDER.entries()) {
     const extra = EXPANDED_MATERIALS[id];
@@ -61,7 +63,7 @@ function statistics(profile, levels, completed) {
   $("progress-title").textContent = "Personal statistics";
   $("progress-description").textContent = "Lifetime counters began in Phase 7. Earlier best scores and level completions are included.";
   const panels = {
-    Classic: { "Personal best": loadProgress().highScore, "Materials discovered": profile.materials.length },
+    Classic: { "Personal best": loadProgress(preview).highScore, "Materials discovered": profile.materials.length },
     Adventure: { "Levels completed": completed.length, "Worlds completed": adventureProgress(levels, completed).worlds.length },
     "Daily Challenge": {},
   };
@@ -97,8 +99,8 @@ document.querySelector(`[data-tab="${view}"]`).setAttribute("aria-current", "pag
 addEventListener("pageshow", async () => {
   try {
     const levels = await loadCampaign();
-    const { completed } = loadAdventure(levels);
-    const profile = restoreDiscoveries(levels, completed);
+    const { completed } = loadAdventure(levels, preview);
+    const profile = restoreDiscoveries(levels, completed, preview);
     fragment.replaceChildren();
     if (view === "materials") materials(profile);
     else if (view === "achievements") achievements(profile);

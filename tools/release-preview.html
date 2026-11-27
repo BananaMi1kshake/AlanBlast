@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AlanBlox release preview</title>
+  <link rel="stylesheet" href="../themes.css">
+  <link rel="stylesheet" href="../materials.css">
+  <link rel="stylesheet" href="../interface.css">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../design.css">
+  <link rel="stylesheet" href="./release-preview.css">
+  <script type="module" src="./release-preview.js"></script>
+</head>
+<body>
+  <main>
+    <h1>AlanBlox release preview</h1>
+    <p id="preview-message">Serve on localhost to open the isolated preview.</p>
+    <div id="preview-controls" hidden>
+      <div class="controls">
+        <label>Screen <select id="screen"></select></label>
+        <label>Viewport <select id="viewport"><option value="390,844">390 × 844</option>
+          <option value="320,568">320 × 568</option><option value="430,932">430 × 932</option>
+          <option value="768,1024">768 × 1024</option><option value="960,780">960 × 780</option></select></label>
+        <label>Material <select id="material"></select></label>
+        <label>Splash duration (ms) <input id="duration" type="number" min="100" max="2000" value="650"></label>
+        <button type="button" id="run-preview">Refresh preview</button>
+        <button type="button" id="play-clear">Play all-clear</button>
+      </div>
+      <iframe id="viewer" title="Isolated AlanBlox preview"></iframe>
+      <h2>Material comparison</h2>
+      <p>Shared palette and identical cells for all surfaces.</p>
+      <div id="material-grid"></div>
+    </div>
+  </main>
+</body>
+</html>

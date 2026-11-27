@@ -110,3 +110,20 @@ test("reset clears player records, retains sound and accessibility settings, and
   assert.equal(tutorialStatus(store), null);
   assert.equal(store.getItem("unrelated"), "keep");
 });
+
+test("a large Daily archive fits the existing portable backup limit and round-trips", () => {
+  const store = memoryStorage();
+  const days = {};
+  const epoch = Date.parse("2026-11-01");
+  for (let i = 0; i < 2048; i++) {
+    const day = new Date(epoch + i * 86400000).toISOString().slice(0, 10);
+    const best = daily[i % daily.length].validation.witness;
+    days[day] = { history: best, best };
+  }
+  store.setItem("alanblox.daily.v1", JSON.stringify({ version: 1, challengeVersion: 1, days }));
+  const backup = exportFrom(store);
+  assert.ok(Buffer.byteLength(backup) < BACKUP_LIMIT);
+  const copy = memoryStorage();
+  prepareImport(backup, levels, daily, copy)();
+  assert.deepEqual(JSON.parse(copy.getItem("alanblox.daily.v1")).days, days);
+});

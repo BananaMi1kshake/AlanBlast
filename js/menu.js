@@ -1,3 +1,4 @@
+import { previewStorage } from "./sandbox.js";
 import { applyBranding, presentStartup } from "./startup.js";
 import { bindSaveControls } from "./save-controls.js";
 import { saveTutorial, tutorialStatus } from "./challenges.js";
@@ -17,29 +18,35 @@ import { WORLDS } from "./themes.js";
 import { paintWorld } from "./world-art.js";
 
 const $ = id => document.getElementById(id);
-const settings = loadSettings();
+const preview = previewStorage();
+const settings = loadSettings(preview);
 const preference = createMotionPreference(settings);
 const audio = createAudio();
 const haptics = createHaptics();
 const feedback = createFeedback(audio, haptics, settings);
 bindFeedbackLifecycle(audio, haptics);
 bindSettings(settings, preference, {
-  onOpen() {}, onRestart() {}, vibrationSupported: haptics.supported,
+  onOpen() {}, onRestart() {}, storage: preview, vibrationSupported: haptics.supported,
   onChange: event => { feedback.configure(); if (event.isTrusted) audio.activate(); },
   onInteraction: () => feedback.cue("ui"),
 });
-registerOffline();
-bindInstall();
-bindSaveControls();
+if (!preview) registerOffline();
+if (!preview) {
+  bindInstall();
+  bindSaveControls();
+} else {
+  $("install-panel").hidden = true;
+  $("save-controls").hidden = true;
+}
 
 $("skip-tutorial").addEventListener("click", () => {
-  saveTutorial("skipped");
+  saveTutorial("skipped", preview);
   $("tutorial-invitation").hidden = true;
 });
 
 async function render() {
-  $("tutorial-invitation").hidden = tutorialStatus() !== null;
-  const classic = loadProgress();
+  $("tutorial-invitation").hidden = tutorialStatus(preview) !== null;
+  const classic = loadProgress(preview);
   $("classic-best").textContent = classic.highScore;
   const ended = classic.game && isGameOver(classic.game);
   const classicLink = $("classic-link");
@@ -48,8 +55,8 @@ async function render() {
   paintWorld($("classic-art"), WORLDS.mint, ["sky", "mint", "sun", "mint"]);
   try {
     const levels = await loadCampaign();
-    const { completed, current } = loadAdventure(levels);
-    restoreDiscoveries(levels, completed);
+    const { completed, current } = loadAdventure(levels, preview);
+    restoreDiscoveries(levels, completed, preview);
     const frontier = levels.find(level => !completed.includes(level.id)) ?? levels.at(-1);
     paintWorld($("adventure-art"), WORLDS[frontier.world]);
     $("adventure-progress").textContent = `${completed.length} of ${levels.length} levels complete`;
@@ -65,5 +72,5 @@ async function render() {
 }
 applyBranding(document.documentElement);
 const ready = render();
-presentStartup(ready);
+if (!preview) presentStartup(ready);
 addEventListener("pageshow", event => { if (event.persisted) render(); });

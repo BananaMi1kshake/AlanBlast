@@ -75,6 +75,7 @@ export function createAdventureView(session, levels, restart, sandbox, mode) {
     overlay.hidden = run.status === "playing";
     if (overlay.hidden) return;
     const won = run.status === "won";
+    overlay.dataset.outcome = won ? "won" : "failed";
     $("completion-tag").hidden = !won;
     $("completion-tag").textContent = daily ? "DAILY CHALLENGE COMPLETE" : tutorial ? "LESSON COMPLETE" : "LEVEL COMPLETE";
     title.textContent = won ? level.name : "Level failed";

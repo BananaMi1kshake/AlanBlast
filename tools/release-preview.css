@@ -1,0 +1,12 @@
+html { padding: 14px; }
+main { max-width: 1040px; margin: auto; }
+h1 { font-size: 1.65rem; }
+.controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; margin: 14px 0; }
+.controls label { display: grid; gap: 3px; }
+.controls :is(button,input,select) { padding: 6px; min-height: 34px; max-width: 210px; }
+#viewer { display: block; border: 1px solid #a3b9f37d; background: #111936; }
+#material-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(154px,1fr)); gap: 12px; }
+#material-grid figure { margin: 0; padding: 10px; background: #152857; border-radius: 14px; }
+#material-grid figcaption { margin-bottom: 6px; font-weight: 800; }
+.swatches { display: grid; gap: 4px; grid-template-columns: repeat(4,1fr); }
+.swatches .block { aspect-ratio: 1; }

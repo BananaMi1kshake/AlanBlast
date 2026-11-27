@@ -1,3 +1,4 @@
+import { previewStorage } from "./sandbox.js";
 import { challengeUrl, createDailySession, currentDay, dailyDate, FIRST_DAY, loadChallenges } from "./challenges.js";
 import { registerOffline } from "./pwa.js";
 import { createMotionPreference, loadSettings } from "./settings.js";
@@ -5,12 +6,13 @@ import { WORLDS } from "./themes.js";
 import { paintWorld } from "./world-art.js";
 
 const $ = id => document.getElementById(id);
+const preview = previewStorage();
 const input = $("challenge-date");
 const before = $("earlier-day");
 const after = $("later-day");
 const link = $("daily-play");
-createMotionPreference(loadSettings());
-registerOffline();
+createMotionPreference(loadSettings(preview));
+if (!preview) registerOffline();
 
 try {
   const levels = await loadChallenges("daily");
@@ -21,7 +23,7 @@ try {
   function render() {
     input.max = currentDay();
     const date = input.value;
-    const session = date <= input.max ? createDailySession(levels, date) : null;
+    const session = date <= input.max ? createDailySession(levels, date, preview) : null;
     before.disabled = !session || date === input.min;
     after.disabled = !session || date === input.max;
     link.hidden = !session;

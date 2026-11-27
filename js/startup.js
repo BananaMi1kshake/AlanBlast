@@ -45,6 +45,7 @@ export async function presentStartup(ready, { assets = BRANDING, timing = LAUNCH
   let complete = false;
   let timeouts = [];
   const wait = delay => new Promise(resolve => {
+    if (signal.aborted) { resolve(); return; }
     const timer = setTimeout(resolve, Math.max(0, delay));
     timeouts.push(timer);
     signal.addEventListener("abort", () => { clearTimeout(timer); resolve(); }, { once: true });
@@ -70,7 +71,10 @@ export async function presentStartup(ready, { assets = BRANDING, timing = LAUNCH
     }
     if (signal.aborted) return;
     launch.dataset.stage = "game";
-    await wait(timing.game);
+    const fade = Math.min(140, timing.game);
+    await wait(timing.game - fade);
+    if (complete && !signal.aborted) launch.setAttribute("data-leaving", "");
+    await wait(fade);
     if (!complete && !signal.aborted) {
       launch.setAttribute("data-loading", "");
       await Promise.race([ok, wait(timing.limit - (performance.now() - started))]);
@@ -81,6 +85,7 @@ export async function presentStartup(ready, { assets = BRANDING, timing = LAUNCH
     launch.hidden = true;
     content.inert = false;
     launch.removeAttribute("data-loading");
+    launch.removeAttribute("data-leaving");
     root.removeAttribute("data-launching");
   }
 }
