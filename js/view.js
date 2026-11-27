@@ -18,7 +18,7 @@ export function makePiece(shape) {
   return piece;
 }
 
-export function createView() {
+export function createView(motion) {
   const board = document.querySelector("#board");
   const tray = document.querySelector("#tray");
   const slots = [...tray.querySelectorAll("button")];
@@ -26,10 +26,13 @@ export function createView() {
   const best = document.querySelector("#high-score");
   const combo = document.querySelector("#combo");
   const comboWindow = [...document.querySelector("#combo-window").children];
-  const controls = document.querySelector("#controls");
   const clearNotice = document.querySelector("#clear-notice");
   const overlay = document.querySelector("#game-over");
   const overMessage = document.querySelector("#game-over-message");
+  const finalScore = document.querySelector("#final-score");
+  const finalBest = document.querySelector("#final-best");
+  const recordBadge = document.querySelector("#record-badge");
+  const themeColor = document.querySelector('meta[name="theme-color"]');
   const status = document.querySelector("#status");
   const cells = [];
   for (let y = 0; y < SIZE; y++) {
@@ -48,7 +51,6 @@ export function createView() {
     board.append(row);
   }
 
-  const motion = matchMedia("(prefers-reduced-motion: reduce)");
   const effects = createEffects(document.querySelector("#effects"), cells, motion);
   document.documentElement.style.setProperty("--theme-duration", `${MOTION.theme}ms`);
   const scheduler = { request: callback => requestAnimationFrame(callback), cancel: id => cancelAnimationFrame(id) };
@@ -147,11 +149,18 @@ export function createView() {
     combo.textContent = game.combo;
     combo.setAttribute("aria-label", `${game.combo}, ${game.comboWindow} placements left in combo window`);
     comboWindow.forEach((pip, index) => pip.classList.toggle("active", index < game.comboWindow));
-    document.documentElement.dataset.theme = game.theme;
-    controls.hidden = fullBoardClear;
+    if (game.theme !== previous?.theme) {
+      document.documentElement.dataset.theme = game.theme;
+      themeColor.content = getComputedStyle(document.documentElement).getPropertyValue("--chrome").trim();
+    }
     clearNotice.hidden = !fullBoardClear;
     clearNotice.textContent = fullBoardClear ? `Full-board clear! +${bonus} bonus` : "";
     overlay.hidden = !gameOver;
+    if (gameOver) {
+      finalScore.textContent = game.score;
+      finalBest.textContent = highScore;
+      recordBadge.hidden = game.record !== true;
+    }
     overMessage.textContent = game.exhausted ? "No solvable hand exists." : "No remaining piece fits.";
     board.inert = gameOver;
     previous = game;

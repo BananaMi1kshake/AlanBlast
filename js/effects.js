@@ -116,13 +116,13 @@ export function createEffects(layer, cells, motion) {
         ? Array.from({ length: SIZE ** 2 }, (_, index) => index)
         : result.cleared;
       const burstColors = result.fullBoardClear
-        ? ["mint", "sky", "sun", "coral", "lilac"].map(key => palette.getPropertyValue(`--${key}`).trim())
+        ? ["mint", "sky", "sun", "coral", "lilac", "particle"].map(key => palette.getPropertyValue(`--${key}`).trim())
         : result.cleared.map(colorAt);
       const count = result.fullBoardClear ? 48 : Math.min(36, 8 + lines * 7 + Math.min(8, result.game.combo));
       burst(sources, count, burstColors, result.fullBoardClear ? MOTION.allClear * .82 : duration + 140,
         result.fullBoardClear);
     } else {
-      burst(parts, Math.min(8, parts.length + 3), [colorAt(parts[0])], MOTION.placement + 110);
+      burst(parts, Math.min(8, parts.length + 3), [colorAt(parts[0]), palette.getPropertyValue("--particle").trim()], MOTION.placement + 110);
     }
 
     // Only the current labels remain onscreen. Board effects may overlap independently.

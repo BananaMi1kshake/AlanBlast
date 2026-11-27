@@ -1,8 +1,10 @@
 const prefix = `alanblox:${self.registration.scope}:shell-`;
-const cacheName = `${prefix}5`;
+const cacheName = `${prefix}6`;
 const shell = [
   "./index.html",
   "./styles.css",
+  "./themes.css",
+  "./interface.css",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
@@ -21,6 +23,7 @@ const shell = [
   "./js/input.js",
   "./js/view.js",
   "./js/storage.js",
+  "./js/settings.js",
 ];
 const shellUrls = new Set(shell.map(path => new URL(path, self.registration.scope).href));
 const home = self.registration.scope;

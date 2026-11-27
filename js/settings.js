@@ -1,0 +1,121 @@
+import { MOTION } from "./motion.js";
+
+const KEY = "alanblox.settings.v1";
+const defaults = { sound: true, vibration: true, reducedMotion: false };
+
+export function loadSettings(storage) {
+  const settings = { ...defaults };
+  try {
+    const saved = JSON.parse((storage ?? localStorage).getItem(KEY));
+    for (const key of Object.keys(settings)) {
+      if (typeof saved?.[key] === "boolean") settings[key] = saved[key];
+    }
+  } catch {
+    // Private browsing and storage failures leave defaults usable.
+  }
+  return settings;
+}
+
+export function saveSettings(settings, storage) {
+  try {
+    (storage ?? localStorage).setItem(KEY, JSON.stringify(settings));
+  } catch {
+    // Preferences still apply for the current page.
+  }
+}
+
+export function createMotionPreference(settings) {
+  const system = matchMedia("(prefers-reduced-motion: reduce)");
+  const motion = new EventTarget();
+  function sync() {
+    const matches = settings.reducedMotion || system.matches;
+    if (motion.matches === matches) return;
+    motion.matches = matches;
+    document.documentElement.toggleAttribute("data-reduced-motion", matches);
+    motion.dispatchEvent(new Event("change"));
+  }
+  system.addEventListener("change", sync);
+  sync();
+  return { motion, sync };
+}
+
+export function bindSettings(settings, preference, { onOpen, onRestart }) {
+  const dialog = document.querySelector("#settings");
+  const opener = document.querySelector("#open-settings");
+  const panel = document.querySelector("#settings-panel");
+  const confirmation = document.querySelector("#restart-confirm");
+  const resume = document.querySelector("#resume");
+  const requestRestart = document.querySelector("#request-restart");
+  const confirmRestart = document.querySelector("#confirm-restart");
+  let closing;
+
+  function confirm(visible) {
+    panel.hidden = visible;
+    confirmation.hidden = !visible;
+    (visible ? confirmRestart : requestRestart).focus();
+  }
+
+  function finish() {
+    closing?.cancel();
+    closing = null;
+    dialog.close();
+    dialog.classList.remove("closing");
+  }
+
+  function close() {
+    if (closing) return;
+    if (preference.motion.matches) {
+      finish();
+      return;
+    }
+    dialog.classList.add("closing");
+    dialog.getAnimations().forEach(animation => animation.cancel());
+    closing = dialog.animate([
+      { opacity: 1, transform: "translateY(0) scale(1)" },
+      { opacity: 0, transform: "translateY(10px) scale(.985)" },
+    ], { duration: MOTION.settingsClose, easing: "ease-in", fill: "forwards" });
+    closing.onfinish = finish;
+  }
+
+  opener.addEventListener("click", () => {
+    onOpen();
+    panel.hidden = false;
+    confirmation.hidden = true;
+    dialog.showModal();
+    resume.focus();
+    if (!preference.motion.matches) {
+      dialog.animate([
+        { opacity: 0, transform: "translateY(12px) scale(.985)" },
+        { opacity: 1, transform: "translateY(0) scale(1)" },
+      ], { duration: MOTION.settingsOpen, easing: "ease-out" });
+    }
+  });
+
+  resume.addEventListener("click", close);
+  dialog.addEventListener("cancel", event => {
+    event.preventDefault();
+    if (!confirmation.hidden) confirm(false);
+    else close();
+  });
+  requestRestart.addEventListener("click", () => confirm(true));
+  document.querySelector("#cancel-restart").addEventListener("click", () => confirm(false));
+  confirmRestart.addEventListener("click", () => {
+    finish();
+    onRestart();
+  });
+  preference.motion.addEventListener("change", () => {
+    if (!preference.motion.matches) return;
+    if (closing) finish();
+    else dialog.getAnimations().forEach(animation => animation.cancel());
+  });
+
+  for (const input of dialog.querySelectorAll("[data-preference]")) {
+    const key = input.dataset.preference;
+    input.checked = settings[key];
+    input.addEventListener("change", () => {
+      settings[key] = input.checked;
+      saveSettings(settings);
+      preference.sync();
+    });
+  }
+}

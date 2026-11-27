@@ -2,11 +2,14 @@ import { createGame, isGameOver, needsHand, placePiece } from "./game.js";
 import { requestHand } from "./hand-request.js";
 import { bindInput } from "./input.js";
 import { loadProgress, saveProgress } from "./storage.js";
+import { bindSettings, createMotionPreference, loadSettings } from "./settings.js";
 import { createView } from "./view.js";
 
 const DEAL_TIMEOUT = 10000;
 const RETRY_TIMEOUT = 30000;
-const view = createView();
+const settings = loadSettings();
+const preference = createMotionPreference(settings);
+const view = createView(preference.motion);
 const playAgain = document.querySelector("#play-again");
 const pending = document.querySelector("#hand-pending");
 const retryHand = document.querySelector("#retry-hand");
@@ -22,6 +25,7 @@ const input = bindInput(view, () => game, (slot, x, y) => {
   input.reset();
   const record = result.game.score > highScore;
   game = result.game;
+  if (record) game.record = true;
   lastMove = { result, slot, x, y };
   const over = update();
   const lines = result.rows.length + result.columns.length;
@@ -82,7 +86,7 @@ function restart() {
 }
 
 retryHand.addEventListener("click", () => deal(RETRY_TIMEOUT, true));
-document.querySelector("#restart").addEventListener("click", restart);
+bindSettings(settings, preference, { onOpen: input.reset, onRestart: restart });
 playAgain.addEventListener("click", restart);
 update();
 if (needsHand(game)) deal();
