@@ -118,13 +118,49 @@
   .play-page .game-over .result-actions { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
 }
 
-:root[data-mode="classic"][data-palette="mint"][data-material="classic"] .board-frame {
-  border-radius: 11px;
-  box-shadow: 0 3px 0 var(--board-edge);
+.game-tools { display: flex; align-items: center; gap: clamp(2px, 1vw, 6px); }
+.game-shell .personal-best {
+  color: var(--medal);
+  font-size: clamp(.95rem, 5vw, 1.38rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 850;
 }
-:root[data-mode="classic"] .personal-best { color: var(--medal); font-size: .9rem; }
-:root[data-mode="classic"] .personal-best svg { fill: currentColor; stroke-width: 0; width: 19px; }
-:root[data-mode="classic"] .current-score strong { color: #fff; text-shadow: 0 3px #1b438b; }
-:root[data-mode="classic"] .combo-card { font-size: .82rem; }
+.game-shell .personal-best svg { fill: currentColor; stroke-width: 0; width: 23px; }
+.game-shell .game-tools :is(a, button) { color: var(--ink); }
+.game-shell .game-tools a { text-decoration: none; }
+:root[data-mode="classic"] .current-score strong { color: #fff7e7; text-shadow: 0 3px #39271c83; }
+:root[data-mode="classic"] .combo-card { font-size: .8rem; color: var(--muted); }
 :root[data-mode="classic"] .combo-card strong { font-weight: 900; }
-:root[data-mode="classic"] .tray button { background-color: transparent; }
+:root[data-mode="classic"] .tray button.pressed { background: transparent; box-shadow: none; }
+:root[data-mode="classic"] .tray button.pressed .piece { scale: .95; }
+
+:root[data-mode="classic"][data-palette="mint"][data-material="classic"] .board-frame {
+  --board-padding: clamp(5px, 1.8vw, 9px);
+  --board-gap: clamp(1px, .55vw, 2px);
+  border-radius: 13px;
+  background: var(--timber-surface);
+  box-shadow: 0 4px #593725, 0 9px 18px #34211961, inset 0 0 0 1px #ffe2b899;
+}
+:root[data-mode="classic"][data-palette="mint"][data-material="classic"] .board {
+  border-radius: 7px;
+  background: var(--board);
+  outline: 1px solid #543323;
+}
+:root[data-mode="classic"][data-palette="mint"][data-material="classic"] {
+  --corner: 5px;
+  --facet: linear-gradient(155deg, #fff5 0, #fff0 39%, #361e3040 100%);
+  --edge: inset 0 2px #fff5, inset -2px -3px #46322c52;
+  --well: inset 0 1px #2c1a167d;
+}
+:root[data-mode="classic"][data-palette="mint"][data-material="classic"] .cell:not([data-color]) {
+  border-radius: 3px;
+}
+
+@media (orientation: portrait) and (min-height: 640px) {
+  :root[data-mode="classic"] .game-shell {
+    --safe-top: max(clamp(14px, 4dvh, 36px), env(safe-area-inset-top, 0px));
+  }
+  :root[data-mode="classic"] .game-shell .scoreboard { height: clamp(86px, 12dvh, 106px); }
+  :root[data-mode="classic"] .game-shell .current-score { height: 63px; --score-font: clamp(46px, 13vw, 68px); }
+  :root[data-mode="classic"] .game-shell .pieces { margin-block-end: clamp(0px, calc((100dvh - 620px) * .27), 64px); }
+}

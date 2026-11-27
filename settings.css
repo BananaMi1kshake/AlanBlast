@@ -1,0 +1,114 @@
+.app-viewport #settings {
+  width: min(calc(100% - 28px - env(safe-area-inset-left) - env(safe-area-inset-right)), 380px);
+  padding: 0 clamp(9px, 3vw, 15px) clamp(9px, 3vw, 15px);
+  border: 1px solid #ffe1a694;
+  border-radius: 21px;
+  background: var(--timber-surface);
+  color: var(--timber-ink);
+  box-shadow: 0 5px var(--timber-edge), 0 18px 48px #20120988;
+  scrollbar-width: thin;
+  scrollbar-color: #925d40 transparent;
+}
+#settings::backdrop { background: #21160dc4; }
+#settings .settings-heading {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: center;
+  min-height: 53px;
+  background: linear-gradient(135deg, #f6c98d, #edb87d);
+  border-radius: 0 0 10px 10px;
+}
+#settings-title {
+  grid-column: 2;
+  margin: 0;
+  text-align: center;
+  font-size: clamp(22px, 6vw, 29px);
+  text-shadow: none;
+  color: var(--timber-ink);
+}
+#settings .settings-heading .icon-button { grid-column: 3; color: var(--timber-ink); }
+#settings :is(#settings-panel, #restart-confirm) {
+  background: linear-gradient(160deg, #734938, var(--timber-inset));
+  border: 1px solid #663727;
+  border-radius: 13px;
+  padding: 3px 11px 11px;
+  color: #fff6e7;
+  box-shadow: inset 0 2px 4px #381b1675, 0 1px #fff7;
+}
+#settings :is(.preferences, #settings-panel .secondary) { margin: 0; }
+#settings .setting-row {
+  display: grid;
+  grid-template-columns: 21px minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 47px;
+  gap: 9px;
+  border-bottom: 1px solid #341c176e;
+  font-size: .91rem;
+  font-weight: 720;
+}
+.setting-symbol {
+  width: 20px;
+  fill: none;
+  stroke: #ffe4b9;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+#settings p, #settings small, #settings output { color: #ffead1; }
+#settings .setting-row small { font-size: .7rem; line-height: 1.25; }
+#settings .setting-row small:empty { display: none; }
+#settings .volume-control input { width: clamp(86px, 29vw, 130px); accent-color: #9ae6c4; }
+#settings .preferences [role="switch"] {
+  appearance: none;
+  position: relative;
+  width: 55px;
+  height: 32px;
+  margin: 0;
+  border: 1px solid #ffffff40;
+  border-radius: 18px;
+  background: #38211b;
+  cursor: pointer;
+}
+#settings .preferences [role="switch"]::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff9eb;
+  box-shadow: 0 1px 3px #271b18a6;
+}
+#settings .preferences [role="switch"]:checked { background: #237960; }
+#settings .preferences [role="switch"]:checked::before { left: 26px; }
+#settings .preferences [role="switch"]:disabled { opacity: .54; cursor: default; }
+#settings .setting-action {
+  display: inline-grid;
+  place-items: center;
+  min-height: 36px;
+  min-width: 69px;
+  padding: 4px 9px;
+  border: 1px solid #fff5;
+  border-radius: 9px;
+  background: #146a57;
+  box-shadow: 0 2px #33271d, inset 0 1px #fff3;
+  color: #fff9ed;
+  font: inherit;
+  text-decoration: none;
+}
+#settings .setting-action.alt { background: #255477; }
+#settings .setting-action:active { translate: 0 1px; }
+#settings :is(#install-panel, .menu-settings-link) { margin: 8px 0; }
+#settings :is(#settings-panel button.secondary, .menu-settings-link, .backup-input) {
+  color: #fff6e7;
+  background: #ffffff14;
+  border-color: #f1ca9b59;
+  box-shadow: none;
+}
+#settings .menu-settings-link { min-height: 39px; }
+#settings #restart-confirm { padding: 13px; }
+#settings #confirm-restart { background: #a2e2bd; color: #2b291e; }

@@ -137,25 +137,26 @@
   --clear-glow: #fff;
 }
 
-/* Default Classic only. Adventure levels and rotating worlds keep their palettes. */
+/* Default Classic. Adventure and alternate materials keep their authored palettes. */
 :root[data-mode="classic"][data-palette="mint"][data-material="classic"] {
-  --chrome: #2857b0;
-  --scene-top: #3268c3;
-  --scene-bottom: #2857b0;
-  --scene-glow: transparent;
-  --board: #122d5e;
-  --cell: #25487d;
-  --board-edge: #102652;
-  --ink: #fff;
-  --muted: #dce9ff;
-  --accent: #9ee5ff;
-  --medal: #ffdc61;
-  --mint: #41dc62;
-  --sky: #33bef5;
-  --sun: #ffbd32;
-  --coral: #fa5565;
-  --lilac: #ad75f8;
-  --particle: #aff4ff;
-  --combo-glow: #ffdf74;
-  --clear-glow: #daefff;
+  --chrome: #88552f;
+  --scene-top: #b0804d;
+  --scene-bottom: #79502e;
+  --scene-glow: #d8a96f;
+  --world-detail: repeating-linear-gradient(88deg, #3922140b 0 1px, transparent 2px 6px, #f3c78e14 7px 9px, transparent 10px 18px);
+  --board: #3c251e;
+  --cell: #563629;
+  --board-edge: #42271d;
+  --ink: #fff6e5;
+  --muted: #fff1db;
+  --accent: #aaf3d0;
+  --medal: var(--crown-gold);
+  --mint: #58c674;
+  --sky: #30afe3;
+  --sun: #ffbf42;
+  --coral: #f36754;
+  --lilac: #bc81ec;
+  --particle: #b1f0d8;
+  --combo-glow: #ffe1a1;
+  --clear-glow: #fff0bd;
 }
