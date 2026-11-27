@@ -1,3 +1,4 @@
+import { validRotation } from "./material-rotation.js";
 import { HAND_SIZE, SHAPES, SIZE } from "./game.js";
 import { RULES } from "./scoring.js";
 import { DEFAULT_THEME, THEMES, visualProfile } from "./themes.js";
@@ -36,12 +37,14 @@ export function loadProgress(storage) {
         ? comboWindow : RULES.comboWindow) : 0;
       game = {
         ...saved.game,
+
         combo: window ? combo : 0,
         comboWindow: window,
         exhausted: exhausted === true && hand.every(id => id === null),
         theme: THEMES.includes(theme) ? theme : DEFAULT_THEME,
         material: visualProfile(saved.game).material,
       };
+      if (!validRotation(game.rotation)) delete game.rotation;
     }
     const highScore = isScore(saved?.highScore) ? saved.highScore : 0;
     return { game, highScore: Math.max(highScore, game?.score ?? 0) };

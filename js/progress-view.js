@@ -4,6 +4,7 @@ import { ACHIEVEMENTS, adventureProgress, MATERIAL_ORDER, restoreDiscoveries, ST
 import { registerOffline } from "./pwa.js";
 import { createMotionPreference, loadSettings, saveSettings } from "./settings.js";
 import { loadProgress } from "./storage.js";
+import { EXPANDED_MATERIALS } from "./material-library.js";
 import { MATERIALS, WORLDS } from "./themes.js";
 import { paintWorld } from "./world-art.js";
 
@@ -41,7 +42,8 @@ function materials(profile) {
     saveSettings(settings);
   };
   for (const [index, id] of MATERIAL_ORDER.entries()) {
-    const world = Object.values(WORLDS).find(entry => entry.material === id);
+    const extra = EXPANDED_MATERIALS[id];
+    const world = extra ? { ...WORLDS[extra.world], material: id } : Object.values(WORLDS).find(entry => entry.material === id);
     const card = node("section", "", "world-card collection-card");
     const art = node("div", "", "world-art");
     art.setAttribute("aria-hidden", "true");
@@ -49,7 +51,7 @@ function materials(profile) {
     const details = node("div");
     const status = profile.materials.includes(id) ? "Discovered" : "Undiscovered";
     details.append(node("h2", MATERIALS[id].name), node("strong", status),
-      node("p", index ? `Complete an Adventure level in ${world.name}, or earn Classic all-clear number ${index}.` : "Available from the start."));
+      node("p", extra?.requirement ?? (index ? `Complete an Adventure level in ${world.name}, or earn Classic all-clear number ${index}.` : "Available from the start.")));
     card.append(art, details);
     fragment.append(card);
   }

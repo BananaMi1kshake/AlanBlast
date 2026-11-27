@@ -68,3 +68,14 @@ dialog h2, .game-over h2 { font-weight: var(--type-heavy); text-shadow: var(--di
 @media (prefers-reduced-motion: reduce) {
   :root:not([data-reduced-motion]) .mode-shell { animation: none; }
 }
+
+.fx-banner.all-clear .fx-title { letter-spacing: .025em; text-shadow: 0 3px #291e68, 0 0 15px var(--clear-glow); }
+.fx-material {
+  margin-top: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #111e56dc;
+  border: 1px solid #d8f5ff8c;
+  color: #e8f9ff;
+  font: 800 .78rem var(--font-display);
+}

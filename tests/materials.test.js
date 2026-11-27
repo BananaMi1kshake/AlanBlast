@@ -32,7 +32,8 @@ test("surface styles provide fallback paint and local textures are in the offlin
   assert.match(styles, /background: var\(--grain\), var\(--facet\), var\(--block\)/);
   assert.ok(worker.includes("./materials.css"));
   const assets = [...css.matchAll(/url\("([^"]+)"\)/g)].map(match => match[1]);
-  assert.equal(assets.length, 4);
+  assert.equal(assets.length, 19);
+  assert.equal(Object.keys(MATERIALS).length, 24);
   for (const asset of assets) {
     assert.match(asset, /^\.\/assets\/materials\//);
     assert.ok(worker.includes(asset));

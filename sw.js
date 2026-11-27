@@ -60,6 +60,8 @@ const shell = [
   "./js/hand-worker.js",
   "./js/scoring.js",
   "./js/themes.js",
+  "./js/material-library.js",
+  "./js/material-rotation.js",
   "./js/input.js",
   "./js/view.js",
   "./js/storage.js",
@@ -70,6 +72,21 @@ const textures = [
   "./assets/materials/wood.svg",
   "./assets/materials/ice.svg",
   "./assets/materials/wafer.svg",
+  "./assets/materials/paper.svg",
+  "./assets/materials/denim.svg",
+  "./assets/materials/metal.svg",
+  "./assets/materials/marble.svg",
+  "./assets/materials/stained-glass.svg",
+  "./assets/materials/plush.svg",
+  "./assets/materials/sand.svg",
+  "./assets/materials/terrazzo.svg",
+  "./assets/materials/circuit.svg",
+  "./assets/materials/brick.svg",
+  "./assets/materials/clay.svg",
+  "./assets/materials/honeycomb.svg",
+  "./assets/materials/galaxy.svg",
+  "./assets/materials/wicker.svg",
+  "./assets/materials/glitter.svg",
 ];
 const shellUrls = new Set([...shell, ...textures].map(path => new URL(path, self.registration.scope).href));
 const home = self.registration.scope;
@@ -101,13 +118,8 @@ async function cacheCustomSounds(cache) {
 self.addEventListener("install", event => {
   event.waitUntil((async () => {
     const cache = await caches.open(cacheName);
-    await cache.addAll(shell.map(path => new Request(new URL(path, home), { cache: "reload" })));
-    await Promise.all([
-      cacheCustomSounds(cache),
-      ...textures.map(path => cache.add(new Request(new URL(path, home), { cache: "reload" })).catch(() => {
-        // The CSS surface remains visible if an optional overlay is missing.
-      })),
-    ]);
+    await cache.addAll([...shell, ...textures].map(path => new Request(new URL(path, home), { cache: "reload" })));
+    await cacheCustomSounds(cache);
   })());
 });
 

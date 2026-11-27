@@ -10,7 +10,7 @@ import { bindFeedbackLifecycle, createFeedback } from "./feedback.js";
 import { requestHand } from "./hand-request.js";
 import { createHaptics } from "./haptics.js";
 import { bindInput } from "./input.js";
-import { adventureProgress, loadProfile, recordGameplay, restoreDiscoveries } from "./profile.js";
+import { adventureProgress, completedDailyDates, loadProfile, recordGameplay, restoreDiscoveries } from "./profile.js";
 import { SHAPES } from "./pieces.js";
 import { registerOffline } from "./pwa.js";
 import { isLoopback, memoryStorage } from "./sandbox.js";
@@ -49,7 +49,8 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
 
   function record(event) {
     if (sandbox || mode === "tutorial") return;
-    const context = mode === "adventure" && event.result?.won ? adventureProgress(levels, session.completed) : {};
+    const context = mode === "adventure" && event.result?.won ? adventureProgress(levels, session.completed)
+      : mode === "daily" && event.result?.won ? { dailyDates: completedDailyDates() } : {};
     const earned = recordGameplay(mode, event, context);
     if (!earned.length) return;
     clearTimeout(notificationTimer);
@@ -76,7 +77,7 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
       over, material, gems, won: result.won });
     const summary = lines ? `Cleared ${lines} ${lines === 1 ? "line" : "lines"}. ` : "";
     const combo = lines ? ` Combo ${game.combo}, ${game.combo} times line points.` : "";
-    const bonus = fullBoardClear ? ` Full-board clear! ${result.bonus} bonus points${theme === game.theme ? "." : " and a new world."}` : "";
+    const bonus = fullBoardClear ? ` Full-board clear! ${result.bonus} bonus points${theme === game.theme && material === game.material ? "." : " and a new world."}` : "";
     const gemText = gems ? ` Collected ${gems} ${gems === 1 ? "gem" : "gems"}.` : "";
     const end = adventure ? (result.won ? " Level complete." : over ? " Level failed." : "")
       : over ? " Game over. No remaining piece fits." : "";
@@ -239,7 +240,7 @@ if (requestedMode === "daily" || requestedMode === "tutorial") {
   const settings = loadSettings(storage);
   const profile = loadProfile(storage);
   const material = profile.materials.includes(settings.favoriteMaterial) ? settings.favoriteMaterial : "classic";
-  const session = createClassicSession(storage, { mode: settings.materialMode, material });
+  const session = createClassicSession(storage, { mode: settings.materialMode, material, materials: profile.materials });
   let newAttempt = session.newlyStarted;
   if (params.has("new") && !sandbox) {
     if (session.over) {

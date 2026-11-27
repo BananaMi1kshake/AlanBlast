@@ -1,3 +1,5 @@
+import { EXPANDED_MATERIALS } from "./material-library.js";
+
 // The original IDs retain their palette positions in existing saves.
 export const PALETTES = Object.freeze({
   mint: "Ocean", tidal: "Sunset", orchard: "Forest", dusk: "Midnight", desert: "Candy", glacier: "Glacier",
@@ -12,6 +14,7 @@ export const MATERIALS = Object.freeze({
   ceramic: { name: "Ceramic", impact: [1.035, .945], rebound: [.98, 1.025], dissolve: "scale(.13) rotate(32deg)", spread: 1.08 },
   ice: { name: "Ice", impact: [1.04, .96], rebound: [.99, 1.02], dissolve: "scale(.08) rotate(-12deg)", spread: 1.19 },
   confectionery: { name: "Confectionery", impact: [1.07, .91], rebound: [.96, 1.06], dissolve: "scale(.24) rotate(14deg)", spread: .94 },
+  ...EXPANDED_MATERIALS,
 });
 
 export const WORLDS = Object.freeze({

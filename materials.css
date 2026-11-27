@@ -90,3 +90,149 @@
   --particle-shape: polygon(26% 0, 74% 4%, 100% 35%, 92% 78%, 56% 100%, 11% 84%, 0 31%);
   --wave-finish: repeating-radial-gradient(circle, #ffe2a34f 0 3px, transparent 5px 13px);
 }
+
+/* Expanded surfaces share block footprints and use static texture layers. */
+[data-material="paper"] {
+  --grain: url("./assets/materials/paper.svg");
+  --facet: linear-gradient(145deg, #fff9eb55, transparent 45%, #5c453975);
+  --edge: inset 0 1.5px #fff9eb55, inset 0 -3px #5c453975, inset 0 0 0 1px #5c453975;
+  --corner: 12%;
+  --particle-shape: polygon(0 26%, 89% 0, 71% 93%, 25% 100%);
+  --wave-finish: linear-gradient(144deg, transparent, #ffeab442, transparent);
+  --board-detail: linear-gradient(155deg, #fff9eb55, transparent 39%);
+}
+[data-material="denim"] {
+  --grain: url("./assets/materials/denim.svg");
+  --facet: linear-gradient(145deg, #666c8d51, transparent 45%, #14264c95);
+  --edge: inset 0 1.5px #666c8d51, inset 0 -3px #14264c95, inset 0 0 0 1px #14264c95;
+  --corner: 15%;
+  --particle-shape: ellipse(49% 18% at 50% 50%);
+  --wave-finish: repeating-linear-gradient(59deg,#b0d4f543 0 2px,transparent 2px 12px);
+  --board-detail: linear-gradient(155deg, #666c8d51, transparent 39%);
+}
+[data-material="metal"] {
+  --grain: url("./assets/materials/metal.svg");
+  --facet: linear-gradient(145deg, #daeefa44, transparent 45%, #22293995);
+  --edge: inset 0 1.5px #daeefa44, inset 0 -3px #22293995, inset 0 0 0 1px #22293995;
+  --corner: 8%;
+  --particle-shape: polygon(25% 0, 83% 15%, 100% 84%, 18% 100%);
+  --wave-finish: linear-gradient(106deg,transparent 10%,#fafeffa9 44%,transparent 62%);
+  --board-detail: linear-gradient(155deg, #daeefa44, transparent 39%);
+}
+[data-material="marble"] {
+  --grain: url("./assets/materials/marble.svg");
+  --facet: linear-gradient(145deg, #fffbed50, transparent 45%, #49375055);
+  --edge: inset 0 1.5px #fffbed50, inset 0 -3px #49375055, inset 0 0 0 1px #49375055;
+  --corner: 12%;
+  --particle-shape: polygon(15% 14%, 72% 0, 94% 55%, 55% 100%, 0 71%);
+  --wave-finish: linear-gradient(158deg,transparent,#d7e9ff63,transparent);
+  --board-detail: linear-gradient(155deg, #fffbed50, transparent 39%);
+}
+[data-material="stained-glass"] {
+  --grain: url("./assets/materials/stained-glass.svg");
+  --facet: linear-gradient(145deg, #e5d7ff25, transparent 45%, #1b17368f);
+  --edge: inset 0 1.5px #e5d7ff25, inset 0 -3px #1b17368f, inset 0 0 0 1px #1b17368f;
+  --corner: 10%;
+  --particle-shape: polygon(0 11%, 96% 0, 66% 100%, 15% 79%);
+  --wave-finish: conic-gradient(from 75deg,#f6c7fb80,transparent,#8ff6f17a,transparent,#f6c7fb80);
+  --board-detail: linear-gradient(155deg, #e5d7ff25, transparent 39%);
+}
+[data-material="plush"] {
+  --grain: url("./assets/materials/plush.svg");
+  --facet: linear-gradient(145deg, #fff0fa50, transparent 45%, #5c295d70);
+  --edge: inset 0 1.5px #fff0fa50, inset 0 -3px #5c295d70, inset 0 0 0 1px #5c295d70;
+  --corner: 29%;
+  --particle-shape: circle(39%);
+  --wave-finish: radial-gradient(ellipse,#ffd0e969,transparent 67%);
+  --board-detail: linear-gradient(155deg, #fff0fa50, transparent 39%);
+}
+[data-material="sand"] {
+  --grain: url("./assets/materials/sand.svg");
+  --facet: linear-gradient(145deg, #ffe09b62, transparent 45%, #62402d88);
+  --edge: inset 0 1.5px #ffe09b62, inset 0 -3px #62402d88, inset 0 0 0 1px #62402d88;
+  --corner: 18% 15% 21% 16%;
+  --particle-shape: circle(24%);
+  --wave-finish: linear-gradient(12deg,transparent 24%,#ffe9b375 50%,transparent 69%);
+  --board-detail: linear-gradient(155deg, #ffe09b62, transparent 39%);
+}
+[data-material="terrazzo"] {
+  --grain: url("./assets/materials/terrazzo.svg");
+  --facet: linear-gradient(145deg, #fff3d92d, transparent 45%, #423c4d85);
+  --edge: inset 0 1.5px #fff3d92d, inset 0 -3px #423c4d85, inset 0 0 0 1px #423c4d85;
+  --corner: 8%;
+  --particle-shape: polygon(6% 41%, 22% 3%, 74% 8%, 100% 70%, 49% 100%);
+  --wave-finish: radial-gradient(ellipse,#fff5dc6d,transparent 74%);
+  --board-detail: linear-gradient(155deg, #fff3d92d, transparent 39%);
+}
+[data-material="circuit"] {
+  --grain: url("./assets/materials/circuit.svg");
+  --facet: linear-gradient(145deg, #76ffd940, transparent 45%, #1236339e);
+  --edge: inset 0 1.5px #76ffd940, inset 0 -3px #1236339e, inset 0 0 0 1px #1236339e;
+  --corner: 10%;
+  --particle-shape: polygon(0 32%, 62% 32%, 62% 2%, 100% 2%, 100% 70%, 0 70%);
+  --wave-finish: repeating-linear-gradient(0deg,#72ffd448 0 1px,transparent 1px 10px);
+  --board-detail: linear-gradient(155deg, #76ffd940, transparent 39%);
+}
+[data-material="brick"] {
+  --grain: url("./assets/materials/brick.svg");
+  --facet: linear-gradient(145deg, #e8a78244, transparent 45%, #5a271f9a);
+  --edge: inset 0 1.5px #e8a78244, inset 0 -3px #5a271f9a, inset 0 0 0 1px #5a271f9a;
+  --corner: 5%;
+  --particle-shape: inset(20% 0 round 1px);
+  --wave-finish: repeating-linear-gradient(0deg,#ffbf844b 0 2px,transparent 2px 15px);
+  --board-detail: linear-gradient(155deg, #e8a78244, transparent 39%);
+}
+[data-material="clay"] {
+  --grain: url("./assets/materials/clay.svg");
+  --facet: linear-gradient(145deg, #ffddc055, transparent 45%, #5938348c);
+  --edge: inset 0 1.5px #ffddc055, inset 0 -3px #5938348c, inset 0 0 0 1px #5938348c;
+  --corner: 24% 18% 27% 15%;
+  --particle-shape: ellipse(49% 35%);
+  --wave-finish: radial-gradient(ellipse,#ffbe9b6b,transparent 69%);
+  --board-detail: linear-gradient(155deg, #ffddc055, transparent 39%);
+}
+[data-material="holographic"] {
+  --grain: linear-gradient(131deg, #fb90edb0 0%, #a79cfc3a 22%, #8cffe6b0 49%, #fff3a170 64%, #a874f080 81%, #8fe9ff99);
+  --facet: linear-gradient(145deg, #eed4ff38, transparent 45%, #38295d73);
+  --edge: inset 0 1.5px #eed4ff38, inset 0 -3px #38295d73, inset 0 0 0 1px #38295d73;
+  --corner: 11%;
+  --particle-shape: polygon(16% 0, 100% 42%, 49% 100%, 0 58%);
+  --wave-finish: conic-gradient(#edcfff75,#90eaff75,#ffe29f70,#edcfff75);
+  --board-detail: linear-gradient(155deg, #eed4ff38, transparent 39%);
+}
+[data-material="honeycomb"] {
+  --grain: url("./assets/materials/honeycomb.svg");
+  --facet: linear-gradient(145deg, #ffdd8054, transparent 45%, #613b2489);
+  --edge: inset 0 1.5px #ffdd8054, inset 0 -3px #613b2489, inset 0 0 0 1px #613b2489;
+  --corner: 17%;
+  --particle-shape: polygon(24% 5%, 74% 5%, 100% 50%, 75% 94%, 24% 94%, 0 50%);
+  --wave-finish: repeating-radial-gradient(circle,#ffe2a154 0 2px,transparent 2px 12px);
+  --board-detail: linear-gradient(155deg, #ffdd8054, transparent 39%);
+}
+[data-material="galaxy"] {
+  --grain: url("./assets/materials/galaxy.svg");
+  --facet: linear-gradient(145deg, #b0a8ff41, transparent 45%, #0f12348e);
+  --edge: inset 0 1.5px #b0a8ff41, inset 0 -3px #0f12348e, inset 0 0 0 1px #0f12348e;
+  --corner: 19%;
+  --particle-shape: polygon(50% 0, 60% 39%, 100% 50%, 60% 61%, 50% 100%, 40% 62%, 0 50%, 40% 39%);
+  --wave-finish: radial-gradient(ellipse,#d9c1ff98,transparent 69%);
+  --board-detail: linear-gradient(155deg, #b0a8ff41, transparent 39%);
+}
+[data-material="wicker"] {
+  --grain: url("./assets/materials/wicker.svg");
+  --facet: linear-gradient(145deg, #f9d2a169, transparent 45%, #5938299b);
+  --edge: inset 0 1.5px #f9d2a169, inset 0 -3px #5938299b, inset 0 0 0 1px #5938299b;
+  --corner: 14%;
+  --particle-shape: polygon(0 0, 100% 50%, 97% 78%, 13% 45%);
+  --wave-finish: repeating-linear-gradient(130deg,#ffe7aa51 0 2px,transparent 2px 11px);
+  --board-detail: linear-gradient(155deg, #f9d2a169, transparent 39%);
+}
+[data-material="glitter"] {
+  --grain: url("./assets/materials/glitter.svg");
+  --facet: linear-gradient(145deg, #fddcff43, transparent 45%, #3b245a70);
+  --edge: inset 0 1.5px #fddcff43, inset 0 -3px #3b245a70, inset 0 0 0 1px #3b245a70;
+  --corner: 21%;
+  --particle-shape: polygon(50% 0, 65% 34%, 100% 50%, 65% 66%, 50% 100%, 34% 65%, 0 50%, 34% 34%);
+  --wave-finish: conic-gradient(#fff1bfaa,transparent,#f7afff8c,transparent,#fff1bfaa);
+  --board-detail: linear-gradient(155deg, #fddcff43, transparent 39%);
+}

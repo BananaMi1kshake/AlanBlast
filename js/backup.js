@@ -1,3 +1,4 @@
+import { validRotation } from "./material-rotation.js";
 import { replayLevel } from "./adventure.js";
 import { ADVENTURE_KEY, isUnlocked, loadAdventure } from "./adventure-storage.js";
 import { DAILY_KEY, TUTORIAL_KEY, dailyLevel, dailyResult, emptyDaily, loadDaily, tutorialStatus } from "./challenges.js";
@@ -26,6 +27,7 @@ function cleanClassic({ game, highScore }) {
   if (!game) return { game, highScore };
   const { board, hand, bag, score, combo, comboWindow, exhausted, theme, material } = game;
   const value = { board, hand, bag, score, combo, comboWindow, exhausted, theme, material };
+  if (validRotation(game.rotation)) value.rotation = { pool: game.rotation.pool, bag: game.rotation.bag, seed: game.rotation.seed };
   if (typeof game.record === "boolean") value.record = game.record;
   if (typeof game.fixedAppearance === "boolean") value.fixedAppearance = game.fixedAppearance;
   if (Object.hasOwn(PALETTES, game.palette)) value.palette = game.palette;
