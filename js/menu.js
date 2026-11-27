@@ -6,6 +6,7 @@ import { loadCampaign } from "./campaign.js";
 import { bindFeedbackLifecycle, createFeedback } from "./feedback.js";
 import { isGameOver } from "./game.js";
 import { createHaptics } from "./haptics.js";
+import { restoreDiscoveries } from "./profile.js";
 import { registerOffline } from "./pwa.js";
 import { bindSettings, createMotionPreference, loadSettings } from "./settings.js";
 import { loadProgress } from "./storage.js";
@@ -38,6 +39,7 @@ async function render() {
   try {
     const levels = await loadCampaign();
     const { completed, current } = loadAdventure(levels);
+    restoreDiscoveries(levels, completed);
     const frontier = levels.find(level => !completed.includes(level.id)) ?? levels.at(-1);
     paintWorld($("adventure-art"), WORLDS[frontier.world]);
     $("adventure-progress").textContent = `${completed.length} of ${levels.length} levels complete`;

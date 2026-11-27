@@ -7,6 +7,8 @@ import { bindFeedbackLifecycle, createFeedback } from "./feedback.js";
 import { requestHand } from "./hand-request.js";
 import { createHaptics } from "./haptics.js";
 import { bindInput } from "./input.js";
+import { adventureProgress, loadProfile, recordGameplay, restoreDiscoveries } from "./profile.js";
+import { SHAPES } from "./pieces.js";
 import { registerOffline } from "./pwa.js";
 import { isLoopback, memoryStorage } from "./sandbox.js";
 import { bindSettings, createMotionPreference, loadSettings } from "./settings.js";
@@ -21,7 +23,7 @@ const toolAccess = sandbox && window.parent !== window && isLoopback(location.ho
 const storage = sandbox ? memoryStorage() : undefined;
 const $ = id => document.getElementById(id);
 
-function mount(session, levels) {
+function mount(session, levels, mode = levels ? "adventure" : "classic", newAttempt = session.newlyStarted) {
   const settings = loadSettings(storage);
   const audio = createAudio();
   const haptics = createHaptics();
@@ -34,17 +36,35 @@ function mount(session, levels) {
   const playAgain = $("play-again");
   const adventure = levels ? createAdventureView(session, levels, restart, sandbox) : null;
   document.body.classList.toggle("adventure-play", !!adventure);
-  if (sandbox) $("mode-back").hidden = true;
+  if (sandbox) {
+    $("mode-back").hidden = true;
+    document.querySelectorAll("[data-normal-only]").forEach(element => { element.hidden = true; });
+  }
   let lastMove;
   let cancelDeal;
+  let notificationTimer;
+
+  function record(event) {
+    if (sandbox || mode === "tutorial") return;
+    const context = mode === "adventure" && event.result?.won ? adventureProgress(levels, session.completed) : {};
+    const earned = recordGameplay(mode, event, context);
+    if (!earned.length) return;
+    clearTimeout(notificationTimer);
+    const toast = $("achievement-toast");
+    toast.textContent = "Achievement unlocked · " + earned.join(" · ");
+    toast.hidden = false;
+    notificationTimer = setTimeout(() => { toast.hidden = true; }, 3800);
+  }
 
   const input = bindInput(view, () => session.game, (slot, x, y) => {
     const material = session.game.material;
+    const shape = SHAPES[session.game.hand[slot]];
     const result = session.play(slot, x, y);
     if (!result) return false;
     input.reset();
     lastMove = { result, slot, x, y };
     const over = update(result.refill);
+    record({ type: "move", result, shape, over });
     const { game, fullBoardClear } = result;
     const lines = result.rows.length + result.columns.length;
     const gems = result.gemsCollected?.length ?? 0;
@@ -93,6 +113,7 @@ function mount(session, levels) {
       session.applyDeal(result);
       if (result.status === "impossible") {
         update();
+        record({ type: "end" });
         view.announce("Game over. No solvable hand exists.");
         feedback.cue("gameOver");
         playAgain.focus({ preventScroll: true });
@@ -114,6 +135,7 @@ function mount(session, levels) {
     resetFeedback();
     session.restart();
     update();
+    record({ type: "start" });
     view.announce(adventure ? "Level restarted." : "New game.");
     feedback.restart();
     if (session.waiting) deal(DEAL_TIMEOUT, true);
@@ -134,6 +156,7 @@ function mount(session, levels) {
   });
   playAgain.addEventListener("click", restart);
   update();
+  if (newAttempt) record({ type: "start" });
   if (session.waiting) deal();
 
   if (toolAccess && !adventure) {
@@ -177,23 +200,32 @@ if (adventureMode) {
     const session = createAdventureSession(levels, params.get("level"), storage);
     if (!session) location.replace("./adventure.html");
     else {
-      if (params.has("replay")) {
+      const replay = params.has("replay");
+      if (!sandbox) restoreDiscoveries(levels, session.completed);
+      if (replay) {
         session.restart();
         params.delete("replay");
         history.replaceState(null, "", `?${params}`);
       }
-      mount(session, levels);
+      mount(session, levels, "adventure", replay || session.newlyStarted);
     }
   } catch (error) {
     $("play-error").hidden = false;
     $("play-error").textContent = error.message;
   }
 } else {
-  const session = createClassicSession(storage);
+  const settings = loadSettings(storage);
+  const profile = loadProfile(storage);
+  const material = profile.materials.includes(settings.favoriteMaterial) ? settings.favoriteMaterial : "classic";
+  const session = createClassicSession(storage, { mode: settings.materialMode, material });
+  let newAttempt = session.newlyStarted;
   if (params.has("new") && !sandbox) {
-    if (session.over) session.restart();
+    if (session.over) {
+      session.restart();
+      newAttempt = true;
+    }
     params.delete("new");
     history.replaceState(null, "", location.pathname + (params.size ? `?${params}` : ""));
   }
-  mount(session);
+  mount(session, undefined, "classic", newAttempt);
 }

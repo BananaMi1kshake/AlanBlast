@@ -38,6 +38,7 @@ export function createAdventureSession(levels, requested, storage = globalThis.l
   let completed = saved.completed;
 
   return {
+    get newlyStarted() { return saved.current?.levelId !== id; },
     get game() { return run.game; },
     get best() { return 0; },
     get over() { return run.status !== "playing"; },

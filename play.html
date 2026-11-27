@@ -93,6 +93,7 @@
     <p id="status" class="sr-only" role="status"></p>
   </main>
 
+  <p id="achievement-toast" role="status" hidden></p>
   <dialog id="settings" aria-labelledby="settings-title">
     <h2 id="settings-title">Settings</h2>
     <div id="settings-panel">
@@ -103,6 +104,7 @@
         <label><span>Vibration<small id="haptics-status"></small></span><input type="checkbox" data-preference="vibration"></label>
         <label><span>Reduced motion<small>Also respects your device setting</small></span><input type="checkbox" data-preference="reducedMotion"></label>
       </div>
+      <a class="secondary menu-settings-link" data-normal-only href="./progress.html?view=materials">Material preferences</a>
       <details><summary>How to Play</summary><p>Drag one of the three pieces onto the board. Complete a row or column to clear it. Use all three pieces to get a new hand. Clear again within three moves to keep your combo going.</p><p>You can also choose a piece and tap its top-left target cell, or use the arrow keys and Enter.</p></details>
       <details><summary>About AlanBlox</summary><p>AlanBlox is a free, offline block puzzle. Each new hand has at least one solution, and your scores stay on this device.</p></details>
       <button type="button" class="secondary" id="request-restart">Restart Game</button>
