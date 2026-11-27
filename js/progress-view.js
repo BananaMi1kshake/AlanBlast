@@ -17,7 +17,7 @@ const type = new URLSearchParams(location.search).get("view");
 const view = ["stats", "achievements"].includes(type) ? type : "materials";
 const fragment = $("progress-content");
 const pager = createPager($("screen-pager"));
-const compact = matchMedia("(orientation: landscape) and (max-height: 480px)");
+const compact = matchMedia("(max-height: 500px)");
 const number = new Intl.NumberFormat();
 createMotionPreference(settings);
 if (!preview) registerOffline();
@@ -86,7 +86,7 @@ function materials(profile) {
 }
 
 let statMode = 0;
-let refreshStats;
+let refreshPage;
 function statistics(profile, levels, completed) {
   $("progress-title").textContent = "Personal statistics";
   $("progress-description").textContent = "Lifetime counters began in Phase 7.";
@@ -121,7 +121,7 @@ function statistics(profile, levels, completed) {
       fragment.replaceChildren(list);
     });
   }
-  refreshStats = update;
+  refreshPage = update;
   update();
 }
 
@@ -129,7 +129,7 @@ function achievements(profile) {
   $("progress-title").textContent = "Achievements";
   $("progress-description").textContent = `${profile.achievements.length} of ${ACHIEVEMENTS.length} earned`;
   fragment.classList.add("achievement-grid");
-  pager.update(ACHIEVEMENTS, 4, items => fragment.replaceChildren(...items.map(([id, title, requirement]) => {
+  refreshPage = () => pager.update(ACHIEVEMENTS, compact.matches ? 3 : 4, items => fragment.replaceChildren(...items.map(([id, title, requirement]) => {
     const card = node("section", "", "world-card achievement-card");
     const earned = profile.achievements.includes(id);
     card.dataset.achievementId = id;
@@ -137,9 +137,10 @@ function achievements(profile) {
     card.append(node("h2", title), node("p", requirement), node("strong", earned ? "Earned" : "Locked"));
     return card;
   })));
+  refreshPage();
 }
 
-compact.addEventListener("change", () => refreshStats?.());
+compact.addEventListener("change", () => refreshPage?.());
 document.querySelector(`[data-tab="${view}"]`).setAttribute("aria-current", "page");
 addEventListener("pageshow", async () => {
   try {

@@ -108,7 +108,13 @@ html.app-viewport {
   .app-viewport .adventure-intro #progress-label { align-self: center; }
   .app-viewport .adventure-intro progress { grid-column: 1 / -1; }
   .app-viewport .adventure-intro #resume-level { min-height: 34px; padding: 3px 9px; }
+}
 
+@media (orientation: portrait) and (max-height: 500px) {
+  .app-viewport .world-list { gap: 5px; }
+  .app-viewport .world-tile { min-height: 44px; padding-block: 3px; }
+  .app-viewport .adventure-intro .primary { min-height: 38px; padding-block: 5px; }
+  .app-viewport .achievement-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .confirmation-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }

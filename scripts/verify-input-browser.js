@@ -428,7 +428,7 @@ async function verify(socket) {
     );
   await send("Page.removeScriptToEvaluateOnNewDocument", { identifier: standalone.identifier });
   await until(
-    'navigator.serviceWorker.controller && caches.keys().then(keys=>keys.some(k=>k.endsWith("shell-14")))',
+    'navigator.serviceWorker.controller && caches.keys().then(keys=>keys.some(k=>k.endsWith("shell-15")))',
   );
   await send("Network.emulateNetworkConditions", {
     offline: true,
@@ -477,6 +477,23 @@ async function verify(socket) {
   }
   assert.equal(levels.size, 48);
 
+  await device(320, 448, true);
+  await scene("progress.html?view=stats");
+  await until('document.querySelectorAll(".stat-list dt").length === 3');
+  assert.ok(await evaluate('document.querySelector("#screen-pager").getBoundingClientRect().bottom <= innerHeight'));
+  await scene("progress.html?view=achievements");
+  await until('document.querySelectorAll(".achievement-card").length === 3');
+  const achievements = new Set();
+  for (let page = 0; page < 5; page++) {
+    for (const id of await evaluate(`Array.from(document.querySelectorAll(".achievement-card"), node => node.dataset.achievementId)`)) {
+      achievements.add(id);
+    }
+    assert.ok(await evaluate('document.querySelector("#screen-pager").getBoundingClientRect().bottom <= innerHeight'));
+    if (page < 4) await click("#screen-pager button:last-child");
+  }
+  assert.equal(achievements.size, 13);
+  await device(320, 568, true);
+
   const unsupported = await send("Page.addScriptToEvaluateOnNewDocument", {
     source: 'Object.defineProperty(navigator, "vibrate", { value: undefined })',
   });
@@ -486,6 +503,27 @@ async function verify(socket) {
   await until('document.querySelector("#settings")?.open');
   assert.match(await evaluate('document.querySelector("#haptics-status").textContent'), /Unavailable in this browser/);
   await send("Page.removeScriptToEvaluateOnNewDocument", { identifier: unsupported.identifier });
+
+  await evaluate(`localStorage.setItem("alanblox.profile.v1", JSON.stringify({version: 1, materials: ["classic", "wood"]}))`);
+  await scene("play.html");
+  await until('document.querySelector("#open-material")?.hidden === false');
+  const priorMaterial = await gameData(save);
+  await click("#open-material");
+  await until('document.querySelector("#material-picker")?.open');
+  await click("#cycle-material");
+  assert.equal(await evaluate('document.querySelector("#material-picker-name").textContent'), "Wood");
+  assert.deepEqual(await gameData(save), priorMaterial);
+  await click("#close-material");
+  await until('document.activeElement.id === "open-material"');
+  await click("#open-material");
+  await click("#cycle-material");
+  await click("#apply-material");
+  assert.equal(await evaluate('document.documentElement.dataset.material'), "wood");
+  assert.deepEqual(await gameData(save), {
+    ...priorMaterial, game: { ...priorMaterial.game, material: "wood", palette: "orchard" },
+  });
+  await send("Page.reload");
+  await until('document.documentElement.dataset.material === "wood"');
 
   await device(1280, 900, false);
   const playerSave = await gameData(save);
@@ -528,6 +566,6 @@ async function verify(socket) {
   assert.deepEqual(await gameData(save), playerSave);
   assert.deepEqual(errors, []);
   console.log(
-    "Chromium passed touch trajectories and release agreement, portrait/landscape fit in four modes, modal scroll, cancellation, long pieces, reduced motion, mouse, keyboard, simulated standalone, offline, pagination, unsupported vibration and local lab diagnostics.",
+    "Chromium passed touch trajectories and release agreement, portrait/landscape fit in four modes, modal scroll, cancellation, long pieces, reduced motion, mouse, keyboard, simulated standalone, offline, pagination, unsupported vibration, material preview/apply and local lab diagnostics.",
   );
 }

@@ -35,3 +35,8 @@ The supplied Alan Studio mark, AlanBlox wordmark and blue block scene guide the 
 The board and tray reserve space independently of score, combo, objectives and feedback. Adventure levels, material collection, statistics and achievements fit by paging or filtering their data. The Daily date entry remains an ordinary browser date control. Only Settings can scroll within the stationary app. Completion, failure and confirmations keep their controls within the checked viewports. Startup now allocates 360 ms to Alan Studio and 500 ms to AlanBlox and respects reduced motion and ordinary in-app navigation.
 
 Official reference URLs were still inaccessible from this environment. The palette, proportions and timing are AlanBlox design choices informed by the supplied assets and the brief. Physical visual review, perceived drag quality and exact comparator parity remain open. [Before-and-after screen gallery](docs/phase-8-1/SCREENS.md) · [Performance and rendering audit](docs/phase-8-1/PERFORMANCE.md)
+
+
+## Phase 8.2 developer references
+
+The six portrait screenshots supplied for Phase 8.2 are the primary evidence for the new composition. Their visible features guided the gradient and splash spacing, logo and menu stack, warm playfield, score and utility positions, settings rows, and inline material preview. AlanBlox uses its own assets and visual treatments, with shorter measured startup and independent release rules. [Observations by screen](docs/phase-8-2/VISUAL.md) · [AlanBlox captures](docs/phase-8-2/SCREENS.md)

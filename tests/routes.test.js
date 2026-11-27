@@ -8,7 +8,7 @@ test("the offline app shell caches and routes game and progress pages under the 
   const scope = "https://example.test/AlanBlast/";
   const handlers = new Map();
   const files = new Set();
-  const cachesByName = new Set([`${scope}old`, `alanblox:${scope}:shell-10`]);
+  const cachesByName = new Set([`${scope}old`, `alanblox:${scope}:shell-14`]);
   let claimed = false;
   const cache = {
     async addAll(requests) { requests.forEach(request => files.add(request.url)); },
@@ -30,7 +30,7 @@ test("the offline app shell caches and routes game and progress pages under the 
   handlers.get("activate")({ waitUntil: work => { activated = work; } });
   await activated;
   assert.equal(claimed, true);
-  assert.deepEqual([...cachesByName], [`${scope}old`, `alanblox:${scope}:shell-14`]);
+  assert.deepEqual([...cachesByName], [`${scope}old`, `alanblox:${scope}:shell-15`]);
 
   async function fetchFromWorker(path, mode = "navigate") {
     let response;
@@ -51,7 +51,7 @@ test("the offline app shell caches and routes game and progress pages under the 
   assert.equal(await fetchFromWorker(replay), scope + "play.html");
   assert.equal(await fetchFromWorker("./adventure/levels.json", "cors"), scope + "adventure/levels.json");
   assert.equal(await fetchFromWorker("./js/hand-worker.js", "cors"), scope + "js/hand-worker.js");
-  for (const file of ["gameplay.css", "viewport.css", "js/play-viewport.js", "js/drag-geometry.js", "js/pager.js", "js/preview-state.js"]) {
+  for (const file of ["gameplay.css", "settings.css", "viewport.css", "js/material-picker.js", "js/play-viewport.js", "js/drag-geometry.js", "js/pager.js", "js/preview-state.js"]) {
     assert.equal(await fetchFromWorker("./" + file, "cors"), scope + file);
   }
   assert.ok(!files.has(scope + "tools/adventure-editor.html"));
