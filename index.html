@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#101d41">
+  <meta name="theme-color" content="#162d80">
   <meta name="description" content="A free, offline-friendly block puzzle game.">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/png" href="./icons/favicon.png">
@@ -27,6 +27,7 @@
   <div id="launch" class="launch" hidden aria-label="AlanBlox startup">
     <div data-brand-art="studio"></div>
     <div data-brand-art="game"><span class="wordmark">Alan<strong>Blox</strong></span></div>
+    <span class="launch-motif" aria-hidden="true"><i></i><i></i><i></i></span>
     <span class="launch-progress" role="status">Opening AlanBlox…</span>
   </div>
   <main class="mode-shell" id="menu-content">
@@ -41,24 +42,24 @@
     </header>
     <div class="mode-cards">
       <a id="classic-link" class="hero-action classic" href="./play.html">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>
         <span class="action-label" id="classic-action">Play Classic</span>
-        <span class="action-metric">Personal best <strong id="classic-best">0</strong></span>
-        <span class="mode-art" id="classic-art" aria-hidden="true"></span>
+        <svg class="action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
       </a>
       <div class="adventure-actions">
         <a class="hero-action adventure" href="./adventure.html">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V4m0 1c4-5 8 3 13 0v10c-5 3-9-5-13 0"/></svg>
           <span class="action-label">Adventure</span>
-          <span class="action-metric" id="adventure-progress">Loading levels…</span>
-          <span class="mode-art" id="adventure-art" aria-hidden="true"></span>
+          <svg class="action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
         </a>
-        <a id="resume-adventure" class="secondary mode-action" href="./play.html?mode=adventure" hidden>Resume level</a>
+        <a id="resume-adventure" href="./play.html?mode=adventure" hidden>Resume level</a>
       </div>
     </div>
     <nav class="menu-extras" aria-label="More AlanBlox">
-      <a class="secondary" href="./daily.html"><span aria-hidden="true">▣</span>Daily Challenge</a>
-      <a class="secondary" href="./progress.html?view=materials"><span aria-hidden="true">◆</span>Materials</a>
-      <a class="secondary" href="./progress.html?view=stats"><span aria-hidden="true">▤</span>Statistics</a>
-      <a class="secondary" href="./progress.html?view=achievements"><span aria-hidden="true">★</span>Achievements</a>
+      <a href="./daily.html" aria-label="Daily Challenge"><span aria-hidden="true">▣</span>Daily</a>
+      <a href="./progress.html?view=materials"><span aria-hidden="true">◆</span>Materials</a>
+      <a href="./progress.html?view=stats"><span aria-hidden="true">▤</span>Statistics</a>
+      <a href="./progress.html?view=achievements"><span aria-hidden="true">★</span>Achievements</a>
     </nav>
     <div id="tutorial-invitation" class="tutorial-invitation" hidden>
       <a href="./play.html?mode=tutorial">Learn to play</a>

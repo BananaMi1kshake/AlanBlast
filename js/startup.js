@@ -1,7 +1,7 @@
 import { BRANDING } from "./branding-assets.js";
 
 export const STARTUP_KEY = "alanblox.startup.v1";
-export const LAUNCH_TIMING = Object.freeze({ studio: 360, game: 500, limit: 1350 });
+export const LAUNCH_TIMING = Object.freeze({ studio: 320, game: 420, limit: 1150 });
 
 export function canPresentStartup({ reduced, hidden, visited, internalNavigation }) {
   return !reduced && !hidden && !visited && !internalNavigation;
@@ -17,9 +17,6 @@ export function applyBranding(root, assets = BRANDING) {
       image.addEventListener("load", () => target.replaceChildren(image), { once: true });
       image.src = source;
     }
-  }
-  if (assets.splashBackground) {
-    root.style.setProperty("--brand-backdrop", `url("${assets.splashBackground}")`);
   }
 }
 
@@ -72,7 +69,8 @@ export async function presentStartup(ready, { assets = BRANDING, timing = LAUNCH
     }
     if (signal.aborted) return;
     launch.dataset.stage = "game";
-    const fade = Math.min(140, timing.game);
+    const fade = Math.min(120, timing.game);
+    launch.style.setProperty("--launch-fade", `${fade}ms`);
     await wait(timing.game - fade);
     if (complete && !signal.aborted) launch.setAttribute("data-leaving", "");
     await wait(fade);
