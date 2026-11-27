@@ -88,7 +88,7 @@
 .game-shell .tray button.pressed { background: #ffffff16; box-shadow: inset 0 0 0 1px #ffffff30; }
 .game-shell .tray button:is(.dragging, .returning) .piece { opacity: 0; }
 .play-page .floating { opacity: .96; }
-.play-page .floating.invalid { opacity: .78; }
+.play-page .floating.invalid { opacity: .85; }
 .play-page .cell.preview-valid::after { opacity: var(--preview-opacity, .55); }
 .play-page .cell.preview-valid.preview-line::after { opacity: min(.95, calc(var(--preview-opacity, .55) + .21)); }
 
@@ -132,7 +132,7 @@
 :root[data-mode="classic"] .combo-card { font-size: .8rem; color: var(--muted); }
 :root[data-mode="classic"] .combo-card strong { font-weight: 900; }
 :root[data-mode="classic"] .tray button.pressed { background: transparent; box-shadow: none; }
-:root[data-mode="classic"] .tray button.pressed .piece { scale: .95; }
+:root[data-mode="classic"] .tray button.pressed .piece { opacity: .72; }
 
 :root[data-mode="classic"][data-palette="mint"][data-material="classic"] .board-frame {
   --board-padding: clamp(5px, 1.8vw, 9px);
@@ -163,4 +163,78 @@
   :root[data-mode="classic"] .game-shell .scoreboard { height: clamp(86px, 12dvh, 106px); }
   :root[data-mode="classic"] .game-shell .current-score { height: 63px; --score-font: clamp(46px, 13vw, 68px); }
   :root[data-mode="classic"] .game-shell .pieces { margin-block-end: clamp(0px, calc((100dvh - 620px) * .27), 64px); }
+}
+
+#open-material { color: var(--ink); }
+#material-picker {
+  position: fixed;
+  inset: calc(var(--screen-top, 0px) + max(58px, env(safe-area-inset-top) + 45px)) max(12px, calc((100vw - 455px) / 2), env(safe-area-inset-right)) auto auto;
+  width: min(260px, calc(100% - 28px));
+  margin: 0;
+  padding: 9px 10px 10px;
+  border: 1px solid #a3e9e1a0;
+  border-radius: 15px;
+  background: linear-gradient(145deg, #24546c, #102f43);
+  color: #f1fff7;
+  box-shadow: 0 4px #0d2635a6, 0 10px 22px #19192962;
+  transform-origin: top right;
+  overflow: hidden;
+  touch-action: pinch-zoom;
+}
+#material-picker::backdrop { background: #131e2640; }
+#material-picker header { display: flex; align-items: center; justify-content: space-between; min-height: 35px; }
+#material-picker h2 { margin: 0 0 0 3px; font-size: 1rem; text-shadow: none; }
+#material-picker header .icon-button { width: 40px; height: 40px; }
+#material-picker header svg { width: 18px; }
+.material-picker-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 95px;
+  align-items: stretch;
+  gap: 9px;
+}
+.material-picker-art {
+  padding: 6px;
+  border: 1px solid #c8f6ec60;
+  border-radius: 10px;
+  background: #123345;
+  text-align: center;
+}
+.material-swatch {
+  display: grid;
+  grid-template: repeat(2, 22px) / repeat(3, 22px);
+  place-content: center;
+  gap: 2px;
+  min-height: 56px;
+  padding: 3px;
+  border: 1px solid #ffffff2b;
+  border-radius: 6px;
+  background: var(--world-detail, none), var(--board);
+  background-size: var(--world-size, auto), auto;
+}
+.material-swatch[data-material="classic"] {
+  --board: #563629;
+  --mint: #58c674;
+  --sky: #30afe3;
+  --sun: #ffbf42;
+  --coral: #f36754;
+  --lilac: #bc81ec;
+}
+#material-picker-name { display: block; margin-top: 5px; font-size: .76rem; overflow-wrap: anywhere; }
+.material-picker-actions { display: grid; align-content: start; gap: 6px; }
+#material-picker .picker-action {
+  min-height: 40px;
+  margin: 0;
+  padding: 4px;
+  border: 1px solid #c7f0e67f;
+  border-radius: 9px;
+  background: #237963;
+  color: #f9fff4;
+  font-size: .85rem;
+  font-weight: 800;
+}
+#material-picker #cycle-material { background: #255b86; }
+#material-picker #cycle-material:disabled { opacity: .48; cursor: default; }
+#material-picker .material-library { display: block; margin-top: 8px; text-align: center; color: #c8f4ff; font-size: .76rem; }
+@media (orientation: landscape) and (max-height: 560px) {
+  #material-picker { right: max(12px, calc((100vw - 914px) / 2), env(safe-area-inset-right)); }
 }

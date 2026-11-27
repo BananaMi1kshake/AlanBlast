@@ -2,7 +2,7 @@ import { SIZE } from "./pieces.js";
 
 export const INPUT = Object.freeze({
   touchLift: 1.15, grabAnchor: "grab", touchThreshold: 2, mouseThreshold: 5,
-  pickupMs: 56, returnMs: 125, snapVisual: false, previewOpacity: .55, hysteresis: 0,
+  pickupMs: 44, returnMs: 125, snapVisual: false, previewOpacity: .55, hysteresis: 0,
 });
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -39,7 +39,8 @@ export function grabOffset(rect, size, start, touch, clearance, anchor) {
 }
 
 export function dragFrame(pointer, offset, progress) {
-  const mix = (from, to) => from + (to - from) * progress;
+  const liftProgress = 1 - (1 - progress) ** 3;
+  const mix = (from, to) => from + (to - from) * liftProgress;
   return {
     left: pointer.x + mix(offset.startX, offset.endX),
     top: pointer.y + mix(offset.startY, offset.endY),

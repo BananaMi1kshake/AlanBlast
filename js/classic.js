@@ -1,5 +1,6 @@
 import { createGame, isGameOver, needsHand, placePiece } from "./game.js";
 import { loadProgress, saveProgress } from "./storage.js";
+import { MATERIALS, visualProfile } from "./themes.js";
 import { appearanceFor, newRotation, rotateMaterial } from "./material-rotation.js";
 
 function newGame(appearance) {
@@ -30,8 +31,9 @@ export function createClassicSession(storage, appearance) {
         result.game.theme = game.theme;
         result.game.material = game.material;
       }
-      if (result.fullBoardClear && game.rotation && !game.fixedAppearance) {
-        Object.assign(result.game, rotateMaterial(game.material, game.rotation));
+      if (result.fullBoardClear && !game.fixedAppearance) {
+        delete result.game.palette;
+        if (game.rotation) Object.assign(result.game, rotateMaterial(game.material, game.rotation));
       }
       game = result.game;
       if (record) game.record = true;
@@ -41,6 +43,12 @@ export function createClassicSession(storage, appearance) {
     applyDeal(result) {
       game = result.status === "impossible" ? { ...game, exhausted: true }
         : { ...game, hand: result.hand, bag: result.bag };
+    },
+    equipMaterial(material) {
+      if (!Object.hasOwn(MATERIALS, material) || material === game.material) return false;
+      const { palette } = visualProfile(appearanceFor(material));
+      game = { ...game, material, palette };
+      return true;
     },
     restart() { game = newGame(appearance); },
     persist() { saveProgress(game, best, storage); },

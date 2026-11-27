@@ -35,6 +35,9 @@
         <a id="mode-back" class="icon-button" href="./index.html" aria-label="Main menu">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m11 5-7 7 7 7m-7-7h16"/></svg>
         </a>
+        <button class="icon-button" type="button" id="open-material" aria-label="Change material" aria-haspopup="dialog" title="Change material" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="m5 16 5-5 4 4 2-2 3 3"/><circle cx="16" cy="8" r="1"/></svg>
+        </button>
         <button class="icon-button" type="button" id="open-settings" aria-label="Settings" aria-haspopup="dialog" title="Settings">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3.5h4l.7 2.2 1.6.9 2.2-.5 2 3.5-1.5 1.7v1.8l1.5 1.7-2 3.5-2.2-.5-1.6.9-.7 2.2h-4l-.7-2.2-1.6-.9-2.2.5-2-3.5L5 13.3v-1.8L3.5 9.8l2-3.5 2.2.5 1.6-.9z"/><circle cx="12" cy="12.4" r="2.7"/></svg>
         </button>
@@ -147,6 +150,25 @@
       <button type="button" class="secondary" id="cancel-restart">Keep Playing</button>
       <button type="button" class="primary" id="confirm-restart">Restart Game</button>
     </div>
+  </dialog>
+  <dialog class="compact-dialog" id="material-picker" aria-labelledby="material-picker-title">
+    <header>
+      <h2 id="material-picker-title">Board material</h2>
+      <button type="button" class="icon-button" id="close-material" aria-label="Close material picker" autofocus>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+    </header>
+    <div class="material-picker-body">
+      <div class="material-picker-art">
+        <div class="material-swatch" aria-hidden="true"></div>
+        <strong id="material-picker-name" aria-live="polite"></strong>
+      </div>
+      <div class="material-picker-actions">
+        <button type="button" class="picker-action" id="apply-material">Apply</button>
+        <button type="button" class="picker-action" id="cycle-material">Next</button>
+      </div>
+    </div>
+    <a class="material-library" data-normal-only href="./progress.html?view=materials">Material collection</a>
   </dialog>
   <dialog class="compact-dialog" id="backup-confirmation" aria-labelledby="backup-title" aria-describedby="backup-question">
     <h2 id="backup-title">Confirm save change</h2>
