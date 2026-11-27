@@ -12,16 +12,16 @@ The project focuses on responsive controls, rewarding audiovisual feedback, colo
 
 ## Features and roadmap
 
-### Playable through Phase 2
+### Playable through Phase 2.5
 
 - Classic 8×8 puzzle board.
 - Three block pieces per round.
 - Intuitive drag-and-drop controls.
 - Row and column clears, including both in one move.
-- Escalating multi-line scores and consecutive-clear combos.
+- Escalating multi-line scores and combos that allow up to two non-clearing moves.
 - Full-board bonuses and six rotating color palettes.
 - Game-over detection.
-- Fair and transparent piece generation.
+- Every new three-piece hand has a legal completion sequence when dealt.
 - Persistent high scores.
 - Automatic game progress saving.
 
@@ -87,6 +87,12 @@ AlanBlox is built around five fundamental principles:
 - [x] Expanded shape library and statistical shuffle-bag tests
 - [x] Phase 1 save migration
 
+### Phase 2.5 — Scoring and solvable hands
+
+- [x] Three-placement combo window and uncapped combo multiplier
+- [x] Board-aware hand solver, bounded proposals, and exhaustive fallback
+- [x] Offline worker, save migration, and reproducible reference-solver benchmark
+
 ### Phase 3 — Game Feel
 
 - [ ] Block placement animations
@@ -126,25 +132,28 @@ AlanBlox is built around five fundamental principles:
 
 Drag a piece from the tray to the board. On touchscreens the piece floats above your finger so you can see the target. You can also select a piece and tap its top-left target on the board. With a keyboard, activate a piece, use the arrow keys to move its preview, and press Enter or Space to place it. Escape cancels the selection.
 
-The tray refills after all three pieces are placed. When none of the remaining pieces fits, the game ends. Restart resets the board, session score, combo, and palette to Mint, and keeps the best score on that browser.
+The tray refills after all three pieces are placed. Each new hand can be completed in at least one placement sequence on the board at deal time. Your choices can still leave unplaceable pieces. The game ends if none of the revealed pieces fits, or if the dealer proves no new hand has a legal completion sequence. Restart resets the board, session score, combo, and palette to Mint, and keeps the best score.
 
 ### Scoring and combos
 
-- Every accepted placement earns **1 point per block**. Each row or column completed by that move counts as one line. All completed lines are identified before removing any blocks, and a shared cell is removed once.
-- Clearing **n** lines in one move earns **10 × n + 5 × n × (n − 1) / 2** line points. For one, two, three, and four lines, that is **10, 25, 45, and 70** before the combo multiplier.
-- Each accepted move that clears one or more lines increments the combo by one. The first clear uses **×1**, then the multiplier rises with the combo up to **×5**. The combo count can keep growing. The multiplier applies to all line points from the move, including simultaneous-clear rewards.
-- An accepted placement that clears no lines resets the combo to zero. Invalid or canceled moves, time between moves, dealing a new hand, and reloading leave it intact.
-- If a placement leaves the board entirely empty after line removal, it earns a flat **100-point bonus** and advances the palette through **Mint → Tidal → Orchard → Dusk → Desert → Glacier → Mint**. The combo multiplier applies only to line points, so the block points and full-board bonus stay fixed.
+These are provisional AlanBlox rules. Scoring parity with Block Blast has not been independently verified.
 
-The default scoring values live in `js/scoring.js`. A save from Phase 1 keeps its board, score, best score, remaining pieces, and undealt bag. It starts with combo zero and the Mint palette. Existing scores are carried forward as earned.
+- Each placement earns **1 point per occupied cell in the piece**, even if that cell clears immediately.
+- Clearing **n** rows or columns together earns **10 × n + 5 × n × (n − 1) / 2** line points before the combo multiplier. One, two, three, and four lines are worth **10, 25, 45, and 70**. Rows and columns are identified before removal, and each shared cell is removed once.
+- Each clearing placement advances the combo once, including moves that clear multiple lines, and refreshes its window to three placements. The first clear uses **×1**, and subsequent clearing moves use the new combo count as the multiplier. There is no gameplay cap.
+- A valid placement without a clear uses one step of the window. A clear after one or two misses continues the combo. Three misses expire it, and the next clear starts again at ×1. Invalid or canceled moves, a new deal, elapsed time, and reloading do not consume the window.
+- A move that leaves the board empty after line removal adds a flat **100 points** and advances the palette through **Mint → Tidal → Orchard → Dusk → Desert → Glacier → Mint**. The multiplier applies to line points only.
 
-### Piece selection
+Tune the provisional constants in `js/scoring.js`. Scores are carried forward as earned. Saves keep the revealed pieces, proposal bag, score, best score, palette, combo count, and combo window. Phase 1 saves start with zero combo and Mint. An active Phase 2 combo starts with a fresh three-placement window because it had just cleared a line under the old rules. Existing revealed hands are kept, including hands dealt under the old rules.
 
-Each fresh bag contains one copy of every one of the 38 oriented templates in `js/game.js`. Phase 2 adds both five-cell bars, both 2×3 rectangles, eight four-cell elbows, and a cross while preserving existing shape IDs. The game shuffles the bag with Fisher–Yates, choosing a random index from 0 through the current index at each step using the browser's `Math.random()`.
+### Solvable hand generation
 
-The game deals three consecutive templates at a time. If fewer than three remain, it deals those first and finishes the hand from a freshly shuffled bag. An orientation can repeat across that boundary. Shapes have fixed orientations, and equal representation applies per orientation. Families with more orientations consequently appear more often. A restored Phase 1 bag finishes in its original order before the expanded catalog takes effect.
+1. As before, shuffle a bag with one copy of each of the **38 fixed orientations** using Fisher–Yates. Propose the next three pieces, crossing into a fresh bag as needed. A duplicate can occur across a bag boundary.
+2. Try up to **12** candidates. For each, search every distinct ordering and legal position until a completion sequence is found or all possibilities are exhausted. The simulation uses precomputed placement masks and clears completed rows and columns together after each placement. It leaves the live board untouched.
+3. Consume rejected proposals from the bag. If none works, search directly over legal placements of any of the 38 orientations, allowing duplicates at every step. The deterministic fallback tries larger shapes first and memoizes dead board states by placements remaining. It can prove failure only after exhausting all permitted sequences. Its returned order does not expose the sequence used to establish solvability.
+4. Search runs in a Web Worker. After a ten-second deadline the deal stays pending, and **Retry deal** starts a fresh search with a 30-second deadline. Timing out or failing to start the worker does not count as game over. Reloading resumes a pending deal from the saved board and bag.
 
-The draw uses only the undealt bag and randomness. Board position, score, playtime, spending, and player identity do not influence it. All pieces fit an empty board, and a later piece or hand can be blocked by the current board. There are no rescue rerolls. The undealt bag order is saved so reloading preserves it.
+Filtering changes the distribution of revealed hands. The proposal bag still contains each orientation once per shuffle, but pieces that fit more boards survive filtering more often. Fallback may also repeat a shape. The board affects generation only through solvability. The generator uses no score, high score, session length, losses, player identity, engagement, or spending. Revealed pieces are never replaced, and the deal guarantees one solution, with other placements free to fail.
 
 ## Running locally
 
@@ -158,7 +167,10 @@ Run the automated tests with Node.js 20 or newer. No dependency installation is 
 
 ```sh
 npm test
+node scripts/benchmark-hands.js
 ```
+
+The benchmark checks 10,000 seeded deals using a separate array-based backtracking solver and adds 250 full-board tests for proven impossibility. It reports time by board scenario, candidate rejections, fallbacks, and per-orientation frequencies. Timings cover generation only, excluding worker startup and independent validation.
 
 ## Deploying to GitHub Pages
 
@@ -177,7 +189,7 @@ AI development agents should refer to `AGENTS.md` for project-specific requireme
 
 ## Project Status
 
-Phases 1 and 2 are playable. Later phases focus on game feel and audiovisual polish.
+Phases 1 through 2.5 are playable. Later phases focus on game feel and audiovisual polish.
 
 ## Disclaimer
 

@@ -35,7 +35,7 @@
       <div id="game-over" class="game-over" hidden>
         <div>
           <h2>Game over</h2>
-          <p>No remaining piece fits.</p>
+          <p id="game-over-message">No remaining piece fits.</p>
           <button type="button" id="play-again">Play again</button>
         </div>
       </div>
@@ -44,6 +44,8 @@
     <section class="pieces" aria-label="Available pieces">
       <p id="controls">Drag a piece onto the board.<span class="sr-only"> You can also select a piece, then tap a cell or use the arrow keys and Enter to place it.</span></p>
       <p id="clear-notice" hidden></p>
+      <p id="hand-pending" hidden></p>
+      <button id="retry-hand" type="button" hidden>Retry deal</button>
       <div id="tray" class="tray">
         <button type="button" data-slot="0"></button>
         <button type="button" data-slot="1"></button>
