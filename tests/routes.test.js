@@ -51,8 +51,9 @@ test("the offline app shell caches and routes game and progress pages under the 
   assert.equal(await fetchFromWorker(replay), scope + "play.html");
   assert.equal(await fetchFromWorker("./adventure/levels.json", "cors"), scope + "adventure/levels.json");
   assert.equal(await fetchFromWorker("./js/hand-worker.js", "cors"), scope + "js/hand-worker.js");
-  for (const file of ["gameplay.css", "js/play-viewport.js", "js/drag-geometry.js"]) {
+  for (const file of ["gameplay.css", "viewport.css", "js/play-viewport.js", "js/drag-geometry.js", "js/pager.js", "js/preview-state.js"]) {
     assert.equal(await fetchFromWorker("./" + file, "cors"), scope + file);
   }
   assert.ok(!files.has(scope + "tools/adventure-editor.html"));
+  assert.ok(!files.has(scope + "tools/canvas-lab.html"));
 });

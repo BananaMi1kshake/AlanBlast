@@ -22,7 +22,7 @@ export function createHaptics({ device = globalThis.navigator, now = () => perfo
   }
 
   function stop() {
-    if (now() < busyUntil) vibrate(0);
+    if (supported && busyUntil !== -Infinity && now() < busyUntil) vibrate(0);
     busyUntil = -Infinity;
     lastPulse = -Infinity;
   }
@@ -39,7 +39,7 @@ export function createHaptics({ device = globalThis.navigator, now = () => perfo
 
   function play(name) {
     const cue = VIBRATIONS[name];
-    if (!cue || !enabled || !visible) return false;
+    if (!supported || !cue || !enabled || !visible) return false;
     const time = now();
     if ((time < busyUntil || time - lastPulse < 50) && cue.priority <= currentPriority) return false;
     if (!vibrate(cue.pattern)) return false;

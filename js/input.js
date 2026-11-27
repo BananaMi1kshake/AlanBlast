@@ -26,7 +26,10 @@ export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
       slot: drag.slot, phase: drag.ghost ? "dragging" : "pressed", pointer: drag.pointer,
       floating: drag.visual, target: drag.target, valid: drag.valid, lift: drag.clearance,
       cell: { width: drag.grid.unitX, height: drag.grid.unitY, pitchX: drag.grid.stepX, pitchY: drag.grid.stepY },
-      board: { left: drag.grid.left, top: drag.grid.top, bottom: drag.grid.bottom },
+      board: {
+        left: drag.grid.left, top: drag.grid.top, bottom: drag.grid.bottom,
+        width: SIZE * drag.grid.stepX - drag.grid.gapX, height: drag.grid.bottom - drag.grid.top,
+      },
       viewport: { width: visual.width ?? window.innerWidth, height: visual.height ?? window.innerHeight, scale: viewport?.scale ?? 1 },
       scroll: { x: window.scrollX, y: window.scrollY },
     });

@@ -27,8 +27,20 @@ test("all-clear takes precedence over other celebration cues and restart cancels
 });
 
 test("unsupported and denied vibration requests are harmless", () => {
-  assert.equal(createHaptics({ device: {} }).supported, false);
-  assert.equal(createHaptics({ device: {} }).play("place"), false);
+  const unsupported = createHaptics({
+    device: {},
+    now() { assert.fail("Unavailable vibration should skip scheduling"); },
+  });
+  const preference = { vibration: false };
+  assert.equal(unsupported.supported, false);
+  unsupported.configure(preference);
+  unsupported.setVisible(false);
+  unsupported.setVisible(true);
+  assert.equal(unsupported.play("place"), false);
+  unsupported.configure({ vibration: true });
+  assert.equal(unsupported.play("allClear"), false);
+  unsupported.stop();
+  assert.deepEqual(preference, { vibration: false });
   const denied = createHaptics({ device: { vibrate() { throw Error("denied"); } } });
   assert.equal(denied.play("place"), false);
 });

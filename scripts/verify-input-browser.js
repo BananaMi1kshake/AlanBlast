@@ -445,6 +445,48 @@ async function verify(socket) {
   await send("Network.emulateNetworkConditions", {
     offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1,
   });
+  await device(320, 568, true);
+  await scene("progress.html?view=materials");
+  await until('document.querySelectorAll(".collection-card").length === 8');
+  const materials = new Set();
+  for (let page = 0; page < 3; page++) {
+    const list = await evaluate(`Array.from(document.querySelectorAll(".collection-card"), item => item.dataset.materialId)`);
+    assert.equal(list.length, 8);
+    for (const id of list) materials.add(id);
+    assert.deepEqual(await evaluate(`[
+      document.scrollingElement.scrollHeight - innerHeight, document.scrollingElement.scrollWidth - innerWidth,
+      document.querySelector("#screen-pager").getBoundingClientRect().bottom <= innerHeight,
+    ]`), [0, 0, true]);
+    if (page < 2) await click("#screen-pager button:last-child");
+  }
+  assert.equal(materials.size, 24);
+
+  await scene("adventure.html");
+  await until('document.querySelectorAll(".world-tile").length === 8');
+  const worlds = await evaluate(`Array.from(document.querySelectorAll(".world-tile"), item => item.getAttribute("href"))`);
+  const levels = new Set();
+  for (const world of worlds) {
+    await scene(world);
+    await until('document.querySelectorAll(".level-row").length === 4');
+    for (let page = 0; page < 2; page++) {
+      for (const id of await evaluate(`Array.from(document.querySelectorAll(".level-row"), item => item.dataset.levelId)`)) {
+        levels.add(id);
+      }
+      if (page === 0) await click("#screen-pager button:last-child");
+    }
+  }
+  assert.equal(levels.size, 48);
+
+  const unsupported = await send("Page.addScriptToEvaluateOnNewDocument", {
+    source: 'Object.defineProperty(navigator, "vibrate", { value: undefined })',
+  });
+  await scene("index.html");
+  await until('document.querySelector(\'[data-preference="vibration"]\')?.disabled && document.querySelector("#launch")?.hidden');
+  await click("#open-settings");
+  await until('document.querySelector("#settings")?.open');
+  assert.match(await evaluate('document.querySelector("#haptics-status").textContent'), /Unavailable in this browser/);
+  await send("Page.removeScriptToEvaluateOnNewDocument", { identifier: unsupported.identifier });
+
   await device(1280, 900, false);
   const playerSave = await gameData(save);
   await scene("tools/gameplay-lab.html");
@@ -470,9 +512,22 @@ async function verify(socket) {
   assert.equal(lab.game.board[63], null);
   assert.ok(lab.game.board[62] !== null);
   assert.equal(lab.count, 38);
+  await click("#monitor-performance");
+  await evaluate(`(() => {
+    const limit = document.querySelector("#particle-limit");
+    limit.value = "6";
+    limit.dispatchEvent(new Event("change"));
+    const api = document.querySelector("#sandbox").contentWindow.alanbloxLab;
+    api.load({ ...api.snapshot().game, hand: [null, null, null] });
+  })()`);
+  await until(`try {
+    const data = JSON.parse(document.querySelector("#performance-report").value);
+    data.framesPerSecond > 0 && data.renderMs?.count >= 2 && data.handMs?.count > 0
+      && data.effects.particleLimit === 6 && data.activeParticles === 0;
+  } catch { false }`);
   assert.deepEqual(await gameData(save), playerSave);
   assert.deepEqual(errors, []);
   console.log(
-    "Chromium passed touch trajectories and release agreement, portrait/landscape fit in four modes, modal scroll, cancellation, long pieces, reduced motion, mouse, keyboard, simulated standalone, offline and lab isolation.",
+    "Chromium passed touch trajectories and release agreement, portrait/landscape fit in four modes, modal scroll, cancellation, long pieces, reduced motion, mouse, keyboard, simulated standalone, offline, pagination, unsupported vibration and local lab diagnostics.",
   );
 }

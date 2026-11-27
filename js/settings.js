@@ -122,7 +122,7 @@ export function bindSettings(settings, preference, { onOpen, onRestart, onChange
   const vibrationToggle = dialog.querySelector('[data-preference="vibration"]');
   if (!vibrationSupported) {
     vibrationToggle.disabled = true;
-    dialog.querySelector("#haptics-status").textContent = "Unavailable in this browser";
+    dialog.querySelector("#haptics-status").textContent = "Unavailable in this browser. Sound and visuals still work.";
   }
   slider.value = String(Math.round(settings.volume * 100));
   slider.disabled = !settings.sound;

@@ -112,7 +112,8 @@
       <div class="preferences">
         <label><span>Sound effects</span><input type="checkbox" data-preference="sound"></label>
         <label class="volume-control" for="sound-volume"><span>Volume <output id="volume-value" for="sound-volume">65%</output></span><input id="sound-volume" type="range" min="0" max="100" value="65"></label>
-        <label><span>Vibration<small id="haptics-status"></small></span><input type="checkbox" data-preference="vibration"></label>
+        <label><span>Vibration</span><input type="checkbox" data-preference="vibration" aria-describedby="haptics-status"></label>
+        <small id="haptics-status"></small>
         <label><span>Reduced motion<small>Also respects your device setting</small></span><input type="checkbox" data-preference="reducedMotion"></label>
       </div>
       <section id="install-panel" data-normal-only>

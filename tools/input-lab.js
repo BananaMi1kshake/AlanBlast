@@ -8,7 +8,67 @@ const pair = (x, y) => `${format(x)}, ${format(y)}`;
 export function bindInputLab(iframe, api, reportGame) {
   const form = $("input-tuning");
   const readout = $("input-telemetry");
+  const monitor = $("monitor-performance");
+  const report = $("performance-report");
+  const limit = $("particle-limit");
+  const intensity = $("effect-intensity");
+  const samples = [];
   let marks;
+  let latestDrag;
+  let lastFrame;
+  let lastReport;
+  let animation;
+
+  function applyEffects() {
+    const values = api()?.tuneEffects({ particleLimit: limit.valueAsNumber, intensity: intensity.valueAsNumber });
+    if (values) {
+      limit.value = values.particleLimit;
+      intensity.value = values.intensity;
+    }
+  }
+
+  function summarize(times) {
+    if (!times.length) return null;
+    const sorted = times.slice().sort((a, b) => a - b);
+    const p = fraction => Number(sorted[Math.ceil(sorted.length * fraction) - 1].toFixed(2));
+    return { count: times.length, median: p(.5), p95: p(.95) };
+  }
+
+  function measure(now) {
+    if (lastFrame !== undefined) {
+      samples.push(now - lastFrame);
+      if (samples.length > 240) samples.shift();
+    }
+    lastFrame = now;
+    if (lastReport === undefined || now - lastReport >= 500) {
+      lastReport = now;
+      const game = api()?.measurements();
+      const child = iframe.contentWindow;
+      const mean = samples.length && samples.reduce((sum, value) => sum + value, 0) / samples.length;
+      // Keep the report stable while it is selected for manual copying.
+      if (document.activeElement !== report) report.value = JSON.stringify({
+        framesPerSecond: mean ? Number((1000 / mean).toFixed(1)) : null,
+        frameMs: summarize(samples),
+        renderMs: summarize(game?.renderMs ?? []),
+        handMs: summarize(game?.handMs ?? []),
+        activeParticles: game?.activeParticles,
+        viewport: { width: child.innerWidth, height: child.innerHeight, dpr: child.devicePixelRatio },
+        scroll: { x: child.scrollX, y: child.scrollY },
+        tuning: read(),
+        effects: { particleLimit: limit.valueAsNumber, intensity: intensity.valueAsNumber },
+        lastDrag: latestDrag,
+      }, null, 2);
+    }
+    animation = requestAnimationFrame(measure);
+  }
+
+  function toggleMonitor() {
+    cancelAnimationFrame(animation);
+    api()?.monitor(monitor.checked);
+    samples.length = 0;
+    lastFrame = lastReport = undefined;
+    if (monitor.checked) animation = requestAnimationFrame(measure);
+  }
 
   function put(values) {
     for (const [key, value] of Object.entries(values)) form.elements[key].value = String(value);
@@ -31,6 +91,7 @@ export function bindInputLab(iframe, api, reportGame) {
   }
 
   function show(frame) {
+    if (frame) latestDrag = frame;
     if (!frame || !$("input-overlay").checked) {
       marks?.forEach((mark) => {
         mark.hidden = true;
@@ -42,7 +103,7 @@ export function bindInputLab(iframe, api, reportGame) {
     readout.textContent =
       `${frame.phase} · slot ${frame.slot + 1}\nPointer ${pair(pointer.x, pointer.y)} · floating ${pair(floating?.left, floating?.top)}\n` +
       `Target ${target ? `${target.x}, ${target.y} (${valid ? "valid" : "invalid"})` : "—"} · lift ${format(lift)} px\n` +
-      `Cell ${pair(cell.width, cell.height)} · pitch ${pair(cell.pitchX, cell.pitchY)}\n` +
+      `Board ${pair(board.width, board.height)} · cell ${pair(cell.width, cell.height)} · pitch ${pair(cell.pitchX, cell.pitchY)}\n` +
       `Viewport ${pair(viewport.width, viewport.height)} · ${format(viewport.scale)}× · scroll ${pair(scroll.x, scroll.y)}`;
     const points = [
       pointer,
@@ -76,12 +137,18 @@ export function bindInputLab(iframe, api, reportGame) {
       return mark;
     });
     apply();
+    applyEffects();
+    toggleMonitor();
   });
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     apply();
   });
   form.addEventListener("change", apply);
+  monitor.addEventListener("change", toggleMonitor);
+  limit.addEventListener("change", applyEffects);
+  intensity.addEventListener("change", applyEffects);
+  $("select-performance").addEventListener("click", () => report.select());
   $("reset-input").addEventListener("click", () => {
     put(INPUT);
     apply();
