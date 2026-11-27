@@ -25,6 +25,7 @@ export function createView() {
   const controls = document.querySelector("#controls");
   const clearNotice = document.querySelector("#clear-notice");
   const overlay = document.querySelector("#game-over");
+  const overMessage = document.querySelector("#game-over-message");
   const status = document.querySelector("#status");
   const cells = [];
   for (let y = 0; y < SIZE; y++) {
@@ -91,6 +92,7 @@ export function createView() {
     clearNotice.hidden = !fullBoardClear;
     clearNotice.textContent = fullBoardClear ? `Full-board clear! +${bonus} bonus` : "";
     overlay.hidden = !gameOver;
+    overMessage.textContent = game.exhausted ? "No solvable hand exists." : "No remaining piece fits.";
     board.inert = gameOver;
   }
 

@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { canPlace, createGame, drawHand, isGameOver, placePiece, SHAPES, SIZE } from "../js/game.js";
+import { canPlace, createGame, isGameOver, needsHand, placePiece, SHAPES, SIZE } from "../js/game.js";
+import { drawCandidate } from "../js/pieces.js";
+import { generateHand } from "../js/solver.js";
 import { DEFAULT_THEME, THEMES } from "../js/themes.js";
 
 const empty = () => Array(SIZE ** 2).fill(null);
-const initial = (board, hand = [0, 1, 2]) => ({ board, hand, bag: [3, 4, 5], score: 0, combo: 0, theme: DEFAULT_THEME });
+const initial = (board, hand = [0, 1, 2]) => ({ ...createGame(), board, hand, bag: [3, 4, 5] });
 const seeded = () => {
   let state = 1729;
   return () => {
@@ -18,7 +20,7 @@ test("each complete bag contains every orientation once across hand boundaries",
   let bag = [];
   const stream = [];
   while (stream.length < SHAPES.length * 3) {
-    const deal = drawHand(bag, random);
+    const deal = drawCandidate(bag, random);
     assert.equal(deal.hand.length, 3);
     stream.push(...deal.hand);
     bag = deal.bag;
@@ -32,13 +34,16 @@ test("each complete bag contains every orientation once across hand boundaries",
 });
 
 test("the new game is empty, has three playable pieces and starts at zero", () => {
-  const game = createGame(seeded());
+  const game = createGame();
   assert.deepEqual(game.board, empty());
   assert.equal(game.score, 0);
   assert.equal(game.combo, 0);
   assert.equal(game.theme, DEFAULT_THEME);
   assert.equal(game.hand.length, 3);
-  assert.ok(game.hand.every(id => canPlace(game.board, SHAPES[id], 0, 0)));
+  assert.equal(needsHand(game), true);
+  const deal = generateHand(game.board, game.bag, { random: seeded() });
+  assert.equal(deal.status, "solvable");
+  assert.ok(deal.hand.every(id => canPlace(game.board, SHAPES[id], 0, 0)));
   assert.equal(isGameOver(game), false);
 });
 
@@ -60,6 +65,7 @@ test("an illegal move preserves board, hand, bag and score", () => {
   board[0] = 0;
   const game = initial(board, [0, 1, null]);
   game.combo = 4;
+  game.comboWindow = 2;
   game.theme = THEMES[2];
   const before = structuredClone(game);
   assert.equal(placePiece(game, 0, 0, 0), null);
@@ -75,8 +81,11 @@ test("hand refills after the third placement and carries over the bag order", ()
   const second = placePiece(first.game, 1, 1, 0);
   assert.deepEqual(second.game.hand, [null, null, 2]);
   const third = placePiece(second.game, 2, 3, 0);
-  assert.deepEqual(third.game.hand, [3, 4, 5]);
-  assert.deepEqual(third.game.bag, []);
+  assert.equal(needsHand(third.game), true);
+  assert.deepEqual(third.game.bag, [3, 4, 5]);
+  const deal = generateHand(third.game.board, third.game.bag);
+  assert.deepEqual(deal.hand, [3, 4, 5]);
+  assert.deepEqual(deal.bag, []);
   assert.equal(third.game.score, 5);
   assert.deepEqual(game, initial(empty()));
 });
@@ -130,11 +139,15 @@ test("game over checks every remaining shape and ignores consumed slots", () => 
   assert.equal(isGameOver(initial(board, [null, 1, 0])), false);
 });
 
-test("game over can occur on a newly dealt hand", () => {
+test("an exhausted hand awaits a verified deal before game-over can be declared", () => {
   const board = empty().map((_, i) => (i % SIZE + Math.floor(i / SIZE)) % 2 ? null : 0);
-  const result = placePiece(initial(board, [null, 0, null]), 1, 1, 0);
-  assert.deepEqual(result.game.hand, [3, 4, 5]);
-  assert.equal(isGameOver(result.game), true);
+  const { game } = placePiece(initial(board, [null, 0, null]), 1, 1, 0);
+  assert.equal(needsHand(game), true);
+  assert.equal(isGameOver(game), false);
+  const deal = generateHand(game.board, game.bag, { attempts: 0 });
+  assert.equal(deal.status, "solvable");
+  assert.equal(isGameOver({ ...game, hand: deal.hand }), false);
+  assert.equal(isGameOver({ ...game, exhausted: true }), true);
 });
 
 test("five-cell bars, rectangles, elbows and the cross extend a unique catalog", () => {
@@ -156,7 +169,7 @@ test("shuffled orientations are distributed across every position in the bag", (
   let position = 0;
   // A whole multiple of both bag and hand sizes includes every hand-boundary alignment.
   for (let i = 0; i < samples * size / 3; i++) {
-    const { hand, bag } = drawHand(remainder, random);
+    const { hand, bag } = drawCandidate(remainder, random);
     remainder = bag;
     for (const id of hand) {
       counts[position][id]++;
@@ -183,17 +196,11 @@ test("consecutive clearing placements build one combo per move across a hand ref
     assert.equal(result.game.combo, y + 1);
     assert.equal(result.points, 1 + 10 * (y + 1));
     game = result.game;
+    if (needsHand(game)) {
+      const { hand, bag } = generateHand(game.board, game.bag);
+      game = { ...game, hand, bag };
+    }
   }
-
-  const quietMove = placePiece(game, 1, 0, 5);
-  assert.equal(quietMove.points, 4);
-  assert.equal(quietMove.game.combo, 0);
-  const later = quietMove.game;
-  later.board.fill(1, 6 * SIZE, 7 * SIZE - 1);
-  later.hand[2] = 0;
-  const newCombo = placePiece(later, 2, 7, 6);
-  assert.equal(newCombo.game.combo, 1);
-  assert.equal(newCombo.points, 11);
 });
 
 test("a full-board clear adds a fixed bonus, advances the palette, and wraps after six themes", () => {
@@ -202,7 +209,7 @@ test("a full-board clear adds a fixed bonus, advances the palette, and wraps aft
   for (let i = 0; i < THEMES.length; i++) {
     const board = empty();
     board.fill(1, 0, SIZE - 1);
-    const game = { ...initial(board), combo: 1, theme };
+    const game = { ...initial(board), combo: 1, comboWindow: 3, theme };
     const result = placePiece(game, 0, 7, 0);
     assert.equal(result.fullBoardClear, true);
     assert.equal(result.bonus, 100);
@@ -220,7 +227,7 @@ test("a full-board clear adds a fixed bonus, advances the palette, and wraps aft
 test("a multi-line board clear advances the combo only once", () => {
   const board = empty();
   for (let y = 0; y < 3; y++) board.fill(1, y * SIZE, (y + 1) * SIZE - 1);
-  const game = { ...initial(board, [4, 0, 1]), combo: 2 };
+  const game = { ...initial(board, [4, 0, 1]), combo: 2, comboWindow: 3 };
   const result = placePiece(game, 0, 7, 0);
   assert.deepEqual(result.rows, [0, 1, 2]);
   assert.equal(result.game.combo, 3);
@@ -233,7 +240,7 @@ test("any distinct orientation can follow the first with near-equal frequency", 
   const samples = 24000;
   const counts = Array.from({ length: size }, () => Array(size).fill(0));
   for (let i = 0; i < samples; i++) {
-    const { hand: [first, second] } = drawHand([], random);
+    const { hand: [first, second] } = drawCandidate([], random);
     counts[first][second]++;
   }
   const expected = samples / (size * (size - 1));
@@ -248,15 +255,17 @@ test("any distinct orientation can follow the first with near-equal frequency", 
   assert.ok(chiSquare < 1.25 * (size * (size - 1) - 1), `chi-square statistic: ${chiSquare}`);
 });
 
-test("refills are independent of the board, score, combo and theme", () => {
+test("refills ignore score, combo and theme on the same board", () => {
   const fresh = { ...initial(empty(), [0, null, null]), bag: [11, 10] };
   const board = empty();
   board.fill(1, 0, 7);
   const progressed = { ...fresh, board, score: 900, combo: 6, theme: THEMES[2] };
-  const ordinaryMove = placePiece(fresh, 0, 7, 0, seeded());
-  const clearingMove = placePiece(progressed, 0, 7, 0, seeded());
+  const ordinaryMove = placePiece(fresh, 0, 7, 0);
+  const ordinaryDeal = generateHand(ordinaryMove.game.board, ordinaryMove.game.bag, { random: seeded() });
+  const alternateProgress = placePiece({ ...fresh, score: progressed.score, combo: 6, theme: THEMES[2] }, 0, 7, 0);
+  const alternateDeal = generateHand(alternateProgress.game.board, alternateProgress.game.bag, { random: seeded() });
+  const clearingMove = placePiece(progressed, 0, 7, 0);
   assert.equal(ordinaryMove.fullBoardClear, false);
   assert.equal(clearingMove.fullBoardClear, true);
-  assert.deepEqual(clearingMove.game.hand, ordinaryMove.game.hand);
-  assert.deepEqual(clearingMove.game.bag, ordinaryMove.game.bag);
+  assert.deepEqual(alternateDeal, ordinaryDeal);
 });

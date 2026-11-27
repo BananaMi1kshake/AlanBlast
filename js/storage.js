@@ -1,4 +1,5 @@
 import { HAND_SIZE, SHAPES, SIZE } from "./game.js";
+import { RULES } from "./scoring.js";
 import { DEFAULT_THEME, THEMES } from "./themes.js";
 
 const KEY = "alanblox.save.v1";
@@ -19,7 +20,7 @@ function isGame(value) {
   return value && isScore(value.score)
     && Array.isArray(value.board) && value.board.length === SIZE ** 2 && value.board.every(isCell)
     && Array.isArray(value.hand) && value.hand.length === HAND_SIZE
-    && value.hand.every(isCell) && value.hand.some(isShape)
+    && value.hand.every(isCell)
     && Array.isArray(value.bag) && value.bag.length < SHAPES.length && value.bag.every(isShape)
     && new Set(value.bag).size === value.bag.length;
 }
@@ -27,11 +28,20 @@ function isGame(value) {
 export function loadProgress(storage) {
   try {
     const saved = JSON.parse((storage ?? globalThis.localStorage).getItem(KEY));
-    const game = isGame(saved?.game) ? {
-      ...saved.game,
-      combo: isScore(saved.game.combo) ? saved.game.combo : 0,
-      theme: THEMES.includes(saved.game.theme) ? saved.game.theme : DEFAULT_THEME,
-    } : null;
+    let game = null;
+    if (isGame(saved?.game)) {
+      const { combo, comboWindow, hand, exhausted, theme } = saved.game;
+      const active = isScore(combo) && combo > 0;
+      const window = active ? (isScore(comboWindow) && comboWindow <= RULES.comboWindow
+        ? comboWindow : RULES.comboWindow) : 0;
+      game = {
+        ...saved.game,
+        combo: window ? combo : 0,
+        comboWindow: window,
+        exhausted: exhausted === true && hand.every(id => id === null),
+        theme: THEMES.includes(theme) ? theme : DEFAULT_THEME,
+      };
+    }
     const highScore = isScore(saved?.highScore) ? saved.highScore : 0;
     return { game, highScore: Math.max(highScore, game?.score ?? 0) };
   } catch {
