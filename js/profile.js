@@ -1,3 +1,6 @@
+import { loadDaily } from "./challenges.js";
+import { EXPANDED_MATERIALS } from "./material-library.js";
+import { ALL_MATERIALS, LEGACY_MATERIALS } from "./material-rotation.js";
 import { WORLDS } from "./themes.js";
 
 export const PROFILE_KEY = "alanblox.profile.v1";
@@ -9,7 +12,7 @@ export const STAT_NAMES = Object.freeze({
   daily: { attempts: "Total attempts", wins: "Successful runs", gems: "Gems collected", lines: "Lines cleared",
     combo: "Highest combo", bestRun: "Best score across days" },
 });
-export const MATERIAL_ORDER = Object.values(WORLDS).map(world => world.material);
+export const MATERIAL_ORDER = [...LEGACY_MATERIALS, ...ALL_MATERIALS.filter(id => !LEGACY_MATERIALS.includes(id))];
 
 export const ACHIEVEMENTS = [
   ["first-line", "First Line", "Clear a line in Classic.", p => p.classic.lines >= 1],
@@ -18,7 +21,7 @@ export const ACHIEVEMENTS = [
   ...[10, 25, 50].map(value => ["combo-" + value, "Combo " + value, "Reach a Classic combo of " + value + ".", p => p.classic.combo >= value]),
   ...[10000, 50000, 100000].map(value => ["score-" + value, value.toLocaleString("en-US") + " Points",
     "Reach " + value.toLocaleString("en-US") + " points in one Classic run.", p => p.classic.bestRun >= value]),
-  ["all-materials", "Material Collector", "Discover all eight materials.", p => p.materials.length === MATERIAL_ORDER.length],
+  ["all-materials", "Material Collector", "Discover the original eight materials.", p => LEGACY_MATERIALS.every(id => p.materials.includes(id))],
   ["first-world", "Ocean Explorer", "Complete the first tour's Ocean levels.", (p, context) => context.firstWorld === true],
   ["campaign", "Grand Tour", "Complete every released Adventure level.", (p, context) => context.campaign === true],
   ["first-daily", "Daily Debut", "Complete a Daily Challenge.", p => p.daily.wins >= 1],
@@ -42,8 +45,10 @@ export function loadProfile(storage = globalThis.localStorage) {
         if (Number.isSafeInteger(value) && value >= 0) profile[mode][key] = value;
       }
     }
-    profile.materials.push(...MATERIAL_ORDER.slice(1).filter(id => data.materials?.includes?.(id)));
-    profile.achievements = ACHIEVEMENTS.map(([id]) => id).filter(id => data.achievements?.includes?.(id));
+    const materials = Array.isArray(data.materials) ? data.materials : [];
+    profile.materials.push(...MATERIAL_ORDER.slice(1).filter(id => materials.includes(id)));
+    const achievements = Array.isArray(data.achievements) ? data.achievements : [];
+    profile.achievements = ACHIEVEMENTS.map(([id]) => id).filter(id => achievements.includes(id));
   } catch { /* Local play can continue with a fresh profile. */ }
   return profile;
 }
@@ -59,12 +64,22 @@ export function adventureProgress(levels, completed) {
     return entries.length && entries.every(level => complete.has(level.id));
   });
   const firstWorld = levels.filter(level => level.world === "mint" && !level.chapter);
-  return { worlds, firstWorld: firstWorld.length > 0 && firstWorld.every(level => complete.has(level.id)),
+  return { worlds, levelCount: complete.size, firstWorld: firstWorld.length > 0 && firstWorld.every(level => complete.has(level.id)),
     campaign: levels.length > 0 && levels.every(level => complete.has(level.id)) };
 }
 
 function addMaterial(profile, material) {
   if (!profile.materials.includes(material)) profile.materials.push(material);
+}
+
+function expandedDiscoveries(profile, context) {
+  for (const [id, rule] of Object.entries(EXPANDED_MATERIALS)) {
+    if (rule.earns(profile, context)) addMaterial(profile, id);
+  }
+}
+
+export function completedDailyDates(storage) {
+  return Object.values(loadDaily(storage).days).filter(entry => Array.isArray(entry?.best) && entry.best.length).length;
 }
 
 function updateAchievements(profile, context) {
@@ -81,6 +96,7 @@ export function restoreDiscoveries(levels, completed, storage = globalThis.local
   for (const level of levels) {
     if (completed.includes(level.id)) addMaterial(profile, level.material);
   }
+  expandedDiscoveries(profile, { levelCount: completed.length, dailyDates: completedDailyDates(storage) });
   if (profile.materials.length !== previous) saveProfile(profile, storage);
   return profile;
 }
@@ -106,7 +122,7 @@ export function recordGameplay(mode, event, context = {}, storage = globalThis.l
       if (event.over) stats.completed++;
       if (result.fullBoardClear) {
         stats.allClears++;
-        const discovery = MATERIAL_ORDER[stats.allClears];
+        const discovery = LEGACY_MATERIALS[stats.allClears];
         if (discovery) addMaterial(profile, discovery);
       }
     } else {
@@ -118,6 +134,7 @@ export function recordGameplay(mode, event, context = {}, storage = globalThis.l
       }
     }
   }
+  expandedDiscoveries(profile, context);
   const unlocked = updateAchievements(profile, context);
   saveProfile(profile, storage);
   return unlocked;

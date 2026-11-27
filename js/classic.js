@@ -1,15 +1,13 @@
 import { createGame, isGameOver, needsHand, placePiece } from "./game.js";
 import { loadProgress, saveProgress } from "./storage.js";
-import { WORLDS } from "./themes.js";
+import { appearanceFor, newRotation, rotateMaterial } from "./material-rotation.js";
 
 function newGame(appearance) {
   const game = createGame();
-  const entry = Object.entries(WORLDS).find(([, world]) => world.material === appearance?.material);
-  if (entry && ["starting", "fixed"].includes(appearance.mode)) {
-    const [theme, { material }] = entry;
-    return { ...game, theme, material, ...(appearance.mode === "fixed" && { fixedAppearance: true }) };
-  }
-  return game;
+  const picked = ["starting", "fixed"].includes(appearance?.mode) ? appearanceFor(appearance.material) : {};
+  if (appearance?.mode === "fixed") return { ...game, ...picked, fixedAppearance: true };
+  const rotation = newRotation(appearance?.materials, appearance?.seed);
+  return { ...game, ...picked, ...(rotation && { rotation }) };
 }
 
 export function createClassicSession(storage, appearance) {
@@ -31,6 +29,9 @@ export function createClassicSession(storage, appearance) {
       if (game.fixedAppearance === true) {
         result.game.theme = game.theme;
         result.game.material = game.material;
+      }
+      if (result.fullBoardClear && game.rotation && !game.fixedAppearance) {
+        Object.assign(result.game, rotateMaterial(game.material, game.rotation));
       }
       game = result.game;
       if (record) game.record = true;

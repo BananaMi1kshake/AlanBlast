@@ -1,3 +1,4 @@
+import { validRotation } from "./material-rotation.js";
 import { replayLevel } from "./adventure.js";
 import { ADVENTURE_KEY, isUnlocked, loadAdventure } from "./adventure-storage.js";
 import { DAILY_KEY, TUTORIAL_KEY, dailyLevel, dailyResult, emptyDaily, loadDaily, tutorialStatus } from "./challenges.js";
@@ -7,7 +8,7 @@ import { loadSettings, SETTINGS_KEY, APPEARANCE_MODES } from "./settings.js";
 import { isSavedGame, loadProgress, CLASSIC_KEY } from "./storage.js";
 import { THEMES, MATERIALS, PALETTES } from "./themes.js";
 
-export const APP_VERSION = "0.7.0";
+export const APP_VERSION = "0.8.0-rc.1";
 export const BACKUP_LIMIT = 2 * 1024 * 1024;
 export const BACKUP_NOTICE = "alanblox.backup-change";
 const FORMAT = "alanblox-backup";
@@ -26,6 +27,7 @@ function cleanClassic({ game, highScore }) {
   if (!game) return { game, highScore };
   const { board, hand, bag, score, combo, comboWindow, exhausted, theme, material } = game;
   const value = { board, hand, bag, score, combo, comboWindow, exhausted, theme, material };
+  if (validRotation(game.rotation)) value.rotation = { pool: game.rotation.pool, bag: game.rotation.bag, seed: game.rotation.seed };
   if (typeof game.record === "boolean") value.record = game.record;
   if (typeof game.fixedAppearance === "boolean") value.fixedAppearance = game.fixedAppearance;
   if (Object.hasOwn(PALETTES, game.palette)) value.palette = game.palette;

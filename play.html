@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="./interface.css">
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./modes.css">
+  <link rel="stylesheet" href="./design.css">
   <title>AlanBlox</title>
   <script type="module" src="./js/main.js"></script>
 </head>
@@ -91,6 +92,10 @@
         <button id="retry-hand" type="button" hidden>Retry deal</button>
       </div>
     </section>
+    <aside id="save-notice" hidden>
+      <span id="save-notice-message" role="status"></span>
+      <button type="button" id="save-conflict-refresh" hidden>Reload save</button>
+    </aside>
     <p id="status" class="sr-only" role="status"></p>
   </main>
 
@@ -126,7 +131,7 @@
         </div>
         <p id="backup-status" role="status"></p>
       </details>
-      <details><summary>About AlanBlox</summary><p>Version <span id="app-version">0.7.0</span></p><p>AlanBlox is a free, offline block puzzle. Each new hand has at least one solution, and your scores stay on this device.</p></details>
+      <details><summary>About AlanBlox</summary><p>Version <span id="app-version">0.8.0-rc.1</span></p><p>AlanBlox by Alan Studio is a free, offline block puzzle. Each new hand has at least one solution, and your scores stay on this device.</p></details>
       <button type="button" class="secondary" id="request-restart">Restart Game</button>
     </div>
     <div id="restart-confirm" hidden>

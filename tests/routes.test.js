@@ -30,7 +30,7 @@ test("the offline app shell caches and routes game and progress pages under the 
   handlers.get("activate")({ waitUntil: work => { activated = work; } });
   await activated;
   assert.equal(claimed, true);
-  assert.deepEqual([...cachesByName], [`${scope}old`, `alanblox:${scope}:shell-11`]);
+  assert.deepEqual([...cachesByName], [`${scope}old`, `alanblox:${scope}:shell-12`]);
 
   async function fetchFromWorker(path, mode = "navigate") {
     let response;

@@ -22,3 +22,22 @@ test("install identity and all original icon assets use valid manifest dimension
     assert.ok((await read(view)).includes('./icons/apple-touch-icon.png'));
   }
 });
+
+test("generated branding ships as layered cached runtime art and proposed icons stay separate", async () => {
+  const { BRANDING } = await import("../js/branding-assets.js");
+  const manifest = JSON.parse(await read("manifest.webmanifest"));
+  const worker = await read("sw.js");
+  for (const src of Object.values(BRANDING)) {
+    assert.match(src, /^\.\/assets\/branding\/runtime\/[^/]+\.webp$/);
+    assert.equal((await read(src)).subarray(8, 12).toString(), "WEBP");
+    assert.ok(worker.includes(src));
+  }
+  for (const [name, size] of [["icon-192", 192], ["icon-512", 512], ["apple-touch-icon", 180],
+    ["icon-maskable-192", 192], ["icon-maskable-512", 512], ["favicon", 32]]) {
+    const png = await read(`assets/branding/icon-preview/${name}.png`);
+    assert.equal(png.readUInt32BE(16), size);
+    assert.equal(png.readUInt32BE(20), size);
+    assert.equal(png[25], 2, "opaque RGB PNG");
+    assert.ok(manifest.icons.every(icon => !icon.src.includes("icon-preview")));
+  }
+});

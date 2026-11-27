@@ -1,0 +1,70 @@
+.home {
+  background: linear-gradient(180deg, #0d164849, #141b6460 37%, #0d1b56d4 100%),
+    var(--brand-backdrop, none) center / cover fixed no-repeat,
+    radial-gradient(ellipse at 50% 31%, #345abc, #222b83 53%, #0c194e 100%);
+}
+.home .mode-shell { width: min(calc(100% - 28px - env(safe-area-inset-left) - env(safe-area-inset-right)), 460px); }
+.home .menu-top { min-height: 48px; justify-content: flex-end; }
+.home .menu-top .icon-button { background: #101d5c9c; box-shadow: inset 0 1px #b6caff66, 0 3px #070b42a0; }
+.home .menu-hero { display: grid; justify-items: center; gap: 6px; padding: clamp(8px, 4dvh, 36px) 0 clamp(11px, 4dvh, 33px); }
+.menu-hero [data-brand-art="game"] { width: min(84vw, 400px); }
+.wordmark {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(37px, 11vw, 79px);
+  font-weight: 1000;
+  letter-spacing: -.085em;
+  text-align: center;
+  line-height: 1.12;
+  white-space: nowrap;
+  text-shadow: 0 3px #0b2c8c, 0 6px #0c205e, 0 9px 18px #031050a0;
+  color: #9aedff;
+}
+.wordmark strong { color: #ffdd54; }
+.home .mode-cards { gap: clamp(11px, 2.2dvh, 20px); }
+.hero-action {
+  --face: #256bd5;
+  --rim: #b0e0ff;
+  --base: #173b8f;
+  position: relative;
+  min-height: clamp(71px, 14dvh, 110px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px;
+  grid-template-areas: "label art" "metric art";
+  align-content: center;
+  column-gap: 6px;
+  align-items: center;
+  padding: 10px 14px 12px 20px;
+  border: 1px solid var(--rim);
+  border-radius: var(--round-panel);
+  color: #fff;
+  text-decoration: none;
+  background: radial-gradient(ellipse at 95% -20%, #fff6, transparent 52%),
+    linear-gradient(160deg, color-mix(in srgb, var(--face) 78%, white), var(--face) 54%, var(--base));
+  box-shadow: inset 0 2px #fff8, 0 6px var(--base), 0 9px 19px #09174785;
+}
+.hero-action.classic { --face: #1574b5; --rim: #a5f4ff; --base: #14417e; }
+.hero-action.adventure { --face: #6739b7; --rim: #e2b6ff; --base: #462484; }
+.hero-action:hover { filter: brightness(1.1); }
+.hero-action:active { translate: 0 4px; box-shadow: inset 0 2px #fff6, 0 2px var(--base), 0 4px 9px #09174770; }
+.hero-action .action-label { grid-area: label; font: 900 clamp(24px, 7vw, 34px)/1.12 var(--font-display); text-shadow: var(--display-depth); }
+.hero-action .action-metric { grid-area: metric; font-weight: 700; font-size: .82rem; padding-top: 5px; }
+.hero-action .action-metric strong { color: #ffeeae; }
+.hero-action .mode-art { grid-area: art; transform: rotate(-9deg) scale(.84); min-height: 48px; }
+.adventure-actions { display: grid; gap: 9px; }
+#resume-adventure { min-height: 39px; background: #161d5dbd; justify-self: center; }
+.home .menu-extras { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 6px; margin-top: clamp(16px, 3dvh, 27px); }
+.home .menu-extras a {
+  display: grid; grid-template-rows: 22px auto; gap: 3px; padding: 7px 2px;
+  min-height: 57px; border-radius: var(--round-small); background: #141f69b8;
+  font-size: clamp(.59rem, 2.6vw, .78rem); line-height: 1.1;
+}
+.home .menu-extras span[aria-hidden] { font-size: 1.2rem; color: #ffe280; }
+.home .tutorial-invitation { margin-top: 5px; }
+:root:not([data-reduced-motion]) .hero-action { transition: translate var(--press-duration) var(--ease-press), filter var(--press-duration) ease; }
+@media (max-height: 610px) {
+  .home .menu-hero { padding-block: 2px 10px; }
+  .home .menu-hero [data-brand-art="game"] { max-width: 290px; }
+  .home .hero-action .mode-art { min-height: 45px; }
+}
+#app-update { margin: .2rem 0 .6rem; text-align: center; color: #f8eaaa; font-size: .8rem; }

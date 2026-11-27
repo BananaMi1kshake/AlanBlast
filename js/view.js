@@ -1,4 +1,4 @@
-import { visualProfile } from "./themes.js";
+import { MATERIALS, visualProfile } from "./themes.js";
 import { footprint, inBounds } from "./geometry.js";
 import { canPlace, completedLines, SHAPES, SIZE } from "./game.js";
 import { createEffects } from "./effects.js";
@@ -190,7 +190,9 @@ export function createView(motion) {
       setTheme(game, !!previous && !motion.matches);
     }
     clearNotice.hidden = !fullBoardClear;
-    clearNotice.textContent = fullBoardClear ? `Full-board clear! +${bonus} bonus` : "";
+    const changed = fullBoardClear && game.material !== previous?.material;
+    const name = changed ? ` · ${MATERIALS[game.material].name}` : "";
+    clearNotice.textContent = fullBoardClear ? `Full-board clear! +${bonus} bonus${name}` : "";
     overlay.hidden = !gameOver || !!adventure;
     if (gameOver && !adventure) {
       finalScore.textContent = game.score;

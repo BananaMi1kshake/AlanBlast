@@ -13,46 +13,50 @@
   <link rel="stylesheet" href="./interface.css">
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./modes.css">
+  <link rel="stylesheet" href="./design.css">
+  <link rel="stylesheet" href="./home.css">
+  <link rel="stylesheet" href="./launch.css">
+  <link rel="preload" as="image" href="./assets/branding/runtime/studio-logo.webp">
+  <meta name="author" content="Alan Studio">
   <title>AlanBlox</title>
   <script type="module" src="./js/menu.js"></script>
 </head>
-<body>
-  <main class="mode-shell">
+<body class="home">
+  <div id="launch" class="launch" hidden aria-label="AlanBlox startup">
+    <div data-brand-art="studio"></div>
+    <div data-brand-art="game"><span class="wordmark">Alan<strong>Blox</strong></span></div>
+    <span class="launch-progress" role="status">Opening AlanBlox…</span>
+  </div>
+  <main class="mode-shell" id="menu-content">
     <header class="menu-top">
-      <span class="menu-brand">AlanBlox</span>
       <button class="icon-button" type="button" id="open-settings" aria-label="Settings" aria-haspopup="dialog">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3.5h4l.7 2.2 1.6.9 2.2-.5 2 3.5-1.5 1.7v1.8l1.5 1.7-2 3.5-2.2-.5-1.6.9-.7 2.2h-4l-.7-2.2-1.6-.9-2.2.5-2-3.5L5 13.3v-1.8L3.5 9.8l2-3.5 2.2.5 1.6-.9z"/><circle cx="12" cy="12.4" r="2.7"/></svg>
       </button>
     </header>
-    <section class="menu-hero" aria-label="AlanBlox">
-      <img class="menu-emblem" src="./icons/icon-192.png" width="72" height="72" alt="">
-      <h1>Choose your game</h1>
-    </section>
+    <p id="app-update" hidden role="status">Update ready. Close AlanBlox tabs when you finish playing.</p>
+    <header class="menu-hero">
+      <h1 data-brand-art="game"><span class="wordmark">Alan<strong>Blox</strong></span></h1>
+    </header>
     <div class="mode-cards">
-      <section class="mode-card classic-card">
-        <div class="mode-card-copy">
-          <h2>Classic</h2>
-          <p>Keep the board open and chase your best.</p>
-          <p class="mode-metric">Personal best <strong id="classic-best">0</strong></p>
-        </div>
-        <div class="mode-art" id="classic-art" aria-hidden="true"></div>
-        <a id="classic-link" class="primary mode-action" href="./play.html">Play Classic</a>
-      </section>
-      <section class="mode-card adventure-card" id="adventure-card">
-        <div class="mode-card-copy">
-          <h2>Adventure</h2>
-          <p>Collect gems and solve puzzles across eight worlds.</p>
-          <p class="mode-metric" id="adventure-progress">Loading levels…</p>
-        </div>
-        <div class="mode-art" id="adventure-art" aria-hidden="true"></div>
-        <a class="primary mode-action" href="./adventure.html">Explore Adventure</a>
+      <a id="classic-link" class="hero-action classic" href="./play.html">
+        <span class="action-label" id="classic-action">Play Classic</span>
+        <span class="action-metric">Personal best <strong id="classic-best">0</strong></span>
+        <span class="mode-art" id="classic-art" aria-hidden="true"></span>
+      </a>
+      <div class="adventure-actions">
+        <a class="hero-action adventure" href="./adventure.html">
+          <span class="action-label">Adventure</span>
+          <span class="action-metric" id="adventure-progress">Loading levels…</span>
+          <span class="mode-art" id="adventure-art" aria-hidden="true"></span>
+        </a>
         <a id="resume-adventure" class="secondary mode-action" href="./play.html?mode=adventure" hidden>Resume level</a>
-      </section>
+      </div>
     </div>
     <nav class="menu-extras" aria-label="More AlanBlox">
-      <a class="secondary" href="./daily.html">Daily Challenge</a>
-      <a class="secondary" href="./progress.html?view=materials">Materials</a>
-      <a class="secondary" href="./progress.html?view=stats">Statistics and achievements</a>
+      <a class="secondary" href="./daily.html"><span aria-hidden="true">▣</span>Daily Challenge</a>
+      <a class="secondary" href="./progress.html?view=materials"><span aria-hidden="true">◆</span>Materials</a>
+      <a class="secondary" href="./progress.html?view=stats"><span aria-hidden="true">▤</span>Statistics</a>
+      <a class="secondary" href="./progress.html?view=achievements"><span aria-hidden="true">★</span>Achievements</a>
     </nav>
     <div id="tutorial-invitation" class="tutorial-invitation" hidden>
       <a href="./play.html?mode=tutorial">Learn to play</a>
@@ -91,7 +95,7 @@
         </div>
         <p id="backup-status" role="status"></p>
       </details>
-      <details><summary>About AlanBlox</summary><p>Version <span id="app-version">0.7.0</span></p><p>AlanBlox is a free, offline block puzzle. Each new hand has at least one solution, and your scores stay on this device.</p></details>
+      <details><summary>About AlanBlox</summary><p>Version <span id="app-version">0.8.0-rc.1</span></p><p>AlanBlox by Alan Studio is a free, offline block puzzle. Each new hand has at least one solution, and your scores stay on this device.</p></details>
       <button type="button" class="secondary" id="request-restart" hidden>Restart Game</button>
     </div>
     <div id="restart-confirm" hidden>

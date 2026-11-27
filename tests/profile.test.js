@@ -24,7 +24,7 @@ test("statistics count committed blocks, intersecting lines and all-clears once 
   assert.equal(createClassicSession(storage).newlyStarted, false);
   assert.deepEqual(loadProfile(storage).classic, { started: 1, completed: 0, blocks: 1, lines: 2,
     allClears: 1, combo: 1, simultaneous: 2, points: 126, bestRun: 126 });
-  assert.deepEqual(loadProfile(storage).materials, ["classic", "yarn"]);
+  assert.deepEqual(loadProfile(storage).materials, ["classic", "yarn", "sand"]);
   assert.deepEqual(recordGameplay("classic", { type: "end" }, {}, storage), []);
   assert.equal(loadProfile(storage).classic.completed, 1);
 });
@@ -33,7 +33,7 @@ test("legacy Adventure completions restore discovery without creating historical
   const storage = memoryStorage();
   const levels = [{ id: "loom", material: "yarn" }, { id: "ice", material: "ice" }];
   restoreDiscoveries(levels, ["ice"], storage);
-  assert.deepEqual(loadProfile(storage), { ...freshProfile(), materials: ["classic", "ice"] });
+  assert.deepEqual(loadProfile(storage), { ...freshProfile(), materials: ["classic", "ice", "paper"] });
 });
 
 test("Adventure and Daily use separate authoritative stats and result-based achievements", () => {
@@ -46,7 +46,7 @@ test("Adventure and Daily use separate authoritative stats and result-based achi
   assert.deepEqual(profile.adventure, { attempts: 1, gems: 1, lines: 1, combo: 2 });
   assert.equal(profile.daily.bestRun, 80);
   assert.equal(profile.daily.wins, 1);
-  assert.deepEqual(profile.materials, ["classic", "wood"]);
+  assert.deepEqual(profile.materials, ["classic", "wood", "stained-glass"]);
 });
 
 test("Classic favorite appearance retains identical scores and geometry in all three modes", () => {

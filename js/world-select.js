@@ -1,3 +1,4 @@
+import { previewStorage } from "./sandbox.js";
 import { isUnlocked, loadAdventure } from "./adventure-storage.js";
 import { levelUrl } from "./adventure-view.js";
 import { loadCampaign } from "./campaign.js";
@@ -7,8 +8,9 @@ import { MATERIALS, WORLDS } from "./themes.js";
 import { paintWorld } from "./world-art.js";
 
 const $ = id => document.getElementById(id);
-createMotionPreference(loadSettings());
-registerOffline();
+const preview = previewStorage();
+createMotionPreference(loadSettings(preview));
+if (!preview) registerOffline();
 
 function worldCard(world, entries, completed, levels, activeLevel) {
   const section = document.createElement("section");
@@ -51,7 +53,7 @@ function worldCard(world, entries, completed, levels, activeLevel) {
 async function render() {
   try {
     const levels = await loadCampaign();
-    const { completed, current } = loadAdventure(levels);
+    const { completed, current } = loadAdventure(levels, preview);
     const frontier = levels.find(level => !completed.includes(level.id)) ?? levels.at(-1);
     const activeLevel = current?.run.status === "playing"
       ? levels.find(level => level.id === current.levelId) : frontier;

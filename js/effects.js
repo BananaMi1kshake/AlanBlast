@@ -151,6 +151,9 @@ export function createEffects(layer, cells, motion) {
       banner.classList.toggle("all-clear", result.fullBoardClear);
       banner.append(node("fx-title", message), node("fx-detail", result.fullBoardClear
         ? `+${result.bonus} bonus` : `Combo ×${combo}`));
+      if (result.fullBoardClear && result.game.material !== material) {
+        banner.append(node("fx-material", MATERIALS[result.game.material].name));
+      }
       play(banner, pop, { duration: result.fullBoardClear ? MOTION.allClear : MOTION.combo });
       if (result.fullBoardClear) {
         banner.lastElementChild.animate([
