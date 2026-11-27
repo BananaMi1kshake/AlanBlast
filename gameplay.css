@@ -117,3 +117,14 @@
 @media (orientation: landscape) and (max-height: 480px) {
   .play-page .game-over .result-actions { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
 }
+
+:root[data-mode="classic"][data-palette="mint"][data-material="classic"] .board-frame {
+  border-radius: 11px;
+  box-shadow: 0 3px 0 var(--board-edge);
+}
+:root[data-mode="classic"] .personal-best { color: var(--medal); font-size: .9rem; }
+:root[data-mode="classic"] .personal-best svg { fill: currentColor; stroke-width: 0; width: 19px; }
+:root[data-mode="classic"] .current-score strong { color: #fff; text-shadow: 0 3px #1b438b; }
+:root[data-mode="classic"] .combo-card { font-size: .82rem; }
+:root[data-mode="classic"] .combo-card strong { font-weight: 900; }
+:root[data-mode="classic"] .tray button { background-color: transparent; }

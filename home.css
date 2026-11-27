@@ -68,3 +68,20 @@
   .home .hero-action .mode-art { min-height: 45px; }
 }
 #app-update { margin: .2rem 0 .6rem; text-align: center; color: #f8eaaa; font-size: .8rem; }
+
+.app-viewport .home .menu-top { min-height: 42px; }
+.app-viewport .home .menu-top .icon-button { box-shadow: none; }
+.app-viewport .home .mode-cards .hero-action { border: 0; }
+.app-viewport .home .menu-extras .secondary { border-color: #91baff36; box-shadow: none; }
+.app-viewport .home .mode-action { box-shadow: none; }
+@media (orientation: portrait) and (max-height: 580px) {
+  .app-viewport .home .menu-hero { padding-block: 1px 9px; }
+  .app-viewport .home .menu-hero [data-brand-art="game"] { max-width: 245px; }
+  .app-viewport .home .hero-action { min-height: 62px; padding-block: 6px; }
+  .app-viewport .home .hero-action .action-label { font-size: clamp(22px, 6.9vw, 28px); }
+  .app-viewport .home .hero-action .mode-art { min-height: 34px; scale: .8; }
+  .app-viewport .home .hero-action .action-metric { padding-top: 2px; }
+  .app-viewport .home .menu-extras { margin-block: 11px 3px; }
+  .app-viewport .home .menu-extras a { min-height: 44px; padding-block: 4px; }
+  .app-viewport .home .tutorial-invitation { margin-block-start: 0; }
+}

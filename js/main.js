@@ -38,6 +38,7 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
   const feedback = createFeedback(audio, haptics, settings, () => session.game.material);
   bindFeedbackLifecycle(audio, haptics);
   const preference = createMotionPreference(settings);
+  document.documentElement.dataset.mode = mode;
   const view = createView(preference.motion);
   const pending = $("hand-pending");
   const retryHand = $("retry-hand");
