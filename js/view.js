@@ -1,3 +1,4 @@
+import { footprint, inBounds } from "./geometry.js";
 import { canPlace, completedLines, SHAPES, SIZE } from "./game.js";
 import { createEffects } from "./effects.js";
 import { createCounter, MOTION } from "./motion.js";
@@ -17,7 +18,7 @@ export function makePiece(shape) {
   return piece;
 }
 
-export function createView() {
+export function createView(motion) {
   const board = document.querySelector("#board");
   const tray = document.querySelector("#tray");
   const slots = [...tray.querySelectorAll("button")];
@@ -25,10 +26,14 @@ export function createView() {
   const best = document.querySelector("#high-score");
   const combo = document.querySelector("#combo");
   const comboWindow = [...document.querySelector("#combo-window").children];
-  const controls = document.querySelector("#controls");
   const clearNotice = document.querySelector("#clear-notice");
   const overlay = document.querySelector("#game-over");
   const overMessage = document.querySelector("#game-over-message");
+  const finalScore = document.querySelector("#final-score");
+  const finalBest = document.querySelector("#final-best");
+  const recordBadge = document.querySelector("#record-badge");
+  const themeColor = document.querySelector('meta[name="theme-color"]');
+  const sceneFade = document.querySelector("#scene-fade");
   const status = document.querySelector("#status");
   const cells = [];
   for (let y = 0; y < SIZE; y++) {
@@ -47,7 +52,6 @@ export function createView() {
     board.append(row);
   }
 
-  const motion = matchMedia("(prefers-reduced-motion: reduce)");
   const effects = createEffects(document.querySelector("#effects"), cells, motion);
   document.documentElement.style.setProperty("--theme-duration", `${MOTION.theme}ms`);
   const scheduler = { request: callback => requestAnimationFrame(callback), cancel: id => cancelAnimationFrame(id) };
@@ -59,6 +63,29 @@ export function createView() {
   let previews = new Map();
   let focused = 0;
 
+  function stopThemeFade() {
+    sceneFade.getAnimations().forEach(animation => animation.cancel());
+    sceneFade.hidden = true;
+  }
+
+  function setTheme(theme, animate) {
+    stopThemeFade();
+    const root = document.documentElement;
+    if (animate) {
+      const previousColors = getComputedStyle(root);
+      for (const key of ["--scene-glow", "--scene-top", "--scene-bottom"]) {
+        sceneFade.style.setProperty(key, previousColors.getPropertyValue(key));
+      }
+      sceneFade.hidden = false;
+      const fade = sceneFade.animate([{ opacity: 1 }, { opacity: 0 }], {
+        duration: MOTION.theme, easing: "ease-in-out", fill: "both",
+      });
+      fade.onfinish = stopThemeFade;
+    }
+    root.dataset.theme = theme;
+    themeColor.content = getComputedStyle(root).getPropertyValue("--chrome").trim();
+  }
+
   function preview(game, shape, x, y) {
     if (previewKey?.board === game.board && previewKey.shape === shape && previewKey.x === x && previewKey.y === y) {
       return previewKey.valid;
@@ -68,10 +95,8 @@ export function createView() {
     const next = new Map();
     if (shape) {
       const projected = valid ? game.board.slice() : null;
-      for (const [dx, dy] of shape.cells) {
-        const column = x + dx;
-        const row = y + dy;
-        if (row < 0 || row >= SIZE || column < 0 || column >= SIZE) continue;
+      for (const [column, row] of footprint(shape, x, y)) {
+        if (!inBounds(1, 1, column, row)) continue;
         const i = row * SIZE + column;
         next.set(i, valid ? "preview-valid" : "preview-invalid");
         if (valid) {
@@ -102,6 +127,7 @@ export function createView() {
 
   motion.addEventListener("change", () => {
     if (!motion.matches || !previous) return;
+    stopThemeFade();
     animateScore(previous.score, false);
     animateBest(previousBest, false);
     for (const slot of slots) slot.firstElementChild?.getAnimations().forEach(animation => animation.cancel());
@@ -148,11 +174,17 @@ export function createView() {
     combo.textContent = game.combo;
     combo.setAttribute("aria-label", `${game.combo}, ${game.comboWindow} placements left in combo window`);
     comboWindow.forEach((pip, index) => pip.classList.toggle("active", index < game.comboWindow));
-    document.documentElement.dataset.theme = game.theme;
-    controls.hidden = fullBoardClear;
+    if (game.theme !== previous?.theme) {
+      setTheme(game.theme, !!previous && !motion.matches);
+    }
     clearNotice.hidden = !fullBoardClear;
     clearNotice.textContent = fullBoardClear ? `Full-board clear! +${bonus} bonus` : "";
     overlay.hidden = !gameOver;
+    if (gameOver) {
+      finalScore.textContent = game.score;
+      finalBest.textContent = highScore;
+      recordBadge.hidden = game.record !== true;
+    }
     overMessage.textContent = game.exhausted ? "No solvable hand exists." : "No remaining piece fits.";
     board.inert = gameOver;
     previous = game;

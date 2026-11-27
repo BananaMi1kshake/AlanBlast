@@ -1,3 +1,4 @@
+import { placementIndices } from "./geometry.js";
 import { drawCandidate, HAND_SIZE, SHAPES, SIZE } from "./pieces.js";
 
 const bits = Array.from({ length: SIZE ** 2 }, (_, index) => 1n << BigInt(index));
@@ -16,7 +17,7 @@ const placements = SHAPES.map(shape => {
   const masks = [];
   for (let y = 0; y <= SIZE - shape.height; y++) {
     for (let x = 0; x <= SIZE - shape.width; x++) {
-      masks.push(shape.cells.reduce((mask, [dx, dy]) => mask | bits[(y + dy) * SIZE + x + dx], 0n));
+      masks.push(placementIndices(shape, x, y).reduce((mask, index) => mask | bits[index], 0n));
     }
   }
   return masks;

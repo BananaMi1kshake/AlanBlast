@@ -94,3 +94,10 @@ test("saved pending deals can resume and proven exhaustion can be restored", () 
     assert.deepEqual(loadProgress(storage), { game, highScore: 100 });
   }
 });
+
+test("a run's record celebration survives restoration of the game-over state", () => {
+  const storage = memoryStorage();
+  const game = { ...createGame(), score: 800, exhausted: true, record: true };
+  saveProgress(game, 800, storage);
+  assert.deepEqual(loadProgress(storage), { game, highScore: 800 });
+});

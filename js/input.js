@@ -1,3 +1,4 @@
+import { pieceSize, pointerTarget, readBoardGeometry } from "./geometry.js";
 import { SHAPES, SIZE } from "./game.js";
 import { makePiece } from "./view.js";
 import { MOTION } from "./motion.js";
@@ -8,7 +9,7 @@ const directions = {
 };
 
 export function bindInput(view, getGame, place) {
-  const { board, tray, cells, slots } = view;
+  const { board, tray, slots } = view;
   let selected = null;
   let drag = null;
   let returning;
@@ -40,15 +41,8 @@ export function bindInput(view, getGame, place) {
   }
 
   function positionDrag(event) {
-    const { shape, metrics, ghost } = drag;
-    const { origin, step, gap } = metrics;
-    const width = shape.width * step - gap;
-    const height = shape.height * step - gap;
-    const left = event.clientX - width / 2;
-    const lift = event.pointerType === "touch" ? MOTION.touchLift : 0;
-    const top = event.clientY - height / 2 - lift;
-    const x = Math.round((left - origin.left) / step);
-    const y = Math.round((top - origin.top) / step);
+    const { shape, grid, size, lift, ghost } = drag;
+    const { x, y, left, top } = pointerTarget(grid, shape, size, event.clientX, event.clientY, lift);
     const valid = view.preview(getGame(), shape, x, y);
     ghost.style.transform = `translate3d(${left}px, ${top}px, 0)`;
     ghost.classList.toggle("invalid", !valid);
@@ -98,18 +92,27 @@ export function bindInput(view, getGame, place) {
     if (!drag || event.pointerId !== drag.pointerId) return;
     if (!drag.ghost) {
       if (Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) < DRAG_DISTANCE) return;
-      const origin = cells[0].getBoundingClientRect();
-      const step = cells[1].getBoundingClientRect().left - origin.left;
-      const gap = step - origin.width;
-      drag.metrics = { origin, step, gap };
-      drag.trayRect = drag.button.firstElementChild.getBoundingClientRect();
-      drag.scale = drag.trayRect.width / (drag.shape.width * step - gap);
+      const grid = readBoardGeometry(board);
+      const size = pieceSize(grid, drag.shape);
+      const viewport = window.visualViewport;
+      const bottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
+      drag.lift = event.pointerType === "touch"
+        ? Math.max(0, Math.min(MOTION.touchLift, bottom - (grid.bottom - size.height / 2) - 6))
+        : 0;
+      drag.grid = grid;
+      drag.size = size;
+      const trayPiece = drag.button.firstElementChild;
+      trayPiece.getAnimations().forEach(animation => animation.cancel());
+      drag.trayRect = trayPiece.getBoundingClientRect();
+      drag.scale = drag.trayRect.width / size.width;
       drag.ghost = document.createElement("span");
       drag.ghost.classList.add("floating");
       drag.ghost.setAttribute("aria-hidden", "true");
       const piece = makePiece(drag.shape);
-      piece.style.setProperty("--unit", `${origin.width}px`);
-      piece.style.setProperty("--gap", `${gap}px`);
+      piece.style.setProperty("--unit-x", `${grid.unitX}px`);
+      piece.style.setProperty("--unit-y", `${grid.unitY}px`);
+      piece.style.setProperty("--gap-x", `${grid.gapX}px`);
+      piece.style.setProperty("--gap-y", `${grid.gapY}px`);
       drag.ghost.append(piece);
       document.body.append(drag.ghost);
       if (!view.motion.matches) piece.animate([
@@ -157,6 +160,8 @@ export function bindInput(view, getGame, place) {
   tray.addEventListener("pointercancel", cancelDrag);
   tray.addEventListener("lostpointercapture", cancelDrag);
   window.addEventListener("resize", reset);
+  window.visualViewport?.addEventListener("resize", reset);
+  window.visualViewport?.addEventListener("scroll", () => { if (drag || returning) reset(); });
   window.addEventListener("scroll", () => { if (drag || returning) reset(); }, { passive: true });
   view.motion.addEventListener("change", () => {
     if (!view.motion.matches) return;

@@ -12,6 +12,8 @@ export const MOTION = Object.freeze({
   theme: 650,
   counter: 300,
   touchLift: 56,
+  settingsOpen: 220,
+  settingsClose: 160,
   particleLimit: 72,
 });
 

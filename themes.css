@@ -1,0 +1,138 @@
+/* Theme slots retain their original save IDs. The names below describe the Phase 4 palettes. */
+/* Ocean */
+:root {
+  --chrome: #101d41;
+  --scene-top: #122653;
+  --scene-bottom: #080e23;
+  --scene-glow: #253f79;
+  --board: #111b3c;
+  --cell: #243457;
+  --board-edge: #0a1431;
+  --ink: #f3f8ff;
+  --muted: #c1d4f3;
+  --accent: #77e5ff;
+  --medal: #deaa69;
+  --mint: #4ee5ab;
+  --sky: #54a9ff;
+  --sun: #ffbd63;
+  --coral: #ff8b67;
+  --lilac: #9f9bff;
+  --particle: #9deeff;
+  --combo-glow: #ffe3a0;
+  --clear-glow: #aaf6ff;
+}
+
+/* Sunset */
+:root[data-theme="tidal"] {
+  --chrome: #702743;
+  --scene-top: #842b48;
+  --scene-bottom: #2d1129;
+  --scene-glow: #be5260;
+  --board: #3c172d;
+  --cell: #54243d;
+  --board-edge: #281224;
+  --ink: #fff6f4;
+  --muted: #f7d2d7;
+  --accent: #ffac9c;
+  --medal: #ffd899;
+  --mint: #ff976e;
+  --sky: #ff9bb9;
+  --sun: #ffdb75;
+  --coral: #ff7d91;
+  --lilac: #e995ff;
+  --particle: #ffb469;
+  --combo-glow: #fff1a2;
+  --clear-glow: #ffd3ad;
+}
+
+/* Forest */
+:root[data-theme="orchard"] {
+  --chrome: #113b35;
+  --scene-top: #165149;
+  --scene-bottom: #092623;
+  --scene-glow: #23796b;
+  --board: #102f2c;
+  --cell: #1b4943;
+  --board-edge: #0b2320;
+  --ink: #effff5;
+  --muted: #c4e9db;
+  --accent: #8aeea0;
+  --medal: #e0ed9f;
+  --mint: #84e379;
+  --sky: #54dbd1;
+  --sun: #eddb73;
+  --coral: #ffaa82;
+  --lilac: #a0ccf9;
+  --particle: #b5ffd3;
+  --combo-glow: #d8ff9c;
+  --clear-glow: #d7fff1;
+}
+
+/* Midnight */
+:root[data-theme="dusk"] {
+  --chrome: #291e55;
+  --scene-top: #342561;
+  --scene-bottom: #130e2d;
+  --scene-glow: #63469a;
+  --board: #21173f;
+  --cell: #38295b;
+  --board-edge: #160f32;
+  --ink: #fcf7ff;
+  --muted: #ddd0f7;
+  --accent: #d0b5ff;
+  --medal: #f9c9fa;
+  --mint: #9ee8da;
+  --sky: #83b1ff;
+  --sun: #fbc092;
+  --coral: #ff96cb;
+  --lilac: #c19aff;
+  --particle: #e4b2ff;
+  --combo-glow: #ffd0f9;
+  --clear-glow: #ddd1ff;
+}
+
+/* Candy */
+:root[data-theme="desert"] {
+  --chrome: #762a61;
+  --scene-top: #863669;
+  --scene-bottom: #341433;
+  --scene-glow: #bd608f;
+  --board: #4d2049;
+  --cell: #66345d;
+  --board-edge: #351732;
+  --ink: #fff5fb;
+  --muted: #f7d2e6;
+  --accent: #ffb6dd;
+  --medal: #ffdfa6;
+  --mint: #a4edd0;
+  --sky: #abd0ff;
+  --sun: #ffe19f;
+  --coral: #ffabc8;
+  --lilac: #dac0ff;
+  --particle: #ffbef2;
+  --combo-glow: #ffebaa;
+  --clear-glow: #fff1ff;
+}
+
+/* Glacier */
+:root[data-theme="glacier"] {
+  --chrome: #14394f;
+  --scene-top: #255573;
+  --scene-bottom: #0b2435;
+  --scene-glow: #4986a2;
+  --board: #113041;
+  --cell: #244959;
+  --board-edge: #0b2231;
+  --ink: #f2fcff;
+  --muted: #cbeaf2;
+  --accent: #a0f0ff;
+  --medal: #fff1c8;
+  --mint: #9aece0;
+  --sky: #86ceff;
+  --sun: #ebfbff;
+  --coral: #a7eaff;
+  --lilac: #c1d1ff;
+  --particle: #bcf8ff;
+  --combo-glow: #e8faff;
+  --clear-glow: #fff;
+}

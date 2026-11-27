@@ -1,3 +1,4 @@
+import { inBounds, placementIndices } from "./geometry.js";
 import { scorePlacement } from "./scoring.js";
 import { DEFAULT_THEME, nextTheme } from "./themes.js";
 
@@ -17,9 +18,8 @@ export function needsHand(game) {
 }
 
 export function canPlace(board, shape, x, y) {
-  return Number.isInteger(x) && Number.isInteger(y)
-    && x >= 0 && y >= 0 && x + shape.width <= SIZE && y + shape.height <= SIZE
-    && shape.cells.every(([dx, dy]) => board[(y + dy) * SIZE + x + dx] === null);
+  return inBounds(shape.width, shape.height, x, y)
+    && placementIndices(shape, x, y).every(index => board[index] === null);
 }
 
 export function isGameOver(game) {
@@ -55,7 +55,7 @@ export function placePiece(game, slot, x, y) {
 
   const board = [...game.board];
   const hand = [...game.hand];
-  for (const [dx, dy] of shape.cells) board[(y + dy) * SIZE + x + dx] = id;
+  for (const index of placementIndices(shape, x, y)) board[index] = id;
 
   const { rows, columns } = completedLines(board);
   const cleared = [];

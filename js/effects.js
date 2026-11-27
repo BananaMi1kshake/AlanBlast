@@ -1,3 +1,4 @@
+import { placementIndices } from "./geometry.js";
 import { SHAPES, SIZE } from "./pieces.js";
 import { MOTION } from "./motion.js";
 
@@ -64,7 +65,7 @@ export function createEffects(layer, cells, motion) {
   function placement(previous, result, slot, x, y) {
     if (motion.matches) return;
     const id = previous.hand[slot];
-    const parts = SHAPES[id].cells.map(([dx, dy]) => (y + dy) * SIZE + x + dx);
+    const parts = placementIndices(SHAPES[id], x, y);
     const palette = getComputedStyle(document.documentElement);
     const colors = new Map();
     function colorAt(index) {
@@ -115,13 +116,13 @@ export function createEffects(layer, cells, motion) {
         ? Array.from({ length: SIZE ** 2 }, (_, index) => index)
         : result.cleared;
       const burstColors = result.fullBoardClear
-        ? ["mint", "sky", "sun", "coral", "lilac"].map(key => palette.getPropertyValue(`--${key}`).trim())
+        ? ["mint", "sky", "sun", "coral", "lilac", "particle"].map(key => palette.getPropertyValue(`--${key}`).trim())
         : result.cleared.map(colorAt);
       const count = result.fullBoardClear ? 48 : Math.min(36, 8 + lines * 7 + Math.min(8, result.game.combo));
       burst(sources, count, burstColors, result.fullBoardClear ? MOTION.allClear * .82 : duration + 140,
         result.fullBoardClear);
     } else {
-      burst(parts, Math.min(8, parts.length + 3), [colorAt(parts[0])], MOTION.placement + 110);
+      burst(parts, Math.min(8, parts.length + 3), [colorAt(parts[0]), palette.getPropertyValue("--particle").trim()], MOTION.placement + 110);
     }
 
     // Only the current labels remain onscreen. Board effects may overlap independently.
