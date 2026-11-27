@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#101d41">
   <meta name="description" content="A free, offline-friendly block puzzle game.">
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="icon" type="image/png" href="./icons/icon-192.png">
+  <link rel="icon" type="image/png" href="./icons/favicon.png">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
   <link rel="stylesheet" href="./themes.css">
   <link rel="stylesheet" href="./materials.css">
@@ -25,9 +25,7 @@
       </button>
     </header>
     <section class="menu-hero" aria-label="AlanBlox">
-      <div class="title-emblem" aria-hidden="true">
-        <i class="block" data-color="sky"></i><i class="block" data-color="sun"></i><i class="block" data-color="mint"></i>
-      </div>
+      <img class="menu-emblem" src="./icons/icon-192.png" width="72" height="72" alt="">
       <h1>Choose your game</h1>
     </section>
     <div class="mode-cards">
@@ -63,6 +61,10 @@
         <label><span>Vibration<small id="haptics-status"></small></span><input type="checkbox" data-preference="vibration"></label>
         <label><span>Reduced motion<small>Also respects your device setting</small></span><input type="checkbox" data-preference="reducedMotion"></label>
       </div>
+      <section id="install-panel">
+        <button type="button" class="secondary" id="install-game" aria-expanded="false" aria-controls="install-help">Install AlanBlox</button>
+        <p id="install-help" role="status" hidden></p>
+      </section>
       <details><summary>How to Play</summary><p>Drag one of the three pieces onto the board. Complete a row or column to clear it. Use all three pieces to get a new hand. Clear again within three moves to keep your combo going.</p><p>You can also choose a piece and tap its top-left target cell, or use the arrow keys and Enter.</p></details>
       <details><summary>About AlanBlox</summary><p>AlanBlox is a free, offline block puzzle. Each new hand has at least one solution, and your scores stay on this device.</p></details>
       <button type="button" class="secondary" id="request-restart" hidden>Restart Game</button>

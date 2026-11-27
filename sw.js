@@ -1,5 +1,5 @@
 const prefix = `alanblox:${self.registration.scope}:shell-`;
-const cacheName = `${prefix}10`;
+const cacheName = `${prefix}11`;
 const shell = [
   "./index.html",
   "./play.html",
@@ -20,6 +20,10 @@ const shell = [
   "./interface.css",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
+  "./icons/favicon.png",
+  "./icons/icon-maskable-192.png",
+  "./icons/icon-maskable-512.png",
+  "./js/install.js",
   "./icons/icon-512.png",
   "./icons/apple-touch-icon.png",
   "./js/main.js",

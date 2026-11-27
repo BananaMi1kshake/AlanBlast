@@ -100,3 +100,6 @@
   .menu-hero { padding-block: 12px; }
   .adventure-play .pieces { margin-top: 10px; }
 }
+
+.menu-emblem { border-radius: 22%; box-shadow: 0 8px 24px #0005; }
+#install-help { margin: .65rem 0 0; font-size: .9rem; }

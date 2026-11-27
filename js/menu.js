@@ -1,3 +1,4 @@
+import { bindInstall } from "./install.js";
 import { loadAdventure } from "./adventure-storage.js";
 import { levelUrl } from "./adventure-view.js";
 import { createAudio } from "./audio.js";
@@ -24,6 +25,7 @@ bindSettings(settings, preference, {
   onInteraction: () => feedback.cue("ui"),
 });
 registerOffline();
+bindInstall();
 
 async function render() {
   const classic = loadProgress();
