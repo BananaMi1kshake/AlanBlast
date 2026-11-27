@@ -1,5 +1,5 @@
 import { pieceSize, readBoardGeometry } from "./geometry.js";
-import { boardMoved, dragFrame, grabOffset, INPUT, inputTuning, placementTarget, touchClearance, visualOrigin } from "./drag-geometry.js";
+import { boardMoved, dragFrame, dragTarget, grabOffset, INPUT, inputTuning, touchClearance, visualOrigin } from "./drag-geometry.js";
 import { SHAPES, SIZE } from "./game.js";
 import { makePiece } from "./view.js";
 const directions = {
@@ -62,7 +62,7 @@ export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
   function draw(progress) {
     const { pointer, offsets, grid, target, shape, ghost } = drag;
     const frame = dragFrame(pointer, offsets, progress);
-    const next = placementTarget(grid, frame.left, frame.top, target, tuning.hysteresis);
+    const next = dragTarget(grid, pointer, offsets, target, tuning.hysteresis);
     const game = getGame();
     if (!target || next.x !== target.x || next.y !== target.y || drag.previewBoard !== game.board) {
       drag.target = next;
@@ -70,7 +70,7 @@ export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
       drag.valid = view.preview(game, shape, next.x, next.y);
       ghost.classList.toggle("invalid", !drag.valid);
     }
-    const visual = { ...frame, ...visualOrigin(frame, grid, shape, next, tuning.snapVisual) };
+    const visual = tuning.snapVisual ? { ...frame, ...visualOrigin(frame, grid, shape, next, true) } : frame;
     ghost.style.transform = transform(visual);
     drag.visual = visual;
     drag.progress = progress;
@@ -194,8 +194,8 @@ export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
       begin();
       draw(1);
     } else {
-      // Use the last drawn scale and offset. A release between animation frames
-      // must not advance the pickup and thereby change the visible target.
+      // Sample the release position without advancing the visual enlargement.
+      // The logical target never depends on the enlargement timer.
       draw(drag.progress);
     }
 

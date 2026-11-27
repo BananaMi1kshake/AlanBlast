@@ -92,8 +92,7 @@ html.play-page {
   .game-shell #tutorial-tip { font-size: .73rem; margin-block: 2px; }
 }
 
-.game-shell .tray button.pressed { background: #ffffff13; }
-.game-shell .tray button.pressed .piece { filter: brightness(1.18); }
+.game-shell .tray button.pressed { background: #ffffff16; box-shadow: inset 0 0 0 1px #ffffff30; }
 .game-shell .tray button:is(.dragging, .returning) .piece { opacity: 0; }
 .play-page .floating { opacity: .96; }
 .play-page .floating.invalid { opacity: .78; }
