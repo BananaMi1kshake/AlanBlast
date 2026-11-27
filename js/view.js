@@ -21,6 +21,9 @@ export function createView() {
   const slots = [...tray.querySelectorAll("button")];
   const score = document.querySelector("#score");
   const best = document.querySelector("#high-score");
+  const combo = document.querySelector("#combo");
+  const controls = document.querySelector("#controls");
+  const clearNotice = document.querySelector("#clear-notice");
   const overlay = document.querySelector("#game-over");
   const status = document.querySelector("#status");
   const cells = [];
@@ -61,7 +64,7 @@ export function createView() {
     return valid;
   }
 
-  function render(game, highScore, gameOver, cleared = []) {
+  function render(game, highScore, gameOver, { cleared = [], fullBoardClear = false, bonus = 0 } = {}) {
     preview(game);
     for (const cell of clearedCells) cell.classList.remove("cleared");
     cells.forEach((cell, index) => {
@@ -82,6 +85,11 @@ export function createView() {
     });
     score.textContent = game.score;
     best.textContent = highScore;
+    combo.textContent = game.combo;
+    document.documentElement.dataset.theme = game.theme;
+    controls.hidden = fullBoardClear;
+    clearNotice.hidden = !fullBoardClear;
+    clearNotice.textContent = fullBoardClear ? `Full-board clear! +${bonus} bonus` : "";
     overlay.hidden = !gameOver;
     board.inert = gameOver;
   }

@@ -1,4 +1,5 @@
 import { HAND_SIZE, SHAPES, SIZE } from "./game.js";
+import { DEFAULT_THEME, THEMES } from "./themes.js";
 
 const KEY = "alanblox.save.v1";
 
@@ -26,7 +27,11 @@ function isGame(value) {
 export function loadProgress(storage) {
   try {
     const saved = JSON.parse((storage ?? globalThis.localStorage).getItem(KEY));
-    const game = isGame(saved?.game) ? saved.game : null;
+    const game = isGame(saved?.game) ? {
+      ...saved.game,
+      combo: isScore(saved.game.combo) ? saved.game.combo : 0,
+      theme: THEMES.includes(saved.game.theme) ? saved.game.theme : DEFAULT_THEME,
+    } : null;
     const highScore = isScore(saved?.highScore) ? saved.highScore : 0;
     return { game, highScore: Math.max(highScore, game?.score ?? 0) };
   } catch {
