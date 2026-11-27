@@ -12,7 +12,7 @@ The project focuses on responsive controls, rewarding audiovisual feedback, colo
 
 ## Features and roadmap
 
-### Playable through Phase 4
+### Playable through Phase 5
 
 - Classic 8×8 puzzle board.
 - Three block pieces per round.
@@ -25,11 +25,7 @@ The project focuses on responsive controls, rewarding audiovisual feedback, colo
 - Persistent high scores.
 - Automatic game progress saving.
 - Tactile block pickup, projected line clears, animated scoring, and visual celebrations.
-
-### Planned polish
-
-- Escalating combo sound effects.
-- Haptic feedback on supported devices.
+- Original procedural sound effects, musical combos, and vibration on supported devices.
 
 ### Accessibility
 
@@ -107,12 +103,12 @@ AlanBlox is built around five fundamental principles:
 
 ### Phase 5 — Audio and Haptics
 
-- [ ] Block placement sounds
-- [ ] Line-clearing sounds
-- [ ] Dynamic combo sounds
-- [ ] Full-board clear sound effects
-- [ ] Haptic feedback
-- [ ] Audio and vibration settings
+- [x] Block placement sounds
+- [x] Line-clearing sounds
+- [x] Dynamic combo sounds
+- [x] Full-board clear sound effects
+- [x] Haptic feedback
+- [x] Audio and vibration settings
 
 ### Phase 6 — Release
 
@@ -160,7 +156,11 @@ The game commits each move and its score immediately. Visual effects can overlap
 
 The game reads board origin, spacing, and cell size from the layout grid. Placement pop animations can change a cell's visual bounds, so those bounds are excluded from pointer geometry. The floating piece, projected cells, and final placement snap to the same grid anchor. Preview, gameplay validation, and solver masks use the same shape footprint. The touch lift is reduced when the visible viewport leaves too little space beneath the board.
 
-The settings gear opens a modal with Resume, Restart, How to Play, and About. Restart asks for confirmation and keeps the personal best. The reduced-motion switch applies immediately and respects the operating-system preference. Sound and vibration preferences are saved for Phase 5. Theme saves retain their original palette positions as those positions now render the six updated designs.
+The settings gear opens a modal with Resume, Restart, How to Play, and About. Restart asks for confirmation and keeps the personal best. The reduced-motion switch applies immediately and respects the operating-system preference. Sound, volume, and vibration preferences apply immediately and are saved locally. Theme saves retain their original palette positions as those positions now render the six updated designs.
+
+### Audio development
+
+AlanBlox uses original procedural audio and plays a musical cue when the combo advances. The game activates audio after a browser-approved interaction. On supported browsers it can also vibrate for placement, clears, and celebrations. See the [audio guide](audio/README.md) for event names, replacement file formats, offline caching, and the localhost sound preview tool.
 
 ## Running locally
 
@@ -204,7 +204,7 @@ AI development agents should refer to `AGENTS.md` for project-specific requireme
 
 ## Project Status
 
-Phases 1 through 4 are playable. The next phase covers audio and haptics.
+Phases 1 through 5 are playable. The next phase covers release testing and polish.
 
 ## Disclaimer
 

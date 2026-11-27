@@ -1,5 +1,5 @@
 const prefix = `alanblox:${self.registration.scope}:shell-`;
-const cacheName = `${prefix}6`;
+const cacheName = `${prefix}7`;
 const shell = [
   "./index.html",
   "./styles.css",
@@ -10,6 +10,11 @@ const shell = [
   "./icons/icon-512.png",
   "./icons/apple-touch-icon.png",
   "./js/main.js",
+  "./js/audio.js",
+  "./js/sound-bank.js",
+  "./js/feedback.js",
+  "./js/haptics.js",
+  "./audio/sounds.json",
   "./js/motion.js",
   "./js/effects.js",
   "./js/game.js",
@@ -28,11 +33,33 @@ const shell = [
 const shellUrls = new Set(shell.map(path => new URL(path, self.registration.scope).href));
 const home = self.registration.scope;
 const index = new URL("./index.html", home).href;
+const audioDirectory = new URL("./audio/", home).href;
+
+async function cacheCustomSounds(cache) {
+  try {
+    const manifest = await cache.match(new URL("sounds.json", audioDirectory));
+    const files = new Set(Object.values(await manifest.json()).flat());
+    await Promise.all([...files].map(async file => {
+      if (typeof file !== "string" || !file || file.startsWith("/") || file.includes("..") || !/^[\w./ -]+$/.test(file)) return;
+      const request = new Request(new URL(file, audioDirectory), { cache: "reload", mode: "same-origin", redirect: "error" });
+      try {
+        const response = await fetch(request);
+        if (response.ok) await cache.put(request, response);
+      } catch {
+        // Custom sounds are optional. A missing file leaves the app installable.
+      }
+    }));
+  } catch {
+    // An invalid manifest leaves every event on its procedural default.
+  }
+}
 
 self.addEventListener("install", event => {
-  event.waitUntil(caches.open(cacheName).then(cache =>
-    cache.addAll(shell.map(path => new Request(new URL(path, home), { cache: "reload" })))
-  ));
+  event.waitUntil((async () => {
+    const cache = await caches.open(cacheName);
+    await cache.addAll(shell.map(path => new Request(new URL(path, home), { cache: "reload" })));
+    await cacheCustomSounds(cache);
+  })());
 });
 
 self.addEventListener("activate", event => {
@@ -55,7 +82,7 @@ self.addEventListener("fetch", event => {
       event.respondWith(caches.open(cacheName).then(cache => cache.match(index))
         .then(response => response ?? fetch(request)));
     }
-  } else if (shellUrls.has(url.href)) {
+  } else if (shellUrls.has(url.href) || url.href.startsWith(audioDirectory)) {
     event.respondWith(caches.open(cacheName).then(cache => cache.match(request))
       .then(response => response ?? fetch(request)));
   }

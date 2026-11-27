@@ -8,7 +8,7 @@ const directions = {
   ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1],
 };
 
-export function bindInput(view, getGame, place) {
+export function bindInput(view, getGame, place, playSound) {
   const { board, tray, slots } = view;
   let selected = null;
   let drag = null;
@@ -37,6 +37,7 @@ export function bindInput(view, getGame, place) {
     if (!place(selected, index % SIZE, Math.floor(index / SIZE))) {
       showAt(index, selected);
       view.announce("That piece does not fit here.");
+      playSound("invalid");
     }
   }
 
@@ -120,6 +121,7 @@ export function bindInput(view, getGame, place) {
       ], { duration: MOTION.pickup, easing: "ease-out" });
       drag.button.classList.add("dragging");
       select(drag.slot);
+      playSound("pickup");
     }
     positionDrag(event);
   });
@@ -131,6 +133,7 @@ export function bindInput(view, getGame, place) {
       stopDrag();
       if (Math.hypot(event.clientX - startX, event.clientY - startY) < DRAG_DISTANCE) {
         select(selected === slot ? null : slot);
+        if (selected !== null) playSound("pickup");
       }
       return;
     }
@@ -148,6 +151,7 @@ export function bindInput(view, getGame, place) {
       stopDrag(true);
       select(null);
       view.announce("That piece does not fit here.");
+      playSound("invalid");
     }
   });
 
@@ -175,6 +179,7 @@ export function bindInput(view, getGame, place) {
     const slot = Number(button.dataset.slot);
     select(selected === slot ? null : slot);
     if (selected !== null) {
+      playSound("pickup");
       view.focusCell(0);
       showAt(0, selected);
     }
