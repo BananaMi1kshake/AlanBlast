@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { boardGeometry, footprint, pieceSize, pointerTarget } from "../js/geometry.js";
+import { boardGeometry, footprint, pieceSize } from "../js/geometry.js";
 import { canPlace, createGame, placePiece, SHAPES, SIZE } from "../js/game.js";
+import { dragFrame, grabOffset, placementTarget, touchClearance } from "../js/drag-geometry.js";
 import { solveHand } from "../js/solver.js";
 
 const viewportSizes = [271.25, 343.5, 464, 528.75];
@@ -33,12 +34,19 @@ for (const [id, shape] of SHAPES.entries()) {
         for (const width of viewportSizes) {
           const grid = boardGeometry({ left: 13.125, top: 84.375, width, height: width }, 3.75, 3.75);
           const size = pieceSize(grid, shape);
-          for (const lift of [0, 28, 56]) {
-            const left = grid.left + x * grid.stepX;
-            const top = grid.top + y * grid.stepY;
-            const target = pointerTarget(grid, shape, size, left + size.width / 2 + .12,
-              top + size.height / 2 + lift - .12, lift);
-            assert.deepEqual(target, { x, y, left, top });
+          const left = grid.left + x * grid.stepX;
+          const top = grid.top + y * grid.stepY;
+          const rect = { left: 18, top: grid.bottom + 16, width: size.width / 2, height: size.height / 2 };
+          const start = { x: rect.left + rect.width * .38, y: rect.top + rect.height * .62 };
+          for (const reach of [grid.bottom + 15, grid.bottom + 82]) {
+            for (const touch of [true, false]) {
+              const clearance = touchClearance(grid, reach, 1.15);
+              const offsets = grabOffset(rect, size, start, touch, clearance, "grab");
+              const pointer = { x: left - offsets.endX + .12, y: top - offsets.endY - .12 };
+              const visual = dragFrame(pointer, offsets, 1);
+              assert.deepEqual(placementTarget(grid, visual.left, visual.top), { x, y });
+              if (touch) assert.ok(pointer.y <= reach, "bottom row can be reached inside the viewport");
+            }
           }
         }
       }

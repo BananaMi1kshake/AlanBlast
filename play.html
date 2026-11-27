@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="play-page">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./modes.css">
   <link rel="stylesheet" href="./design.css">
+  <link rel="stylesheet" href="./gameplay.css">
   <title>AlanBlox</title>
   <script type="module" src="./js/main.js"></script>
 </head>
@@ -49,34 +50,36 @@
       <p id="tutorial-tip" hidden></p>
       <div id="level-objectives" class="objective-list"></div>
     </section>
-    <div class="board-frame">
-      <div id="board" class="board" role="grid" aria-label="Puzzle board" aria-describedby="controls" aria-rowcount="8" aria-colcount="8"></div>
-      <div id="effects" class="fx-layer" aria-hidden="true"></div>
-      <section id="game-over" class="game-over" aria-labelledby="game-over-title" hidden>
-        <div class="game-over-content">
-          <p id="record-badge" hidden>New personal best</p>
-          <h2 id="game-over-title">Game Over</h2>
-          <p id="game-over-message">No remaining piece fits.</p>
-          <dl class="final-stats">
-            <div><dt>Final score</dt><dd id="final-score">0</dd></div>
-            <div><dt>Personal best</dt><dd id="final-best">0</dd></div>
-          </dl>
-          <button type="button" class="primary" id="play-again">Play Again</button>
-        </div>
-      </section>
-      <section id="adventure-result" class="game-over adventure-result" aria-labelledby="adventure-result-title" hidden>
-        <div class="game-over-content">
-          <p id="completion-tag" class="completion-tag" hidden>LEVEL COMPLETE</p>
-          <h2 id="adventure-result-title"></h2>
-          <p id="adventure-result-summary"></p>
-          <p class="result-points">Score <strong id="adventure-final-score"></strong></p>
-          <div class="result-actions">
-            <a id="next-level" class="primary" href="./adventure.html" hidden>Continue</a>
-            <button id="retry-level" type="button" class="primary">Retry</button>
-            <a id="level-selection" class="secondary" href="./adventure.html">Level selection</a>
+    <div class="playfield">
+      <div class="board-frame">
+        <div id="board" class="board" role="grid" aria-label="Puzzle board" aria-describedby="controls" aria-rowcount="8" aria-colcount="8"></div>
+        <div id="effects" class="fx-layer" aria-hidden="true"></div>
+        <section id="game-over" class="game-over" aria-labelledby="game-over-title" hidden>
+          <div class="game-over-content">
+            <p id="record-badge" hidden>New personal best</p>
+            <h2 id="game-over-title">Game Over</h2>
+            <p id="game-over-message">No remaining piece fits.</p>
+            <dl class="final-stats">
+              <div><dt>Final score</dt><dd id="final-score">0</dd></div>
+              <div><dt>Personal best</dt><dd id="final-best">0</dd></div>
+            </dl>
+            <button type="button" class="primary" id="play-again">Play Again</button>
           </div>
-        </div>
-      </section>
+        </section>
+        <section id="adventure-result" class="game-over adventure-result" aria-labelledby="adventure-result-title" hidden>
+          <div class="game-over-content">
+            <p id="completion-tag" class="completion-tag" hidden>LEVEL COMPLETE</p>
+            <h2 id="adventure-result-title"></h2>
+            <p id="adventure-result-summary"></p>
+            <p class="result-points">Score <strong id="adventure-final-score"></strong></p>
+            <div class="result-actions">
+              <a id="next-level" class="primary" href="./adventure.html" hidden>Continue</a>
+              <button id="retry-level" type="button" class="primary">Retry</button>
+              <a id="level-selection" class="secondary" href="./adventure.html">Level selection</a>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
 
     <section class="pieces" aria-label="Available pieces">
@@ -131,7 +134,7 @@
         </div>
         <p id="backup-status" role="status"></p>
       </details>
-      <details><summary>About AlanBlox</summary><p>Version <span id="app-version">0.8.0-rc.1</span></p><p>AlanBlox by Alan Studio is a free, offline block puzzle. Each new hand has at least one solution, and your scores stay on this device.</p></details>
+      <details><summary>About AlanBlox</summary><p>Version <span id="app-version">0.8.0-rc.2</span></p><p>AlanBlox by Alan Studio is a free, offline block puzzle. Each new hand has at least one solution, and your scores stay on this device.</p></details>
       <button type="button" class="secondary" id="request-restart">Restart Game</button>
     </div>
     <div id="restart-confirm" hidden>

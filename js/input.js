@@ -1,18 +1,35 @@
-import { pieceSize, pointerTarget, readBoardGeometry } from "./geometry.js";
+import { pieceSize, readBoardGeometry } from "./geometry.js";
+import { boardMoved, dragFrame, grabOffset, INPUT, inputTuning, placementTarget, touchClearance, visualOrigin } from "./drag-geometry.js";
 import { SHAPES, SIZE } from "./game.js";
 import { makePiece } from "./view.js";
-import { MOTION } from "./motion.js";
-
-const DRAG_DISTANCE = 5;
 const directions = {
   ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1],
 };
 
-export function bindInput(view, getGame, place, playSound) {
+export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
   const { board, tray, slots } = view;
   let selected = null;
   let drag = null;
   let returning;
+  let tuning = INPUT;
+  const viewport = window.visualViewport;
+  const point = event => ({ x: event.clientX, y: event.clientY });
+  const transform = ({ left, top, scaleX = 1, scaleY = scaleX }) =>
+    `translate3d(${left}px, ${top}px, 0) scale(${scaleX}, ${scaleY})`;
+  board.style.setProperty("--preview-opacity", tuning.previewOpacity);
+
+  function report() {
+    if (!inspect) return;
+    const visual = viewport ?? window;
+    inspect(drag && {
+      slot: drag.slot, phase: drag.ghost ? "dragging" : "pressed", pointer: drag.pointer,
+      floating: drag.visual, target: drag.target, valid: drag.valid, lift: drag.clearance,
+      cell: { width: drag.grid.unitX, height: drag.grid.unitY, pitchX: drag.grid.stepX, pitchY: drag.grid.stepY },
+      board: { left: drag.grid.left, top: drag.grid.top, bottom: drag.grid.bottom },
+      viewport: { width: visual.width ?? window.innerWidth, height: visual.height ?? window.innerHeight, scale: viewport?.scale ?? 1 },
+      scroll: { x: window.scrollX, y: window.scrollY },
+    });
+  }
 
   function finishReturn() {
     if (!returning) return;
@@ -41,34 +58,74 @@ export function bindInput(view, getGame, place, playSound) {
     }
   }
 
-  function positionDrag(event) {
-    const { shape, grid, size, lift, ghost } = drag;
-    const { x, y, left, top } = pointerTarget(grid, shape, size, event.clientX, event.clientY, lift);
-    const valid = view.preview(getGame(), shape, x, y);
-    ghost.style.transform = `translate3d(${left}px, ${top}px, 0)`;
-    ghost.classList.toggle("invalid", !valid);
-    return { x, y, valid };
+  function draw(progress) {
+    const { pointer, offsets, grid, target, shape, ghost } = drag;
+    const frame = dragFrame(pointer, offsets, progress);
+    const next = placementTarget(grid, frame.left, frame.top, target, tuning.hysteresis);
+    const game = getGame();
+    if (!target || next.x !== target.x || next.y !== target.y || drag.previewBoard !== game.board) {
+      drag.target = next;
+      drag.previewBoard = game.board;
+      drag.valid = view.preview(game, shape, next.x, next.y);
+      ghost.classList.toggle("invalid", !drag.valid);
+    }
+    const visual = { ...frame, ...visualOrigin(frame, grid, shape, next, tuning.snapVisual) };
+    ghost.style.transform = transform(visual);
+    drag.visual = visual;
+    drag.progress = progress;
+    report();
+  }
+
+  function pickupFrame(now) {
+    drag.frame = undefined;
+    const duration = view.motion.matches ? 0 : tuning.pickupMs;
+    draw(duration ? Math.max(0, Math.min(1, (now - drag.started) / duration)) : 1);
+    if (drag.progress < 1) drag.frame = requestAnimationFrame(pickupFrame);
+  }
+
+  function begin() {
+    const { shape, grid } = drag;
+    const ghost = document.createElement("span");
+    ghost.className = "floating";
+    ghost.setAttribute("aria-hidden", "true");
+    const piece = makePiece(shape);
+    piece.style.setProperty("--unit-x", `${grid.unitX}px`);
+    piece.style.setProperty("--unit-y", `${grid.unitY}px`);
+    piece.style.setProperty("--gap-x", `${grid.gapX}px`);
+    piece.style.setProperty("--gap-y", `${grid.gapY}px`);
+    ghost.append(piece);
+    document.body.append(ghost);
+    drag.ghost = ghost;
+    drag.button.classList.remove("pressed");
+    drag.button.classList.add("dragging");
+    drag.started = performance.now();
+    drag.progress = view.motion.matches || !tuning.pickupMs ? 1 : 0;
+    select(drag.slot);
+    playSound("pickup");
   }
 
   function stopDrag(animateReturn = false) {
     if (!drag) return;
-    const { button, pointerId, ghost, trayRect, scale } = drag;
+    const { button, pointerId, ghost, rect, offsets, frame } = drag;
     drag = null;
+    if (frame !== undefined) cancelAnimationFrame(frame);
+    button.classList.remove("pressed", "dragging");
     if (button.hasPointerCapture(pointerId)) button.releasePointerCapture(pointerId);
-    if (ghost && animateReturn && !view.motion.matches) {
+    if (ghost && animateReturn && !view.motion.matches && tuning.returnMs) {
       finishReturn();
       button.classList.add("returning");
       const animation = ghost.animate([
-        { transform: ghost.style.transform, opacity: .7 },
-        { transform: `translate3d(${trayRect.left}px, ${trayRect.top}px, 0) scale(${scale})`, opacity: 1 },
-      ], { duration: MOTION.return, easing: "ease-out", fill: "both" });
+        { transform: ghost.style.transform, opacity: .8 },
+        { transform: transform({ left: rect.left, top: rect.top,
+          scaleX: offsets.startScaleX, scaleY: offsets.startScaleY }), opacity: 1 },
+      ], { duration: tuning.returnMs, easing: "ease-out", fill: "both" });
       returning = { button, ghost, animation };
       animation.onfinish = finishReturn;
     } else {
       ghost?.remove();
     }
-    button.classList.remove("dragging");
     view.preview(getGame());
+    report();
   }
 
   function reset() {
@@ -77,73 +134,77 @@ export function bindInput(view, getGame, place, playSound) {
     select(null);
   }
 
+  function pastThreshold() {
+    const { start, pointer, touch } = drag;
+    return Math.hypot(pointer.x - start.x, pointer.y - start.y) >= (touch ? tuning.touchThreshold : tuning.mouseThreshold);
+  }
+
   tray.addEventListener("pointerdown", event => {
     if (drag || !event.isPrimary || event.button !== 0) return;
     const button = event.target.closest("button[data-slot]");
     if (!button || button.disabled) return;
-    finishReturn();
     const slot = Number(button.dataset.slot);
     const shape = SHAPES[getGame().hand[slot]];
     if (!shape) return;
-    drag = { slot, button, shape, pointerId: event.pointerId, startX: event.clientX, startY: event.clientY };
-    button.setPointerCapture(event.pointerId);
+    finishReturn();
+    const trayPiece = button.firstElementChild;
+    trayPiece.getAnimations().forEach(animation => animation.cancel());
+    const rect = trayPiece.getBoundingClientRect();
+    const grid = readBoardGeometry(board);
+    const size = pieceSize(grid, shape);
+    const start = point(event);
+    const touch = event.pointerType === "touch";
+    const bottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
+    const safe = parseFloat(getComputedStyle(tray.closest(".game-shell")).paddingBottom) || 0;
+    const clearance = touch ? touchClearance(grid, bottom - safe, tuning.touchLift) : 0;
+    drag = {
+      slot, button, shape, pointerId: event.pointerId, start, pointer: start, touch, rect, grid, clearance,
+      scale: viewport?.scale ?? 1, offsets: grabOffset(rect, size, start, touch, clearance, tuning.grabAnchor),
+    };
+    button.classList.add("pressed");
+    try { button.setPointerCapture(event.pointerId); } catch { /* Document listeners also track uncaptured pointers. */ }
+    report();
   });
 
-  tray.addEventListener("pointermove", event => {
+  document.addEventListener("pointermove", event => {
     if (!drag || event.pointerId !== drag.pointerId) return;
+    checkLayout();
+    if (!drag) return;
+    drag.pointer = point(event);
     if (!drag.ghost) {
-      if (Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) < DRAG_DISTANCE) return;
-      const grid = readBoardGeometry(board);
-      const size = pieceSize(grid, drag.shape);
-      const viewport = window.visualViewport;
-      const bottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
-      drag.lift = event.pointerType === "touch"
-        ? Math.max(0, Math.min(MOTION.touchLift, bottom - (grid.bottom - size.height / 2) - 6))
-        : 0;
-      drag.grid = grid;
-      drag.size = size;
-      const trayPiece = drag.button.firstElementChild;
-      trayPiece.getAnimations().forEach(animation => animation.cancel());
-      drag.trayRect = trayPiece.getBoundingClientRect();
-      drag.scale = drag.trayRect.width / size.width;
-      drag.ghost = document.createElement("span");
-      drag.ghost.classList.add("floating");
-      drag.ghost.setAttribute("aria-hidden", "true");
-      const piece = makePiece(drag.shape);
-      piece.style.setProperty("--unit-x", `${grid.unitX}px`);
-      piece.style.setProperty("--unit-y", `${grid.unitY}px`);
-      piece.style.setProperty("--gap-x", `${grid.gapX}px`);
-      piece.style.setProperty("--gap-y", `${grid.gapY}px`);
-      drag.ghost.append(piece);
-      document.body.append(drag.ghost);
-      if (!view.motion.matches) piece.animate([
-        { transform: `scale(${drag.scale})` }, { transform: "scale(1)" },
-      ], { duration: MOTION.pickup, easing: "ease-out" });
-      drag.button.classList.add("dragging");
-      select(drag.slot);
-      playSound("pickup");
+      if (!pastThreshold()) { report(); return; }
+      begin();
     }
-    positionDrag(event);
+    draw(drag.progress);
+    if (drag.progress < 1 && drag.frame === undefined) drag.frame = requestAnimationFrame(pickupFrame);
   });
 
-  tray.addEventListener("pointerup", event => {
+  document.addEventListener("pointerup", event => {
     if (!drag || event.pointerId !== drag.pointerId) return;
+    checkLayout();
+    if (!drag) return;
+    drag.pointer = point(event);
     if (!drag.ghost) {
-      const { slot, startX, startY } = drag;
-      stopDrag();
-      if (Math.hypot(event.clientX - startX, event.clientY - startY) < DRAG_DISTANCE) {
+      if (!pastThreshold()) {
+        const { slot } = drag;
+        stopDrag();
         select(selected === slot ? null : slot);
         if (selected !== null) playSound("pickup");
+        return;
       }
-      return;
+      begin();
+      draw(1);
+    } else {
+      // Use the last drawn scale and offset. A release between animation frames
+      // must not advance the pickup and thereby change the visible target.
+      draw(drag.progress);
     }
 
-    const { x, y, valid } = positionDrag(event);
-    const { slot, button } = drag;
+    const { target, valid, slot, button } = drag;
     const restoreFocus = document.activeElement === button;
     if (valid) {
       reset();
-      place(slot, x, y);
+      place(slot, target.x, target.y);
       if (restoreFocus && button.disabled) {
         slots.find(candidate => !candidate.disabled)?.focus({ preventScroll: true });
       }
@@ -156,22 +217,38 @@ export function bindInput(view, getGame, place, playSound) {
   });
 
   function cancelDrag(event) {
-    if (drag?.pointerId !== event.pointerId) return;
-    if (drag.ghost) reset();
-    else stopDrag();
+    if (drag?.pointerId === event.pointerId) reset();
   }
 
-  tray.addEventListener("pointercancel", cancelDrag);
+  function checkLayout() {
+    if (drag && (boardMoved(drag.grid, readBoardGeometry(board)) || Math.abs(drag.scale - (viewport?.scale ?? 1)) > .01)) reset();
+    else if (returning) finishReturn();
+  }
+
+  document.addEventListener("pointerdown", event => {
+    if (drag?.touch && event.pointerType === "touch" && event.pointerId !== drag.pointerId) reset();
+  }, true);
+  document.addEventListener("touchstart", event => {
+    if (drag?.touch && event.touches.length > 1) reset();
+  }, { passive: true });
+  document.addEventListener("touchcancel", () => { if (drag?.touch) reset(); }, { passive: true });
+  document.addEventListener("pointercancel", cancelDrag);
   tray.addEventListener("lostpointercapture", cancelDrag);
-  window.addEventListener("resize", reset);
+  window.addEventListener("resize", checkLayout);
+  window.addEventListener("pagehide", reset);
   document.addEventListener("visibilitychange", () => { if (document.hidden) reset(); });
-  window.visualViewport?.addEventListener("resize", reset);
-  window.visualViewport?.addEventListener("scroll", () => { if (drag || returning) reset(); });
-  window.addEventListener("scroll", () => { if (drag || returning) reset(); }, { passive: true });
+  viewport?.addEventListener("resize", checkLayout);
+  viewport?.addEventListener("scroll", checkLayout);
+  window.addEventListener("scroll", checkLayout, { passive: true });
+  if ("ResizeObserver" in window) new ResizeObserver(checkLayout).observe(board);
   view.motion.addEventListener("change", () => {
     if (!view.motion.matches) return;
     finishReturn();
-    drag?.ghost?.firstElementChild.getAnimations().forEach(animation => animation.cancel());
+    if (drag?.ghost) {
+      if (drag.frame !== undefined) cancelAnimationFrame(drag.frame);
+      drag.frame = undefined;
+      draw(1);
+    }
   });
 
   tray.addEventListener("click", event => {
@@ -221,12 +298,20 @@ export function bindInput(view, getGame, place, playSound) {
   });
 
   document.addEventListener("keydown", event => {
-    if (event.key !== "Escape" || selected === null) return;
+    if (event.key !== "Escape" || (selected === null && !drag)) return;
     const { activeElement } = document;
     const button = slots[selected];
     reset();
-    if (board.contains(activeElement)) button.focus({ preventScroll: true });
+    if (board.contains(activeElement)) button?.focus({ preventScroll: true });
   });
 
-  return { reset };
+  return {
+    reset,
+    configure(values) {
+      reset();
+      tuning = inputTuning(values);
+      board.style.setProperty("--preview-opacity", tuning.previewOpacity);
+      return tuning;
+    },
+  };
 }

@@ -1,0 +1,101 @@
+/* Only play.html owns a fixed viewport. Menus and collection pages keep normal flow. */
+html.play-page {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.play-page body {
+  position: fixed;
+  inset: var(--play-top, 0px) 0 auto;
+  width: 100%;
+  height: 100vh;
+  height: var(--play-height, 100dvh);
+  min-height: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  display: grid;
+  place-items: center;
+}
+
+.play-page .game-shell {
+  --safe-left: max(12px, env(safe-area-inset-left, 0px));
+  --safe-right: max(12px, env(safe-area-inset-right, 0px));
+  --safe-top: max(6px, env(safe-area-inset-top, 0px));
+  --safe-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+  width: min(100%, calc(480px + var(--safe-left) + var(--safe-right)));
+  max-width: none;
+  height: 100%;
+  max-height: 830px;
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+  display: grid;
+  grid-template: "header" auto "score" auto "goals" auto "board" minmax(0, 1fr) "tray" auto / minmax(0, 1fr);
+  gap: clamp(2px, 1dvh, 8px) 0;
+  touch-action: auto;
+}
+
+.game-shell .masthead { grid-area: header; }
+.game-shell .scoreboard { grid-area: score; min-height: 0; margin: 0; }
+.game-shell .adventure-hud { grid-area: goals; margin: 0; }
+.game-shell .pieces { grid-area: tray; margin: 0; }
+.playfield {
+  grid-area: board;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  min-width: 0;
+  container-type: size;
+}
+
+.playfield .board-frame {
+  width: min(100%, var(--playfield-height, 100%));
+  min-width: 0;
+}
+@supports (width: 1cqh) {
+  .playfield .board-frame { width: min(100%, 100cqh); }
+}
+
+.game-shell .tray button { height: clamp(62px, 12dvh, 104px); }
+.game-shell :is(.board, .masthead, .scoreboard, .adventure-hud, .deal-status) { touch-action: pinch-zoom; }
+.game-shell :is(.board, .tray) { -webkit-touch-callout: none; }
+
+.play-page #play-error {
+  position: absolute;
+  z-index: 2;
+  inset: auto 12px 48%;
+  text-align: center;
+  padding: 8px;
+  background: var(--board);
+}
+
+.play-page #settings {
+  max-height: calc(var(--play-height, 100vh) - max(12px, env(safe-area-inset-top, 0px)) - max(12px, env(safe-area-inset-bottom, 0px)));
+  touch-action: pan-y pinch-zoom;
+  overscroll-behavior-y: contain;
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .play-page .game-shell {
+    width: min(100%, 940px);
+    grid-template: "board header" auto "board score" auto "board goals" auto "board tray" minmax(0, 1fr)
+      / minmax(0, 1fr) minmax(164px, .85fr);
+    column-gap: clamp(8px, 3vw, 28px);
+  }
+  .playfield { padding-block-end: clamp(24px, 9dvh, 48px); }
+  .game-shell .pieces { align-self: center; }
+  .game-shell .tray button { height: clamp(52px, 17dvh, 83px); }
+  .game-shell .current-score strong { font-size: clamp(28px, 10dvh, 49px); }
+}
+
+@media (max-height: 310px) {
+  .game-shell .adventure-hud { font-size: .8rem; }
+  .game-shell #tutorial-tip { font-size: .73rem; margin-block: 2px; }
+}
+
+.game-shell .tray button.pressed { background: #ffffff13; }
+.game-shell .tray button.pressed .piece { filter: brightness(1.18); }
+.game-shell .tray button:is(.dragging, .returning) .piece { opacity: 0; }
+.play-page .floating { opacity: .96; }
+.play-page .floating.invalid { opacity: .78; }
+.play-page .cell.preview-valid::after { opacity: var(--preview-opacity, .55); }
+.play-page .cell.preview-valid.preview-line::after { opacity: min(.95, calc(var(--preview-opacity, .55) + .21)); }

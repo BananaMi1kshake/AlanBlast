@@ -1,3 +1,4 @@
+import { bindInputLab } from "./input-lab.js";
 import { SEARCH_GOALS } from "../js/solver.js";
 import { STRATEGY_WEIGHTS } from "../js/generator.js";
 import { createGame, SHAPES, SIZE } from "../js/game.js";
@@ -221,6 +222,7 @@ $("strategy").addEventListener("change", event => {
   $("goal").value = event.target.value === "standard" ? "completion" : event.target.value || "allClear";
 });
 iframe.addEventListener("load", () => { if (frameAPI()) apply(); });
+bindInputLab(iframe, frameAPI, write);
 preset("demo");
 $("preset").value = "demo";
 $("local-only").hidden = true;

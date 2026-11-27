@@ -1,4 +1,5 @@
 import { browserStorage, createSaveBuffer } from "./save-buffer.js";
+import { bindPlayViewport } from "./play-viewport.js";
 import { takePlayAccess } from "./play-access.js";
 import { bindSaveControls } from "./save-controls.js";
 import { bindInstall } from "./install.js";
@@ -29,6 +30,8 @@ const buffer = sandbox ? null : createSaveBuffer(browserStorage());
 const storage = sandbox ? memoryStorage() : buffer;
 const $ = id => document.getElementById(id);
 
+bindPlayViewport();
+
 function mount(session, levels, mode = levels ? "adventure" : "classic", newAttempt = session.newlyStarted) {
   const settings = loadSettings(sandbox ? storage : browserStorage());
   const audio = createAudio();
@@ -49,6 +52,7 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
   let lastMove;
   let cancelDeal;
   let notificationTimer;
+  let inputTrace;
 
   function reportSave(state) {
     const notice = $("save-notice");
@@ -107,7 +111,7 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
     }
     if (session.waiting) deal();
     return true;
-  }, feedback.cue);
+  }, feedback.cue, { inspect: toolAccess && !adventure ? frame => inputTrace?.(frame) : undefined });
 
   function update(refill = false, event) {
     const over = session.over;
@@ -192,6 +196,10 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
   if (toolAccess && !adventure) {
     window.alanbloxLab = {
       snapshot: () => structuredClone({ game: session.game, highScore: session.best }),
+      tuneInput(values, onFrame) {
+        inputTrace = onFrame;
+        return input.configure(values);
+      },
       load(next, { holdDeal = false } = {}) {
         resetFeedback();
         audio.stop();

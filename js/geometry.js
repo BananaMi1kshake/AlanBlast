@@ -36,16 +36,3 @@ export function pieceSize(grid, shape) {
     height: shape.height * grid.stepY - grid.gapY,
   };
 }
-
-export function pointerTarget(grid, shape, size, clientX, clientY, lift) {
-  const left = clientX - size.width / 2;
-  const top = clientY - size.height / 2 - lift;
-  const x = Math.round((left - grid.left) / grid.stepX) + 0;
-  const y = Math.round((top - grid.top) / grid.stepY) + 0;
-  const overlaps = x < SIZE && y < SIZE && x + shape.width > 0 && y + shape.height > 0;
-  return {
-    x, y,
-    left: overlaps ? grid.left + x * grid.stepX : left,
-    top: overlaps ? grid.top + y * grid.stepY : top,
-  };
-}

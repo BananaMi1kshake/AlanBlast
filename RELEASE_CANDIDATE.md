@@ -1,6 +1,6 @@
-# AlanBlox 0.8.0-rc.1
+# AlanBlox 0.8.0-rc.2
 
-This release candidate includes the approved Phase 7 program, all 48 Adventure levels, the original 11 Daily puzzles with their date mapping, and the four tutorial lessons. Classic still uses Generation V2 and the existing placement geometry, scoring, combo, and all-clear rules.
+Phase 8.1 builds on the Phase 8 release candidate and adds [fixed gameplay layout and continuous dragging](docs/phase-8-1/INPUT.md). It includes all 48 Adventure levels, the original 11 Daily puzzles with their date mapping, and the four tutorial lessons. Classic still uses Generation V2 and the existing placement geometry, scoring, combo, and all-clear rules.
 
 ## Branding and startup
 
@@ -24,7 +24,7 @@ The manifest ID, scope, start URL, standalone display, relative project URLs, an
 | P2 | New textures could be omitted from an otherwise installed shell. | All gameplay textures and runtime startup art are part of the mandatory precache. A failed install leaves the existing worker active. |
 | P2 | The main menu buried mode actions in framed panels. | Two direct primary actions with visible resume and progress information, plus compact secondary navigation. |
 | P2 | Classic all-clears are infrequent in seeded samples. | Retained as a known balancing limitation. The new cosmetic unlocks use other existing achievements and play. |
-| P2 | Native iOS/Android touch lift, install presentation, and launcher cropping need physical evidence. | Open. Complete the device checklist before a broad beta. |
+| P1 | Physical iOS testing reported page scrolling and unnatural dragging. | Viewport lock and continuous drag are verified in Chromium. Physical iOS and Android retests are still open. [Touch controls and retest](docs/phase-8-1/INPUT.md) |
 | P2 | Official comparator screenshots and Firefox/WebKit were unavailable in this environment. | Open. Reference and engine access limits are documented below. |
 | P3 | Exact Block Blast scoring and visual parity are unverified. | No claim of parity. See the visual and Classic audits. |
 
@@ -32,7 +32,7 @@ The app and worker have no third-party runtime dependencies, account endpoints, 
 
 ## Verification and performance
 
-Run `npm run verify:release` from the repository root. This runs all 209 automated tests, the game and independent Adventure replay, and the reproducible 10,000-hand Classic benchmark. The approved Phase 7 baseline passed 200 tests. The same command runs in GitHub Actions. Daily and tutorial witnesses are independently replayed by the core suite. Tests include storage failure recovery, a large 2,048-date Daily backup, old saves, and required assets.
+Run `npm run verify:release` from the repository root. This runs all 215 automated tests, the game and independent Adventure replay, and the reproducible 10,000-hand Classic benchmark. The Phase 8 baseline passed 209 tests. Phase 8.1 viewport and input checks are recorded with the [physical-device retest instructions](docs/phase-8-1/INPUT.md). The same command runs in GitHub Actions. Daily and tutorial witnesses are independently replayed by the core suite. Tests include storage failure recovery, a large 2,048-date Daily backup, old saves, and required assets.
 
 Chromium covered 320×568, 390×844, 430×932, 768×1024, and 1280×900 viewports. It checked first-run and reduced-motion startup, navigation and resumes, touch drag, mouse drag, keyboard placement, exact-fit previews, multi-tab write protection, and offline assets. It also restored an active game while a hand request was pending. Standalone preference and layout were simulated at 430×932. A native mobile install remains on the checklist. Upgrades from Phase 6 and Phase 7 retained the board and Adventure transcript. The Phase 7 upgrade retained historical Daily results. With one mandatory asset deliberately missing, the old worker stayed active. When the asset was restored, shell 12 installed successfully, activated after the old clients closed, removed the old shell, and opened offline.
 
@@ -41,7 +41,7 @@ Firefox and WebKit binary downloads were blocked by the environment. Physical de
 | Measure | Cloud result |
 | --- | --- |
 | Classic generation, 10,000 valid hands | 0 invalid, 0 timeouts |
-| Generation mean / p95 / maximum | 0.707 / 4.417 / 65.078 ms in the recorded benchmark |
+| Generation mean / p95 / maximum | 0.711 / 4.441 / 37.501 ms in the recorded benchmark |
 | Phase 7 offline shell | Approximately 822 KiB |
 | Cold startup through interactive menu | 1.33 s, including both splash stages |
 | Warm navigation without replaying the splash | 166 ms |
