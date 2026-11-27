@@ -39,6 +39,8 @@ const shell = [
   "./js/install.js",
   "./js/backup.js",
   "./js/save-controls.js",
+  "./js/play-access.js",
+  "./js/save-buffer.js",
   "./icons/icon-512.png",
   "./icons/apple-touch-icon.png",
   "./js/main.js",

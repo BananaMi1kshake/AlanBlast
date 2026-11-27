@@ -67,3 +67,4 @@
   .home .menu-hero [data-brand-art="game"] { max-width: 290px; }
   .home .hero-action .mode-art { min-height: 45px; }
 }
+#app-update { margin: .2rem 0 .6rem; text-align: center; color: #f8eaaa; font-size: .8rem; }

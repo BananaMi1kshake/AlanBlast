@@ -1,10 +1,11 @@
+import { SETTINGS_KEY } from "./settings.js";
 import { APP_VERSION, BACKUP_LIMIT, BACKUP_NOTICE, exportBackup, prepareImport, resetProgress } from "./backup.js";
 import { loadCampaign } from "./campaign.js";
 import { currentDay, loadChallenges } from "./challenges.js";
 
 const catalogs = () => Promise.all([loadCampaign(), loadChallenges("daily")]);
 
-export function bindSaveControls() {
+export function bindSaveControls({ gameStorage } = {}) {
   const panel = document.querySelector("#save-controls");
   const input = panel.querySelector("#backup-file");
   const status = panel.querySelector("#backup-status");
@@ -41,7 +42,9 @@ export function bindSaveControls() {
     try {
       const [levels, challenges] = await catalogs();
       if (request !== exportRequest || !panel.closest("dialog").open) return;
-      const blob = new Blob([exportBackup(levels, challenges)], { type: "application/json" });
+      const backupStorage = gameStorage && { getItem: key => key === SETTINGS_KEY
+        ? localStorage.getItem(key) : gameStorage.getItem(key) };
+      const blob = new Blob([exportBackup(levels, challenges, backupStorage)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -88,5 +91,9 @@ export function bindSaveControls() {
       report(error);
     }
   });
-  addEventListener("storage", event => { if (event.key === BACKUP_NOTICE) location.reload(); });
+  addEventListener("storage", event => {
+    if (event.key !== BACKUP_NOTICE) return;
+    if (gameStorage) dispatchEvent(new Event("alanblox-save-replaced"));
+    else location.reload();
+  });
 }

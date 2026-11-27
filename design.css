@@ -79,3 +79,26 @@ dialog h2, .game-over h2 { font-weight: var(--type-heavy); text-shadow: var(--di
   color: #e8f9ff;
   font: 800 .78rem var(--font-display);
 }
+
+#save-notice {
+  position: fixed;
+  z-index: 5;
+  bottom: max(8px, env(safe-area-inset-bottom));
+  left: 50%;
+  translate: -50% 0;
+  width: min(calc(100% - 24px), 440px);
+  padding: 9px 12px;
+  background: #14225e;
+  border: 1px solid #ffe2909c;
+  border-radius: var(--round-small);
+  font-size: .8rem;
+  color: #fff1bc;
+}
+#save-notice button {
+  border: 0;
+  border-radius: var(--round-small);
+  padding: 5px 8px;
+  color: #162653;
+  background: #ffe290;
+  margin: 3px 0 0 4px;
+}

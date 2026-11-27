@@ -1,3 +1,5 @@
+import { browserStorage, createSaveBuffer } from "./save-buffer.js";
+import { takePlayAccess } from "./play-access.js";
 import { bindSaveControls } from "./save-controls.js";
 import { bindInstall } from "./install.js";
 import { createAdventureSession } from "./adventure-storage.js";
@@ -23,11 +25,12 @@ const params = new URLSearchParams(location.search);
 const requestedMode = params.get("mode");
 const sandbox = params.has("lab") || params.has("editor");
 const toolAccess = sandbox && window.parent !== window && isLoopback(location.hostname);
-const storage = sandbox ? memoryStorage() : undefined;
+const buffer = sandbox ? null : createSaveBuffer(browserStorage());
+const storage = sandbox ? memoryStorage() : buffer;
 const $ = id => document.getElementById(id);
 
 function mount(session, levels, mode = levels ? "adventure" : "classic", newAttempt = session.newlyStarted) {
-  const settings = loadSettings(storage);
+  const settings = loadSettings(sandbox ? storage : browserStorage());
   const audio = createAudio();
   const haptics = createHaptics();
   const feedback = createFeedback(audio, haptics, settings, () => session.game.material);
@@ -47,11 +50,27 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
   let cancelDeal;
   let notificationTimer;
 
+  function reportSave(state) {
+    const notice = $("save-notice");
+    notice.hidden = state === "saved";
+    $("save-conflict-refresh").hidden = state !== "conflict";
+    $("save-notice-message").textContent = state === "conflict"
+      ? "This saved game changed in another tab. Reload to continue."
+      : state === "memory" ? "Changes are in memory. Export a save from Settings before closing this tab." : "";
+    if (state === "conflict") input.reset();
+  }
+
+  function mayWrite() {
+    if (!buffer || buffer.check()) return true;
+    reportSave("conflict");
+    return false;
+  }
+
   function record(event) {
     if (sandbox || mode === "tutorial") return;
     const context = mode === "adventure" && event.result?.won ? adventureProgress(levels, session.completed)
-      : mode === "daily" && event.result?.won ? { dailyDates: completedDailyDates() } : {};
-    const earned = recordGameplay(mode, event, context);
+      : mode === "daily" && event.result?.won ? { dailyDates: completedDailyDates(storage) } : {};
+    const earned = recordGameplay(mode, event, context, storage);
     if (!earned.length) return;
     clearTimeout(notificationTimer);
     const toast = $("achievement-toast");
@@ -61,6 +80,7 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
   }
 
   const input = bindInput(view, () => session.game, (slot, x, y) => {
+    if (!mayWrite()) return false;
     const material = session.game.material;
     const theme = session.game.theme;
     const shape = SHAPES[session.game.hand[slot]];
@@ -68,8 +88,7 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
     if (!result) return false;
     input.reset();
     lastMove = { result, slot, x, y };
-    const over = update(result.refill);
-    record({ type: "move", result, shape, over });
+    const over = update(result.refill, { type: "move", result, shape, over: session.over });
     const { game, fullBoardClear } = result;
     const lines = result.rows.length + result.columns.length;
     const gems = result.gemsCollected?.length ?? 0;
@@ -90,9 +109,11 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
     return true;
   }, feedback.cue);
 
-  function update(refill = false) {
+  function update(refill = false, event) {
     const over = session.over;
     session.persist();
+    if (event) record(event);
+    if (buffer) reportSave(buffer.flush());
     adventure?.render();
     view.render(session.game, session.best, over, lastMove, refill, adventure && {
       gems: session.run.gems, gemTarget: adventure.gemTarget(),
@@ -108,6 +129,7 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
     cancelDeal = requestHand(session.game.board, session.game.bag, result => {
       cancelDeal = undefined;
       view.tray.removeAttribute("aria-busy");
+      if (!mayWrite()) return;
       if (result.status === "timeout" || result.status === "error") {
         pending.textContent = result.status === "timeout" ? "The hand search timed out." : "The hand search could not run.";
         view.announce(pending.textContent);
@@ -117,8 +139,7 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
       pending.hidden = true;
       session.applyDeal(result);
       if (result.status === "impossible") {
-        update();
-        record({ type: "end" });
+        update(false, { type: "end" });
         view.announce("Game over. No solvable hand exists.");
         feedback.cue("gameOver");
         playAgain.focus({ preventScroll: true });
@@ -137,10 +158,10 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
   }
 
   function restart() {
+    if (!mayWrite()) return;
     resetFeedback();
     session.restart();
-    update();
-    record({ type: "start" });
+    update(false, { type: "start" });
     view.announce(adventure ? "Level restarted." : "New game.");
     feedback.restart();
     if (session.waiting) deal(DEAL_TIMEOUT, true);
@@ -152,7 +173,7 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
     deal(RETRY_TIMEOUT, true);
   });
   bindSettings(settings, preference, {
-    onOpen: input.reset, onRestart: restart, storage,
+    onOpen: input.reset, onRestart: restart, storage: sandbox ? storage : undefined,
     onChange: event => {
       feedback.configure();
       if (event.isTrusted) audio.activate();
@@ -160,8 +181,12 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
     onInteraction: () => feedback.cue("ui"), vibrationSupported: haptics.supported,
   });
   playAgain.addEventListener("click", restart);
-  update();
-  if (newAttempt) record({ type: "start" });
+  $("save-conflict-refresh").addEventListener("click", () => location.reload());
+  addEventListener("alanblox-save-replaced", () => {
+    buffer.invalidate();
+    reportSave("conflict");
+  });
+  update(false, newAttempt ? { type: "start" } : null);
   if (session.waiting) deal();
 
   if (toolAccess && !adventure) {
@@ -197,11 +222,15 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
 if (!sandbox) {
   registerOffline();
   bindInstall();
-  bindSaveControls();
+  bindSaveControls({ gameStorage: buffer });
   addEventListener("pageshow", event => { if (event.persisted) location.reload(); });
 }
 
-if (requestedMode === "daily" || requestedMode === "tutorial") {
+const hasAccess = sandbox || requestedMode === "tutorial" || await takePlayAccess();
+if (!hasAccess) {
+  $("play-error").hidden = false;
+  $("play-error").textContent = "AlanBlox is playing in another tab. Close that game or return to it.";
+} else if (requestedMode === "daily" || requestedMode === "tutorial") {
   try {
     const levels = await loadChallenges(requestedMode);
     if (requestedMode === "daily") {
@@ -224,7 +253,7 @@ if (requestedMode === "daily" || requestedMode === "tutorial") {
     if (!session) location.replace("./adventure.html");
     else {
       const replay = params.has("replay");
-      if (!sandbox) restoreDiscoveries(levels, session.completed);
+      if (!sandbox) restoreDiscoveries(levels, session.completed, storage);
       if (replay) {
         session.restart();
         params.delete("replay");
@@ -237,7 +266,7 @@ if (requestedMode === "daily" || requestedMode === "tutorial") {
     $("play-error").textContent = error.message;
   }
 } else {
-  const settings = loadSettings(storage);
+  const settings = loadSettings(sandbox ? storage : browserStorage());
   const profile = loadProfile(storage);
   const material = profile.materials.includes(settings.favoriteMaterial) ? settings.favoriteMaterial : "classic";
   const session = createClassicSession(storage, { mode: settings.materialMode, material, materials: profile.materials });
