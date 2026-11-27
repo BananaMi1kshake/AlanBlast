@@ -2,6 +2,7 @@ import { createAdventureSession } from "./adventure-storage.js";
 import { createAdventureView } from "./adventure-view.js";
 import { createAudio } from "./audio.js";
 import { loadCampaign } from "./campaign.js";
+import { createDailySession, createTutorialSession, currentDay, loadChallenges } from "./challenges.js";
 import { createClassicSession } from "./classic.js";
 import { bindFeedbackLifecycle, createFeedback } from "./feedback.js";
 import { requestHand } from "./hand-request.js";
@@ -17,7 +18,7 @@ import { createView } from "./view.js";
 const DEAL_TIMEOUT = 10000;
 const RETRY_TIMEOUT = 30000;
 const params = new URLSearchParams(location.search);
-const adventureMode = params.get("mode") === "adventure";
+const requestedMode = params.get("mode");
 const sandbox = params.has("lab") || params.has("editor");
 const toolAccess = sandbox && window.parent !== window && isLoopback(location.hostname);
 const storage = sandbox ? memoryStorage() : undefined;
@@ -34,7 +35,7 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
   const pending = $("hand-pending");
   const retryHand = $("retry-hand");
   const playAgain = $("play-again");
-  const adventure = levels ? createAdventureView(session, levels, restart, sandbox) : null;
+  const adventure = levels ? createAdventureView(session, levels, restart, sandbox, mode) : null;
   document.body.classList.toggle("adventure-play", !!adventure);
   if (sandbox) {
     $("mode-back").hidden = true;
@@ -72,7 +73,7 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
       over, material, gems, won: result.won });
     const summary = lines ? `Cleared ${lines} ${lines === 1 ? "line" : "lines"}. ` : "";
     const combo = lines ? ` Combo ${game.combo}, ${game.combo} times line points.` : "";
-    const bonus = fullBoardClear ? ` Full-board clear! ${result.bonus} bonus points${adventure ? "." : " and a new world."}` : "";
+    const bonus = fullBoardClear ? ` Full-board clear! ${result.bonus} bonus points${!adventure || session.level.transitionOnAllClear ? " and a new world." : "."}` : "";
     const gemText = gems ? ` Collected ${gems} ${gems === 1 ? "gem" : "gems"}.` : "";
     const end = adventure ? (result.won ? " Level complete." : over ? " Level failed." : "")
       : over ? " Game over. No remaining piece fits." : "";
@@ -194,7 +195,23 @@ if (!sandbox) {
   addEventListener("pageshow", event => { if (event.persisted) location.reload(); });
 }
 
-if (adventureMode) {
+if (requestedMode === "daily" || requestedMode === "tutorial") {
+  try {
+    const levels = await loadChallenges(requestedMode);
+    if (requestedMode === "daily") {
+      const today = currentDay();
+      const day = params.get("date") ?? today;
+      const session = day <= today ? createDailySession(levels, day, storage) : null;
+      if (session) mount(session, [session.level], "daily");
+      else location.replace("./daily.html");
+    } else {
+      mount(createTutorialSession(levels, params.get("level"), storage), levels, "tutorial", false);
+    }
+  } catch (error) {
+    $("play-error").hidden = false;
+    $("play-error").textContent = error.message;
+  }
+} else if (requestedMode === "adventure") {
   try {
     const levels = await loadCampaign();
     const session = createAdventureSession(levels, params.get("level"), storage);

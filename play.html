@@ -45,6 +45,7 @@
 
     <section id="adventure-hud" class="adventure-hud" aria-label="Level objectives" hidden>
       <div class="level-context"><strong id="level-name"></strong><span id="moves-left"></span></div>
+      <p id="tutorial-tip" hidden></p>
       <div id="level-objectives" class="objective-list"></div>
     </section>
     <div class="board-frame">
@@ -71,7 +72,7 @@
           <div class="result-actions">
             <a id="next-level" class="primary" href="./adventure.html" hidden>Continue</a>
             <button id="retry-level" type="button" class="primary">Retry</button>
-            <a class="secondary" href="./adventure.html">Level selection</a>
+            <a id="level-selection" class="secondary" href="./adventure.html">Level selection</a>
           </div>
         </div>
       </section>
@@ -105,6 +106,7 @@
         <label><span>Reduced motion<small>Also respects your device setting</small></span><input type="checkbox" data-preference="reducedMotion"></label>
       </div>
       <a class="secondary menu-settings-link" data-normal-only href="./progress.html?view=materials">Material preferences</a>
+      <a class="secondary menu-settings-link" data-normal-only href="./play.html?mode=tutorial">Replay tutorial</a>
       <details><summary>How to Play</summary><p>Drag one of the three pieces onto the board. Complete a row or column to clear it. Use all three pieces to get a new hand. Clear again within three moves to keep your combo going.</p><p>You can also choose a piece and tap its top-left target cell, or use the arrow keys and Enter.</p></details>
       <details><summary>About AlanBlox</summary><p>AlanBlox is a free, offline block puzzle. Each new hand has at least one solution, and your scores stay on this device.</p></details>
       <button type="button" class="secondary" id="request-restart">Restart Game</button>

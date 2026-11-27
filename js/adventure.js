@@ -79,7 +79,9 @@ export function playLevel(level, run, slot, x, y) {
   const result = placePiece(run.game, slot, x, y);
   if (!result) return null;
   // The shared all-clear bonus stays in force. Adventure keeps its authored appearance.
-  const game = { ...result.game, theme: level.world, material: level.material, palette: level.palette };
+  const game = level.transitionOnAllClear
+    ? { ...result.game, palette: WORLDS[result.game.theme].palette }
+    : { ...result.game, theme: level.world, material: level.material, palette: level.palette };
   const cleared = new Set(result.cleared);
   const gemsCollected = run.gems.filter(index => cleared.has(index));
   const next = {

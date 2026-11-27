@@ -1,3 +1,4 @@
+import { saveTutorial, tutorialStatus } from "./challenges.js";
 import { bindInstall } from "./install.js";
 import { loadAdventure } from "./adventure-storage.js";
 import { levelUrl } from "./adventure-view.js";
@@ -28,7 +29,13 @@ bindSettings(settings, preference, {
 registerOffline();
 bindInstall();
 
+$("skip-tutorial").addEventListener("click", () => {
+  saveTutorial("skipped");
+  $("tutorial-invitation").hidden = true;
+});
+
 async function render() {
+  $("tutorial-invitation").hidden = tutorialStatus() !== null;
   const classic = loadProgress();
   $("classic-best").textContent = classic.highScore;
   const ended = classic.game && isGameOver(classic.game);
