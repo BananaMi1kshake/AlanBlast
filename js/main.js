@@ -10,7 +10,7 @@ import { loadCampaign } from "./campaign.js";
 import { createDailySession, createTutorialSession, currentDay, loadChallenges } from "./challenges.js";
 import { createClassicSession } from "./classic.js";
 import { bindFeedbackLifecycle, createFeedback } from "./feedback.js";
-import { requestHand } from "./hand-request.js";
+import { closeHandWorker, requestHand } from "./hand-request.js";
 import { createHaptics } from "./haptics.js";
 import { bindInput } from "./input.js";
 import { adventureProgress, completedDailyDates, loadProfile, recordGameplay, restoreDiscoveries } from "./profile.js";
@@ -31,6 +31,7 @@ const storage = sandbox ? memoryStorage() : buffer;
 const $ = id => document.getElementById(id);
 
 bindPlayViewport();
+addEventListener("pagehide", closeHandWorker);
 
 function mount(session, levels, mode = levels ? "adventure" : "classic", newAttempt = session.newlyStarted) {
   const settings = loadSettings(sandbox ? storage : browserStorage());

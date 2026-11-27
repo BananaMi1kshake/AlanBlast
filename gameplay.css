@@ -99,3 +99,11 @@ html.play-page {
 .play-page .floating.invalid { opacity: .78; }
 .play-page .cell.preview-valid::after { opacity: var(--preview-opacity, .55); }
 .play-page .cell.preview-valid.preview-line::after { opacity: min(.95, calc(var(--preview-opacity, .55) + .21)); }
+
+/* The moving piece keeps its material texture. Its surface has one simple
+   inset highlight and never inherits the palette transition. */
+.play-page .floating .block {
+  transition: none;
+  box-shadow: inset 0 1px #ffffff75;
+}
+.play-page .fx-particle { box-shadow: none; }

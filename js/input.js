@@ -12,6 +12,7 @@ export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
   let drag = null;
   let returning;
   let tuning = INPUT;
+  let gridCache;
   const viewport = window.visualViewport;
   const point = event => ({ x: event.clientX, y: event.clientY });
   const transform = ({ left, top, scaleX = 1, scaleY = scaleX }) =>
@@ -150,7 +151,7 @@ export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
     const trayPiece = button.firstElementChild;
     trayPiece.getAnimations().forEach(animation => animation.cancel());
     const rect = trayPiece.getBoundingClientRect();
-    const grid = readBoardGeometry(board);
+    const grid = gridCache ??= readBoardGeometry(board);
     const size = pieceSize(grid, shape);
     const start = point(event);
     const touch = event.pointerType === "touch";
@@ -168,8 +169,6 @@ export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
 
   document.addEventListener("pointermove", event => {
     if (!drag || event.pointerId !== drag.pointerId) return;
-    checkLayout();
-    if (!drag) return;
     drag.pointer = point(event);
     if (!drag.ghost) {
       if (!pastThreshold()) { report(); return; }
@@ -221,7 +220,8 @@ export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
   }
 
   function checkLayout() {
-    if (drag && (boardMoved(drag.grid, readBoardGeometry(board)) || Math.abs(drag.scale - (viewport?.scale ?? 1)) > .01)) reset();
+    gridCache = drag ? readBoardGeometry(board) : undefined;
+    if (drag && (boardMoved(drag.grid, gridCache) || Math.abs(drag.scale - (viewport?.scale ?? 1)) > .01)) reset();
     else if (returning) finishReturn();
   }
 

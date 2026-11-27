@@ -428,7 +428,7 @@ async function verify(socket) {
     );
   await send("Page.removeScriptToEvaluateOnNewDocument", { identifier: standalone.identifier });
   await until(
-    'navigator.serviceWorker.controller && caches.keys().then(keys=>keys.some(k=>k.endsWith("shell-13")))',
+    'navigator.serviceWorker.controller && caches.keys().then(keys=>keys.some(k=>k.endsWith("shell-14")))',
   );
   await send("Network.emulateNetworkConditions", {
     offline: true,
