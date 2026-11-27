@@ -16,6 +16,24 @@
   --ease-press: cubic-bezier(.2,.7,.2,1);
   --press-duration: 125ms;
   --screen-duration: 195ms;
+  --launch-navy: #162d80;
+  --launch-blue: #176fbc;
+  --launch-light: #35a6cf;
+  --launch-scene: radial-gradient(ellipse at 50% 103%, #35a6cf69, transparent 56%),
+    linear-gradient(173deg, var(--launch-navy), #204caa 54%, var(--launch-blue));
+  --classic-face: #117c68;
+  --classic-rim: #78e6c8;
+  --classic-depth: #084d49;
+  --adventure-face: #ffc06b;
+  --adventure-rim: #ffe8be;
+  --adventure-depth: #ab6236;
+  --timber-light: #edbd82;
+  --timber-edge: #a9633e;
+  --timber-ink: #3e2318;
+  --timber-inset: #5b352a;
+  --timber-surface: linear-gradient(152deg, #ffe1ad, var(--timber-light) 36%, #d68d60);
+  --timber-grain: url("./assets/materials/wood.svg");
+  --crown-gold: #ffd675;
 }
 :focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
 :where(h1,h2,h3,.current-score,.combo-card,.fx-title,.primary,.menu-brand) { font-family: var(--font-display); }
