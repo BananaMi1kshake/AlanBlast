@@ -12,14 +12,14 @@ The project focuses on responsive controls, rewarding audiovisual feedback, colo
 
 ## Features and roadmap
 
-### Playable through Phase 5
+### Playable through Phase 5.5
 
 - Classic 8×8 puzzle board.
 - Three block pieces per round.
 - Intuitive drag-and-drop controls.
 - Row and column clears, including both in one move.
 - Escalating multi-line scores and combos that allow up to two non-clearing moves.
-- Full-board bonuses and six rotating color palettes.
+- Full-board bonuses and eight rotating material worlds.
 - Game-over detection.
 - Every new three-piece hand has a legal completion sequence when dealt.
 - Persistent high scores.
@@ -57,6 +57,10 @@ AlanBlox is built around five fundamental principles:
 - Web App Manifest
 - Local Storage
 - GitHub Pages
+
+## Classic audit and development tools
+
+See the [Classic parity and scoring audit](CLASSIC_PARITY.md) for evidence, the solver audit, simulation results, and an Adventure architecture proposal. Run `node scripts/simulate-classic.js` for the full seeded strategy data. The [materials guide](MATERIALS.md) documents the eight worlds, texture and audio assets, isolated gameplay lab, and preview instructions.
 
 ## Development Roadmap
 
@@ -110,6 +114,12 @@ AlanBlox is built around five fundamental principles:
 - [x] Haptic feedback
 - [x] Audio and vibration settings
 
+### Phase 5.5 — Classic audit and materials
+
+- [x] Classic scoring and fairness audit
+- [x] Reproducible gameplay simulation and isolated gameplay lab
+- [x] Eight material worlds with six independently configurable palettes
+
 ### Phase 6 — Release
 
 - [ ] GitHub Pages deployment
@@ -133,9 +143,9 @@ These are provisional AlanBlox rules. Scoring parity with Block Blast has not be
 - Clearing **n** rows or columns together earns **10 × n + 5 × n × (n − 1) / 2** line points before the combo multiplier. One, two, three, and four lines are worth **10, 25, 45, and 70**. Rows and columns are identified before removal, and each shared cell is removed once.
 - Each clearing placement advances the combo once, including moves that clear multiple lines, and refreshes its window to three placements. The first clear uses **×1**, and subsequent clearing moves use the new combo count as the multiplier. There is no gameplay cap.
 - A valid placement without a clear uses one step of the window. A clear after one or two misses continues the combo. Three misses expire it, and the next clear starts again at ×1. Invalid or canceled moves, a new deal, elapsed time, and reloading do not consume the window.
-- A move that leaves the board empty after line removal adds a flat **100 points** and advances the palette through **Ocean → Sunset → Forest → Midnight → Candy → Glacier → Ocean**. The multiplier applies to line points only.
+- A move that leaves the board empty after line removal adds a flat **100 points** and advances the palette through **Ocean → Sunset Loom → Forest Workshop → Midnight Geode → Candy Bounce → Glacier → Moonlit Kiln → Sunset Bakery → Ocean**. The multiplier applies to line points only.
 
-Tune the provisional constants in `js/scoring.js`. Scores are carried forward as earned. Saves keep the revealed pieces, proposal bag, score, best score, palette, combo count, and combo window. Phase 1 saves start with zero combo and the first palette. An active Phase 2 combo starts with a fresh three-placement window because it had just cleared a line under the old rules. Existing revealed hands are kept, including hands dealt under the old rules.
+Tune the provisional constants in `js/scoring.js`. Scores are carried forward as earned. Saves keep the revealed pieces, proposal bag, score, best score, world, material, combo count, and combo window. Phase 1 saves start with zero combo and the first palette. An active Phase 2 combo starts with a fresh three-placement window because it had just cleared a line under the old rules. Existing revealed hands are kept, including hands dealt under the old rules.
 
 ### Solvable hand generation
 
@@ -156,7 +166,7 @@ The game commits each move and its score immediately. Visual effects can overlap
 
 The game reads board origin, spacing, and cell size from the layout grid. Placement pop animations can change a cell's visual bounds, so those bounds are excluded from pointer geometry. The floating piece, projected cells, and final placement snap to the same grid anchor. Preview, gameplay validation, and solver masks use the same shape footprint. The touch lift is reduced when the visible viewport leaves too little space beneath the board.
 
-The settings gear opens a modal with Resume, Restart, How to Play, and About. Restart asks for confirmation and keeps the personal best. The reduced-motion switch applies immediately and respects the operating-system preference. Sound, volume, and vibration preferences apply immediately and are saved locally. Theme saves retain their original palette positions as those positions now render the six updated designs.
+The settings gear opens a modal with Resume, Restart, How to Play, and About. Restart asks for confirmation and keeps the personal best. The reduced-motion switch applies immediately and respects the operating-system preference. Sound, volume, and vibration preferences apply immediately and are saved locally. Theme saves retain their original palette positions and gain a material when loaded.
 
 ### Audio development
 
@@ -196,6 +206,10 @@ The benchmark checks 10,000 seeded deals using a separate array-based backtracki
 
 All app paths are relative, so the board and offline cache work at the project URL as well as on localhost. Increment the shell cache version in `sw.js` whenever changing a cached asset. Close open instances of the app to let an updated service worker take over.
 
+## Classic audit and development tools
+
+See the [Classic parity and scoring audit](CLASSIC_PARITY.md) for evidence, the solver audit, simulation results, and an Adventure architecture proposal. Run `node scripts/simulate-classic.js` for the full seeded strategy data. The [materials guide](MATERIALS.md) documents the eight worlds, texture and audio assets, isolated gameplay lab, and preview instructions.
+
 ## Development
 
 AlanBlox is developed with the assistance of OpenAI Codex.
@@ -204,7 +218,7 @@ AI development agents should refer to `AGENTS.md` for project-specific requireme
 
 ## Project Status
 
-Phases 1 through 5 are playable. The next phase covers release testing and polish.
+Phases 1 through 5.5 are playable. The next phase covers release testing and polish.
 
 ## Disclaimer
 

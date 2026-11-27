@@ -4,7 +4,7 @@
   --board-gap: clamp(3px, 1vw, 5px);
   padding: var(--board-padding);
   border-radius: 15px;
-  background: var(--board);
+  background: var(--board-detail), var(--board);
   box-shadow: 0 5px 0 var(--board-edge), 0 14px 32px #0005, inset 0 1px #ffffff26;
 }
 
@@ -24,12 +24,14 @@
   border-radius: clamp(3px, 1.2vw, 7px);
 }
 
-.cell { background: var(--cell); position: relative; }
+.cell { background: var(--cell); box-shadow: var(--well); position: relative; }
 .cell:focus { outline: none; }
 .cell:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
 .cell[data-color], .block, .fx-cleared {
-  background: linear-gradient(155deg, #ffffff62, #ffffff08 40%, #121b432c), var(--block);
-  box-shadow: inset 0 -3px #11263338, inset 0 1px #ffffff90, inset 1px 0 #ffffff30;
+  background: var(--grain), var(--facet), var(--block);
+  background-size: var(--grain-size), 100% 100%;
+  border-radius: var(--corner);
+  box-shadow: var(--edge);
 }
 [data-color="mint"] { --block: var(--mint); }
 [data-color="sky"] { --block: var(--sky); }
@@ -43,7 +45,7 @@
   inset: 0;
   border-radius: inherit;
 }
-.cell.preview-valid::after { background: var(--preview-color); opacity: .57; border: 2px solid #fff; }
+.cell.preview-valid::after { background: var(--grain), var(--facet), var(--preview-color); background-size: var(--grain-size), 100% 100%; opacity: .57; border: 2px solid #fff; }
 .cell.preview-line { outline: 2px solid #fff8b9; outline-offset: -2px; }
 .cell.preview-line::before {
   content: "";
@@ -90,7 +92,7 @@
   gap: var(--gap-y, var(--gap)) var(--gap-x, var(--gap));
   pointer-events: none;
 }
-.piece .block { border-radius: min(5px, calc(var(--unit) / 4)); }
+
 .floating { position: fixed; left: 0; top: 0; z-index: 3; opacity: .9; pointer-events: none; transform-origin: top left; will-change: transform; }
 .floating.invalid { opacity: .56; }
 
@@ -106,7 +108,7 @@
   gap: var(--board-gap);
   contain: layout;
 }
-.fx-cleared { border-radius: clamp(3px, 1.2vw, 7px); }
+
 .fx-wave {
   position: absolute;
   inset: 0;
@@ -114,9 +116,10 @@
   background: radial-gradient(ellipse, color-mix(in srgb, var(--combo-glow) 30%, transparent), color-mix(in srgb, var(--particle) 50%, transparent) 65%, transparent);
 }
 .fx-wave.all {
-  background: radial-gradient(circle, color-mix(in srgb, var(--clear-glow) 80%, transparent), color-mix(in srgb, var(--combo-glow) 40%, transparent) 63%, transparent 78%);
+  background: var(--wave-finish), radial-gradient(circle, color-mix(in srgb, var(--clear-glow) 80%, transparent), color-mix(in srgb, var(--combo-glow) 40%, transparent) 63%, transparent 78%);
 }
 .fx-particle {
+  clip-path: var(--particle-shape);
   position: absolute;
   width: 6px;
   height: 6px;
@@ -163,3 +166,9 @@
 @supports (width: 1cqi) {
   .piece { --unit: clamp(8px, 4cqi, 21px); }
 }
+
+
+/* Keep ordinary combo text out of the placement area. */
+.fx-banner:not(.all-clear) { top: auto; bottom: 100%; left: auto; right: 4px; justify-items: end; }
+.fx-banner:not(.all-clear) .fx-title { font-size: clamp(14px, 4vw, 22px); }
+.fx-banner:not(.all-clear) .fx-detail { font-size: .72rem; }

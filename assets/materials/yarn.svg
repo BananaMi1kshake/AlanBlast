@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <defs><g id="stitch" fill="none" stroke-linecap="round">
+    <path d="M1 2C4 2 4 9 6 11S9 4 11 2" stroke="#231d36" stroke-width="3.6" opacity=".43"/>
+    <path d="M1 1C4 1 4 8 6 10S9 3 11 1" stroke="#fff" stroke-width="2.5" opacity=".55"/>
+    <path d="M2 3l2-.6m-1 3 2-.7m-1 3 2-.6m.3 2.2 2 .5M8 6l2 .5M9 3l2 .5" stroke="#34263f" stroke-width=".6" opacity=".55"/>
+  </g></defs>
+  <use href="#stitch"/><use href="#stitch" x="12"/>
+  <use href="#stitch" y="12"/><use href="#stitch" x="12" y="12"/>
+</svg>

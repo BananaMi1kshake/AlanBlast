@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { canPlace, createGame, isGameOver, needsHand, placePiece, SHAPES, SIZE } from "../js/game.js";
 import { drawCandidate } from "../js/pieces.js";
 import { generateHand } from "../js/solver.js";
-import { DEFAULT_THEME, THEMES } from "../js/themes.js";
+import { DEFAULT_THEME, THEMES, WORLDS } from "../js/themes.js";
 
 const empty = () => Array(SIZE ** 2).fill(null);
 const initial = (board, hand = [0, 1, 2]) => ({ ...createGame(), board, hand, bag: [3, 4, 5] });
@@ -203,8 +203,8 @@ test("consecutive clearing placements build one combo per move across a hand ref
   }
 });
 
-test("a full-board clear adds a fixed bonus, advances the palette, and wraps after six themes", () => {
-  assert.equal(new Set(THEMES).size, 6);
+test("a full-board clear adds a fixed bonus, advances the palette, and wraps after eight worlds", () => {
+  assert.equal(new Set(THEMES).size, 8);
   let theme = DEFAULT_THEME;
   for (let i = 0; i < THEMES.length; i++) {
     const board = empty();
@@ -217,6 +217,8 @@ test("a full-board clear adds a fixed bonus, advances the palette, and wraps aft
     assert.equal(result.game.combo, 2);
     assert.deepEqual(result.game.board, empty());
     assert.equal(result.game.theme, THEMES[(i + 1) % THEMES.length]);
+    assert.equal(result.game.material, WORLDS[result.game.theme].material);
+    assert.notEqual(WORLDS[theme].material, result.game.material);
     theme = result.game.theme;
   }
   const firstPlacement = placePiece(initial(empty()), 0, 0, 0);

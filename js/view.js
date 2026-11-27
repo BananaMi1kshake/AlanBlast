@@ -1,3 +1,4 @@
+import { visualProfile } from "./themes.js";
 import { footprint, inBounds } from "./geometry.js";
 import { canPlace, completedLines, SHAPES, SIZE } from "./game.js";
 import { createEffects } from "./effects.js";
@@ -68,12 +69,13 @@ export function createView(motion) {
     sceneFade.hidden = true;
   }
 
-  function setTheme(theme, animate) {
+  function setTheme(game, animate) {
+    const profile = visualProfile(game);
     stopThemeFade();
     const root = document.documentElement;
     if (animate) {
       const previousColors = getComputedStyle(root);
-      for (const key of ["--scene-glow", "--scene-top", "--scene-bottom"]) {
+      for (const key of ["--scene-glow", "--scene-top", "--scene-bottom", "--world-detail", "--world-size"]) {
         sceneFade.style.setProperty(key, previousColors.getPropertyValue(key));
       }
       sceneFade.hidden = false;
@@ -82,7 +84,9 @@ export function createView(motion) {
       });
       fade.onfinish = stopThemeFade;
     }
-    root.dataset.theme = theme;
+    root.dataset.theme = game.theme;
+    root.dataset.palette = profile.palette;
+    root.dataset.material = profile.material;
     themeColor.content = getComputedStyle(root).getPropertyValue("--chrome").trim();
   }
 
@@ -174,8 +178,8 @@ export function createView(motion) {
     combo.textContent = game.combo;
     combo.setAttribute("aria-label", `${game.combo}, ${game.comboWindow} placements left in combo window`);
     comboWindow.forEach((pip, index) => pip.classList.toggle("active", index < game.comboWindow));
-    if (game.theme !== previous?.theme) {
-      setTheme(game.theme, !!previous && !motion.matches);
+    if (game.theme !== previous?.theme || game.material !== previous?.material || game.palette !== previous?.palette) {
+      setTheme(game, !!previous && !motion.matches);
     }
     clearNotice.hidden = !fullBoardClear;
     clearNotice.textContent = fullBoardClear ? `Full-board clear! +${bonus} bonus` : "";

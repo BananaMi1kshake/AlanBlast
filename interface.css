@@ -10,8 +10,9 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 :root, #scene-fade {
-  background-image: radial-gradient(ellipse at 50% 13%, var(--scene-glow), transparent 56%),
+  background-image: var(--world-detail, none), radial-gradient(ellipse at 50% 13%, var(--scene-glow), transparent 56%),
     linear-gradient(162deg, var(--scene-top), var(--scene-bottom) 82%);
+  background-size: var(--world-size, auto), auto, auto;
   background-attachment: fixed;
 }
 #scene-fade { position: fixed; inset: 0; z-index: -1; pointer-events: none; }

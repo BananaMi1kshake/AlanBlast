@@ -23,7 +23,7 @@
 }
 
 /* Sunset */
-:root[data-theme="tidal"] {
+:root[data-palette="tidal"] {
   --chrome: #702743;
   --scene-top: #842b48;
   --scene-bottom: #2d1129;
@@ -46,7 +46,7 @@
 }
 
 /* Forest */
-:root[data-theme="orchard"] {
+:root[data-palette="orchard"] {
   --chrome: #113b35;
   --scene-top: #165149;
   --scene-bottom: #092623;
@@ -69,7 +69,7 @@
 }
 
 /* Midnight */
-:root[data-theme="dusk"] {
+:root[data-palette="dusk"] {
   --chrome: #291e55;
   --scene-top: #342561;
   --scene-bottom: #130e2d;
@@ -92,7 +92,7 @@
 }
 
 /* Candy */
-:root[data-theme="desert"] {
+:root[data-palette="desert"] {
   --chrome: #762a61;
   --scene-top: #863669;
   --scene-bottom: #341433;
@@ -115,7 +115,7 @@
 }
 
 /* Glacier */
-:root[data-theme="glacier"] {
+:root[data-palette="glacier"] {
   --chrome: #14394f;
   --scene-top: #255573;
   --scene-bottom: #0b2435;

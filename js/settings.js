@@ -40,7 +40,7 @@ export function createMotionPreference(settings) {
   return { motion, sync };
 }
 
-export function bindSettings(settings, preference, { onOpen, onRestart, onChange, onInteraction, vibrationSupported }) {
+export function bindSettings(settings, preference, { onOpen, onRestart, onChange, onInteraction, vibrationSupported, storage }) {
   const dialog = document.querySelector("#settings");
   const opener = document.querySelector("#open-settings");
   const panel = document.querySelector("#settings-panel");
@@ -124,7 +124,7 @@ export function bindSettings(settings, preference, { onOpen, onRestart, onChange
   volumeValue.value = `${slider.value}%`;
 
   function commit(event) {
-    saveSettings(settings);
+    saveSettings(settings, storage);
     preference.sync();
     onChange(event);
   }

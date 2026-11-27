@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AlanBlox Gameplay Lab</title>
+  <link rel="stylesheet" href="../themes.css">
+  <link rel="stylesheet" href="../materials.css">
+  <link rel="stylesheet" href="../interface.css">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="./gameplay-lab.css">
+  <script type="module">
+    if (["localhost", "127.0.0.1", "[::1]"].includes(location.hostname)) {
+      import("./gameplay-lab.js");
+    }
+  </script>
+</head>
+<body>
+  <main class="lab">
+    <h1>AlanBlox Gameplay Lab</h1>
+    <p id="local-only">Serve this page on localhost to use the development tool.</p>
+    <div id="lab" hidden>
+      <div class="lab-grid">
+        <section aria-label="Scenario controls">
+          <form id="state">
+            <label>Scenario <select id="preset">
+              <option value="empty">Empty board</option><option value="demo">Shape and material sample</option>
+              <option value="row">Single line</option><option value="intersection">Intersecting clears</option>
+              <option value="all">Full-board clear</option><option value="edge">Exact-fit five-cell bar</option>
+            </select></label>
+            <label>Board rows <textarea id="board-editor" rows="8" spellcheck="false"></textarea></label>
+            <p class="hint">Use a dot for an empty cell or a digit from 0 to 4 for a block color.</p>
+            <div id="hand-fields"></div>
+            <label>Score <input type="number" id="score" min="0" step="1"></label>
+            <label>Combo <input type="number" id="combo" min="0" step="1"></label>
+            <label>Combo window <input type="number" id="window" min="0" max="3" step="1"></label>
+            <label>World <select id="world"></select></label>
+            <label>Palette <select id="palette"></select></label>
+            <label>Material <select id="material"></select></label>
+            <div class="actions">
+              <button type="submit">Apply to sandbox</button><button type="button" id="read">Read sandbox</button>
+              <button type="button" id="reset">Reset lab</button>
+            </div>
+          </form>
+          <div class="actions">
+            <button type="button" id="inspect">Inspect legal sequences</button>
+            <button type="button" id="deal">Benchmark a deal</button>
+          </div>
+          <pre id="result" role="status"></pre>
+        </section>
+        <iframe id="sandbox" title="Isolated playable AlanBlox sandbox"></iframe>
+      </div>
+      <h2>Materials side by side</h2>
+      <div id="samples"></div>
+    </div>
+  </main>
+</body>
+</html>

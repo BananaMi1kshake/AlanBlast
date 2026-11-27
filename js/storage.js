@@ -1,6 +1,6 @@
 import { HAND_SIZE, SHAPES, SIZE } from "./game.js";
 import { RULES } from "./scoring.js";
-import { DEFAULT_THEME, THEMES } from "./themes.js";
+import { DEFAULT_THEME, THEMES, visualProfile } from "./themes.js";
 
 const KEY = "alanblox.save.v1";
 
@@ -40,6 +40,7 @@ export function loadProgress(storage) {
         comboWindow: window,
         exhausted: exhausted === true && hand.every(id => id === null),
         theme: THEMES.includes(theme) ? theme : DEFAULT_THEME,
+        material: visualProfile(saved.game).material,
       };
     }
     const highScore = isScore(saved?.highScore) ? saved.highScore : 0;

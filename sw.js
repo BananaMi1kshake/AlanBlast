@@ -1,9 +1,10 @@
 const prefix = `alanblox:${self.registration.scope}:shell-`;
-const cacheName = `${prefix}7`;
+const cacheName = `${prefix}8`;
 const shell = [
   "./index.html",
   "./styles.css",
   "./themes.css",
+  "./materials.css",
   "./interface.css",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
@@ -30,7 +31,13 @@ const shell = [
   "./js/storage.js",
   "./js/settings.js",
 ];
-const shellUrls = new Set(shell.map(path => new URL(path, self.registration.scope).href));
+const textures = [
+  "./assets/materials/yarn.svg",
+  "./assets/materials/wood.svg",
+  "./assets/materials/ice.svg",
+  "./assets/materials/wafer.svg",
+];
+const shellUrls = new Set([...shell, ...textures].map(path => new URL(path, self.registration.scope).href));
 const home = self.registration.scope;
 const index = new URL("./index.html", home).href;
 const audioDirectory = new URL("./audio/", home).href;
@@ -38,7 +45,9 @@ const audioDirectory = new URL("./audio/", home).href;
 async function cacheCustomSounds(cache) {
   try {
     const manifest = await cache.match(new URL("sounds.json", audioDirectory));
-    const files = new Set(Object.values(await manifest.json()).flat());
+    const data = await manifest.json();
+    const variants = Object.values(data.materials ?? {});
+    const files = new Set([data, ...variants].flatMap(set => Object.values(set)).flat());
     await Promise.all([...files].map(async file => {
       if (typeof file !== "string" || !file || file.startsWith("/") || file.includes("..") || !/^[\w./ -]+$/.test(file)) return;
       const request = new Request(new URL(file, audioDirectory), { cache: "reload", mode: "same-origin", redirect: "error" });
@@ -58,7 +67,12 @@ self.addEventListener("install", event => {
   event.waitUntil((async () => {
     const cache = await caches.open(cacheName);
     await cache.addAll(shell.map(path => new Request(new URL(path, home), { cache: "reload" })));
-    await cacheCustomSounds(cache);
+    await Promise.all([
+      cacheCustomSounds(cache),
+      ...textures.map(path => cache.add(new Request(new URL(path, home), { cache: "reload" })).catch(() => {
+        // The CSS surface remains visible if an optional overlay is missing.
+      })),
+    ]);
   })());
 });
 

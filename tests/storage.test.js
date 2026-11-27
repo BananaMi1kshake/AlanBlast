@@ -57,7 +57,7 @@ test("Phase 1 saves preserve their score, shape IDs and old bag order", () => {
   };
   storage.setItem("alanblox.save.v1", JSON.stringify({ game: legacy, highScore: 51 }));
   assert.deepEqual(loadProgress(storage), {
-    game: { ...legacy, combo: 0, comboWindow: 0, exhausted: false, theme: "mint" },
+    game: { ...legacy, combo: 0, comboWindow: 0, exhausted: false, theme: "mint", material: "classic" },
     highScore: 51,
   });
 });
@@ -100,4 +100,13 @@ test("a run's record celebration survives restoration of the game-over state", (
   const game = { ...createGame(), score: 800, exhausted: true, record: true };
   saveProgress(game, 800, storage);
   assert.deepEqual(loadProgress(storage), { game, highScore: 800 });
+});
+
+test("world material is restored and legacy or unknown material IDs use the saved world default", () => {
+  const storage = memoryStorage();
+  const game = { ...createGame(), theme: "tidal", material: "crystal" };
+  saveProgress(game, 0, storage);
+  assert.equal(loadProgress(storage).game.material, "crystal");
+  saveProgress({ ...game, material: "removed-profile" }, 0, storage);
+  assert.equal(loadProgress(storage).game.material, "yarn");
 });
