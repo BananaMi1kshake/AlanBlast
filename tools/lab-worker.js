@@ -1,4 +1,5 @@
 import { placePiece } from "../js/game.js";
+import { generateExperimental } from "../js/experimental-generator.js";
 import { generateHandV2 } from "../js/generator.js";
 import { generateHand, searchHand } from "../js/solver.js";
 import { inspectSequences } from "./analysis-core.js";
@@ -9,14 +10,15 @@ function deal(game, version, { seed, strategy, weights }) {
   const random = randomFrom(seed);
   const result = version === "v1"
     ? generateHand(game.board, game.bag, { random, maxChecks: 120000 })
-    : generateHandV2(game.board, game.bag, { random, strategy, weights });
+    : (version === "experimental" ? generateExperimental : generateHandV2)(game.board, game.bag, { random, strategy, weights });
   return { ...result, version, ms: performance.now() - start };
 }
 
 self.addEventListener("message", ({ data: { game, action, options } }) => {
   const generations = action === "compare"
     ? [deal(game, "v1", options), deal(game, "v2", options)]
-    : action === "deal" ? [deal(game, "v2", options)] : [];
+    : action === "experiment" ? [deal(game, "v2", options), deal(game, "experimental", options)]
+      : action === "deal" ? [deal(game, "v2", options)] : [];
   const last = generations.at(-1);
   if (last?.status === "solvable") game = { ...game, hand: last.hand, bag: last.bag };
   const inspection = !last || last.status === "solvable"

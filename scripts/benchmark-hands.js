@@ -2,12 +2,13 @@ import assert from "node:assert/strict";
 import { performance } from "node:perf_hooks";
 import { SHAPES, SIZE } from "../js/pieces.js";
 import { generateHand } from "../js/solver.js";
+import { generateExperimental } from "../js/experimental-generator.js";
 import { generateHandV2 } from "../js/generator.js";
 import { clearLines, referenceSolves } from "../tests/reference-solver.js";
 
 const version = process.argv[2] ?? "v1";
-if (!["v1", "v2"].includes(version)) throw new Error("Use v1 or v2.");
-const generate = version === "v2" ? generateHandV2 : generateHand;
+if (!["v1", "v2", "experimental"].includes(version)) throw new Error("Use v1, v2, or experimental.");
+const generate = { v1: generateHand, v2: generateHandV2, experimental: generateExperimental }[version];
 let seed = 20251127;
 function random() {
   seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;

@@ -164,7 +164,7 @@ function analyze(action) {
     for (const generation of generations) {
       const { version, status, ms, stats, hand } = generation;
       lines.push(`${version.toUpperCase()} ${status} in ${ms.toFixed(2)} ms, ${stats.rejected} rejected, ${stats.fallbacks} solvability fallbacks.`);
-      if (version === "v2") lines.push(`Requested ${labels[stats.requested]}. Delivered ${labels[stats.delivered]}${stats.guided ? " by guided search" : ""}. ${stats.goalTimeouts} goal budgets exhausted.`);
+      if (version !== "v1") lines.push(`Requested ${labels[stats.requested]}. Delivered ${labels[stats.delivered]}${stats.guided ? " by guided search" : ""}. ${stats.goalTimeouts} goal budgets exhausted.`);
       if (hand) lines.push(hand.map(id => SHAPES[id].name).join(", "));
     }
     if (action === "deal" && generations[0].status === "solvable") {
@@ -216,6 +216,7 @@ $("reset").addEventListener("click", () => {
 $("inspect").addEventListener("click", () => analyze("inspect"));
 $("deal").addEventListener("click", () => analyze("deal"));
 $("compare").addEventListener("click", () => analyze("compare"));
+$("experiment").addEventListener("click", () => analyze("experiment"));
 $("strategy").addEventListener("change", event => {
   $("goal").value = event.target.value === "standard" ? "completion" : event.target.value || "allClear";
 });

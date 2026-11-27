@@ -5,12 +5,15 @@ import { choose, occupied, randomFrom, summary } from "../tools/player-strategie
 const config = process.argv[2] ?? "v1";
 const weights = {
   v2: { standard: 40, line: 30, cleanup: 20, allClear: 10 },
+  experimental: { standard: 40, line: 30, cleanup: 20, allClear: 10 },
   conservative: { standard: 55, line: 25, cleanup: 15, allClear: 5 },
   allClearHeavy: { standard: 30, line: 25, cleanup: 20, allClear: 25 },
   cleanupHeavy: { standard: 25, line: 20, cleanup: 45, allClear: 10 },
 };
-if (config !== "v1" && !weights[config]) throw new Error("Use v1, v2, conservative, allClearHeavy, or cleanupHeavy.");
-const generate = config === "v1" ? generateHand : (await import("../js/generator.js")).generateHandV2;
+if (config !== "v1" && !weights[config]) throw new Error("Use v1, v2, experimental, conservative, allClearHeavy, or cleanupHeavy.");
+const generate = config === "v1" ? generateHand
+  : config === "experimental" ? (await import("../js/experimental-generator.js")).generateExperimental
+  : (await import("../js/generator.js")).generateHandV2;
 const runs = Number(process.argv[3] ?? 24);
 const cap = Number(process.argv[4] ?? 120);
 if (!Number.isSafeInteger(runs) || runs < 1 || !Number.isSafeInteger(cap) || cap < 1) throw new Error("Session count and move cap must be positive integers.");
@@ -22,7 +25,7 @@ const results = {};
 for (const profile of profiles) {
   const stats = {
     hands: 0, opportunities: 0, unknownOpportunity: 0, allClears: 0, fallback: 0, goalFallback: 0,
-    rejected: 0, timedOutDeals: 0, provenImpossible: 0, impossibleReturned: 0,
+    rejected: 0, experimentalReplacements: 0, timedOutDeals: 0, provenImpossible: 0, impossibleReturned: 0,
     occupiedBefore: [], occupiedAfter: [], first: [], gaps: [], scores: [], lengths: [], worlds: [],
     sizes: {}, orientations: Array(SHAPES.length).fill(0), generationMs: [], sessions: [], strategy: {},
   };
@@ -44,6 +47,7 @@ for (const profile of profiles) {
         const deal = generate(game.board, game.bag, { random: dealRandom, weights: weights[config] });
         stats.generationMs.push(performance.now() - start);
         stats.rejected += deal.stats.rejected;
+        stats.experimentalReplacements += Number(!!deal.stats.experimentalReplacement);
         stats.fallback += deal.stats.fallbacks;
         stats.goalFallback += Number(!!deal.stats.goalFallback);
         const row = stats.strategy[deal.stats.requested ?? "standard"] ??= { drawn: 0, met: 0 };
