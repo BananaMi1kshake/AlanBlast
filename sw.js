@@ -11,6 +11,8 @@ const shell = [
   "./icons/icon-512.png",
   "./icons/apple-touch-icon.png",
   "./js/main.js",
+  "./js/classic.js",
+  "./js/sandbox.js",
   "./js/audio.js",
   "./js/sound-bank.js",
   "./js/feedback.js",

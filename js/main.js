@@ -1,44 +1,38 @@
 import { createAudio } from "./audio.js";
 import { bindFeedbackLifecycle, createFeedback } from "./feedback.js";
 import { createHaptics } from "./haptics.js";
-import { createGame, isGameOver, needsHand, placePiece } from "./game.js";
+import { createClassicSession } from "./classic.js";
+import { isLoopback, memoryStorage } from "./sandbox.js";
 import { requestHand } from "./hand-request.js";
 import { bindInput } from "./input.js";
-import { loadProgress, saveProgress } from "./storage.js";
 import { bindSettings, createMotionPreference, loadSettings } from "./settings.js";
 import { createView } from "./view.js";
 
 const DEAL_TIMEOUT = 10000;
 const RETRY_TIMEOUT = 30000;
 const labMode = new URLSearchParams(location.search).has("lab");
-const labAccess = labMode && window.parent !== window && ["localhost", "127.0.0.1", "[::1]"].includes(location.hostname);
-const labData = labMode ? new Map() : null;
-const labStorage = labData ? { getItem: key => labData.get(key), setItem: (key, value) => labData.set(key, value) } : undefined;
+const labAccess = labMode && window.parent !== window && isLoopback(location.hostname);
+const labStorage = labMode ? memoryStorage() : undefined;
+const session = createClassicSession(labStorage);
 const settings = loadSettings(labStorage);
 const audio = createAudio();
 const haptics = createHaptics();
-const feedback = createFeedback(audio, haptics, settings, () => game.material);
+const feedback = createFeedback(audio, haptics, settings, () => session.game.material);
 bindFeedbackLifecycle(audio, haptics);
 const preference = createMotionPreference(settings);
 const view = createView(preference.motion);
 const playAgain = document.querySelector("#play-again");
 const pending = document.querySelector("#hand-pending");
 const retryHand = document.querySelector("#retry-hand");
-const restored = loadProgress(labStorage);
-let game = restored.game ?? createGame();
-let highScore = restored.highScore;
 let lastMove;
 let cancelDeal;
 
-const input = bindInput(view, () => game, (slot, x, y) => {
-  const result = placePiece(game, slot, x, y);
+const input = bindInput(view, () => session.game, (slot, x, y) => {
+  const material = session.game.material;
+  const result = session.play(slot, x, y);
   if (!result) return false;
   input.reset();
-  const record = result.game.score > highScore;
-  const firstRecord = record && !game.record;
-  const material = game.material;
-  game = result.game;
-  if (record) game.record = true;
+  const { record, firstRecord, game } = result;
   lastMove = { result, slot, x, y };
   const over = update();
   const lines = result.rows.length + result.columns.length;
@@ -48,15 +42,14 @@ const input = bindInput(view, () => game, (slot, x, y) => {
   const bonus = result.fullBoardClear ? ` Full-board clear! ${result.bonus} bonus points and a new world.` : "";
   view.announce(`${summary}Scored ${result.points} points.${record ? " New high score." : ""}${combo}${bonus}${over ? " Game over. No remaining piece fits." : ""}`);
   if (over) playAgain.focus({ preventScroll: true });
-  if (needsHand(game)) deal();
+  if (session.waiting) deal();
   return true;
 }, feedback.cue);
 
 function update(refill = false) {
-  highScore = Math.max(highScore, game.score);
-  const over = isGameOver(game);
-  saveProgress(game, highScore, labStorage);
-  view.render(game, highScore, over, lastMove, refill);
+  const over = session.over;
+  session.persist();
+  view.render(session.game, session.best, over, lastMove, refill);
   return over;
 }
 
@@ -65,7 +58,7 @@ function deal(timeout = DEAL_TIMEOUT, focusTray = false) {
   pending.hidden = false;
   retryHand.hidden = true;
   view.tray.setAttribute("aria-busy", "true");
-  cancelDeal = requestHand(game.board, game.bag, result => {
+  cancelDeal = requestHand(session.game.board, session.game.bag, result => {
     cancelDeal = undefined;
     view.tray.removeAttribute("aria-busy");
     if (result.status === "timeout" || result.status === "error") {
@@ -76,14 +69,14 @@ function deal(timeout = DEAL_TIMEOUT, focusTray = false) {
     }
     pending.hidden = true;
     if (result.status === "impossible") {
-      game = { ...game, exhausted: true };
+      session.applyDeal(result);
       update();
       view.announce("Game over. No solvable hand exists.");
       feedback.cue("gameOver");
       playAgain.focus({ preventScroll: true });
       return;
     }
-    game = { ...game, hand: result.hand, bag: result.bag };
+    session.applyDeal(result);
     update(true);
     if (focusTray || view.board.contains(document.activeElement)) view.slots[0].focus({ preventScroll: true });
   }, timeout);
@@ -93,7 +86,7 @@ function restart() {
   cancelDeal?.();
   input.reset();
   view.resetFeedback();
-  game = createGame();
+  session.restart();
   lastMove = undefined;
   update();
   view.announce("New game.");
@@ -115,25 +108,24 @@ bindSettings(settings, preference, {
 });
 playAgain.addEventListener("click", restart);
 update();
-if (needsHand(game)) deal();
+if (session.waiting) deal();
 
 if (labAccess) {
   window.alanbloxLab = {
-    snapshot: () => structuredClone({ game, highScore }),
+    snapshot: () => structuredClone({ game: session.game, highScore: session.best }),
     load(next, { holdDeal = false } = {}) {
       cancelDeal?.();
       input.reset();
       view.resetFeedback();
       audio.stop();
       haptics.stop();
-      game = structuredClone(next);
-      highScore = game.score;
+      session.load(next);
       lastMove = undefined;
       pending.hidden = true;
       retryHand.hidden = true;
       view.tray.removeAttribute("aria-busy");
       update();
-      if (!holdDeal && needsHand(game)) deal();
+      if (!holdDeal && session.waiting) deal();
     },
   };
 }
