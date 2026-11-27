@@ -1,4 +1,4 @@
-# AlanBlast
+# AlanBlox
 
 A free, fair, mobile-first block puzzle game inspired by Block Blast.
 
@@ -6,26 +6,24 @@ A free, fair, mobile-first block puzzle game inspired by Block Blast.
 
 ## About
 
-AlanBlast aims to recreate the satisfying gameplay experience of modern block puzzle games without intrusive advertising, aggressive monetization or hidden player manipulation.
+AlanBlox aims to recreate the satisfying gameplay experience of modern block puzzle games without intrusive advertising, aggressive monetization or hidden player manipulation.
 
 The project focuses on responsive controls, rewarding audiovisual feedback, colorful themes and a transparent gameplay system that rewards skill and strategic thinking.
 
-## Features
+## Features and roadmap
 
-### Core Gameplay
+### Playable in Phase 1
 
 - Classic 8×8 puzzle board.
 - Three block pieces per round.
 - Intuitive drag-and-drop controls.
-- Horizontal and vertical line clearing.
-- Combo and streak scoring.
-- Full-board clear bonuses.
-- Dynamic visual themes following full-board clears.
+- Row and column clears, including both in one move.
+- Basic scoring and game-over detection.
 - Fair and transparent piece generation.
 - Persistent high scores.
 - Automatic game progress saving.
 
-### Game Feel
+### Planned polish
 
 - Smooth block placement animations.
 - Satisfying line-clearing effects.
@@ -46,7 +44,7 @@ The project focuses on responsive controls, rewarding audiovisual feedback, colo
 
 ## Our Philosophy
 
-AlanBlast is built around five fundamental principles:
+AlanBlox is built around five fundamental principles:
 
 1. **Fairness:** Gameplay outcomes are never influenced by monetization or advertising engagement.
 2. **Transparency:** Gameplay rules and piece-generation algorithms are documented and publicly accessible.
@@ -70,23 +68,20 @@ AlanBlast is built around five fundamental principles:
 
 ### Phase 1 — Core Gameplay
 
-- [ ] 8×8 game board
-- [ ] Block shape library
-- [ ] Piece generation system
-- [ ] Drag-and-drop controls
-- [ ] Placement previews
-- [ ] Line clearing
-- [ ] Basic scoring
-- [ ] Game-over detection
-- [ ] Save and restore functionality
+- [x] Responsive 8×8 board and 25 oriented block templates
+- [x] Shuffled-bag piece generation and three-piece hands
+- [x] Mouse and touch drag-and-drop, tap-to-place, and keyboard controls
+- [x] Valid and invalid placement previews
+- [x] Simultaneous line clearing, basic scoring, and game-over detection
+- [x] Restart, progress restoration, and persistent high scores
+- [x] Installable app shell with offline support
+- [x] Automated gameplay and storage tests
 
 ### Phase 2 — Gameplay Balancing
 
-- [ ] Fair randomization algorithm
 - [ ] Combo system
 - [ ] Streak system
 - [ ] Full-board clear bonuses
-- [ ] Automated gameplay tests
 - [ ] Difficulty balancing
 
 ### Phase 3 — Game Feel
@@ -117,8 +112,6 @@ AlanBlast is built around five fundamental principles:
 
 ### Phase 6 — Release
 
-- [ ] PWA installation support
-- [ ] Offline functionality
 - [ ] GitHub Pages deployment
 - [ ] Android browser testing
 - [ ] iOS browser testing
@@ -126,32 +119,51 @@ AlanBlast is built around five fundamental principles:
 - [ ] Performance optimization
 - [ ] Final gameplay polish
 
-## Running Locally
+## Playing
 
-Clone the repository and serve the project using a local HTTP server.
+Drag a piece from the tray to the board. On touchscreens the piece floats above your finger so you can see the target. You can also select a piece and tap its top-left target on the board. With a keyboard, activate a piece, use the arrow keys to move its preview, and press Enter or Space to place it. Escape cancels the selection.
 
-For example, using Python:
+Each placement earns one point per block and ten points for each completed row or column. A move can complete multiple lines. All lines are identified on the same board, their union is cleared, and each line earns points. The tray refills after all three pieces are placed. When none of the remaining pieces fits, the game ends. Restart clears the board and current score while keeping the best score on that browser.
 
-`python3 -m http.server 8000`
+### Piece selection
 
-Then open:
+Each bag contains one copy of every one of the 25 oriented templates in `js/game.js`. The game shuffles it with Fisher–Yates, choosing a random index from 0 through the current index at each step using the browser's `Math.random()`. It deals three consecutive templates at a time. If fewer than three remain in the bag, it uses those first and finishes the hand from a newly shuffled bag. An orientation may repeat across a bag boundary. Shapes have fixed orientations.
 
-`http://localhost:8000`
+The draw never consults the board, score, or previous performance. All pieces fit an empty board, and a later piece or hand can be blocked by the current board. The undealt bag order is saved along with the board and remaining hand so a reload preserves them.
 
-## Deployment
+## Running locally
 
-AlanBlast is intended to be hosted through GitHub Pages, with updates deployed from the main branch.
+From the repository root, serve the app with Python and open `http://localhost:8000/`:
+
+```sh
+python3 -m http.server 8000 --bind 127.0.0.1
+```
+
+Run the automated tests with Node.js 20 or newer. No dependency installation is needed.
+
+```sh
+npm test
+```
+
+## Deploying to GitHub Pages
+
+1. Once the reviewed changes are in the desired publishing branch, open **Settings → Pages** in GitHub.
+2. Under **Build and deployment**, choose **Deploy from a branch**, select that branch and **/ (root)**, then save.
+3. Open the HTTPS URL shown in Pages once the deployment succeeds. For the existing repository it is expected to be `https://bananami1kshake.github.io/AlanBlast/`.
+4. Load the site online once and give the service worker time to cache the app. Use the browser's install command where supported or Safari's **Add to Home Screen** on iOS. Reload offline to check the deployment.
+
+All app paths are relative, so the board and offline cache work at the project URL as well as on localhost. Increment the shell cache version in `sw.js` whenever changing a cached asset. Close open instances of the app to let an updated service worker take over.
 
 ## Development
 
-AlanBlast is developed with the assistance of OpenAI Codex.
+AlanBlox is developed with the assistance of OpenAI Codex.
 
 AI development agents should refer to `AGENTS.md` for project-specific requirements, technical constraints, gameplay principles and development guidelines.
 
 ## Project Status
 
-Currently in early development.
+Phase 1 is playable. Later phases cover scoring depth and game feel.
 
 ## Disclaimer
 
-AlanBlast is an independent project inspired by the block puzzle genre. It is not affiliated with Block Blast or its developers. All code, branding, graphics and audio assets are intended to be original.
+AlanBlox is an independent project inspired by the block puzzle genre. It is not affiliated with Block Blast or its developers. All code, branding, graphics and audio assets are intended to be original.
