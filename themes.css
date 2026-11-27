@@ -136,3 +136,26 @@
   --combo-glow: #e8faff;
   --clear-glow: #fff;
 }
+
+/* Default Classic only. Adventure levels and rotating worlds keep their palettes. */
+:root[data-mode="classic"][data-palette="mint"][data-material="classic"] {
+  --chrome: #2857b0;
+  --scene-top: #3268c3;
+  --scene-bottom: #2857b0;
+  --scene-glow: transparent;
+  --board: #122d5e;
+  --cell: #25487d;
+  --board-edge: #102652;
+  --ink: #fff;
+  --muted: #dce9ff;
+  --accent: #9ee5ff;
+  --medal: #ffdc61;
+  --mint: #41dc62;
+  --sky: #33bef5;
+  --sun: #ffbd32;
+  --coral: #fa5565;
+  --lilac: #ad75f8;
+  --particle: #aff4ff;
+  --combo-glow: #ffdf74;
+  --clear-glow: #daefff;
+}

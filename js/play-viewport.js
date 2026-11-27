@@ -1,12 +1,12 @@
 // Safari may report a smaller visible area while browser chrome is on screen.
 // Keep CSS in charge during pinch zoom so zoomed content can still be explored.
-export function bindPlayViewport() {
+function bindViewport() {
   const root = document.documentElement;
   const viewport = window.visualViewport;
   function update() {
     if (viewport && Math.abs(viewport.scale - 1) < .01) {
-      root.style.setProperty("--play-height", `${viewport.height}px`);
-      root.style.setProperty("--play-top", `${viewport.offsetTop}px`);
+      root.style.setProperty("--screen-height", `${viewport.height}px`);
+      root.style.setProperty("--screen-top", `${viewport.offsetTop}px`);
     }
   }
   viewport?.addEventListener("resize", update);
@@ -15,8 +15,8 @@ export function bindPlayViewport() {
   window.addEventListener("pageshow", update);
   update();
 
-  if (!CSS.supports("width", "1cqh") && "ResizeObserver" in window) {
-    const field = document.querySelector(".playfield");
+  const field = document.querySelector(".playfield");
+  if (field && !CSS.supports("width", "1cqh") && "ResizeObserver" in window) {
     new ResizeObserver(([entry]) => {
       field.style.setProperty("--playfield-height", `${entry.contentRect.height}px`);
     }).observe(field);
@@ -29,3 +29,5 @@ export function bindPlayViewport() {
       && !event.target.closest?.("dialog, .game-over")) event.preventDefault();
   }, { passive: false });
 }
+
+if (document.documentElement.classList.contains("app-viewport")) bindViewport();

@@ -65,6 +65,18 @@
             <label>Corner <select id="input-corner"><option value="tl">Top left</option><option value="tr">Top right</option><option value="bl">Bottom left</option><option value="br">Bottom right</option></select></label>
             <div class="actions"><button id="load-input-shape" type="button">Load shape fixture</button></div>
           </details>
+          <fieldset>
+            <legend>Performance diagnostics</legend>
+            <label>Particle limit <input id="particle-limit" type="number" min="0" max="48" step="1" value="24"></label>
+            <label>Particle animation intensity <input id="effect-intensity" type="number" min="0" max="2" step=".1" value="1"></label>
+            <label>Record frame and game timings <input id="monitor-performance" type="checkbox"></label>
+            <label for="performance-report">Local report</label>
+            <textarea id="performance-report" rows="8" spellcheck="false" readonly></textarea>
+            <div class="actions">
+              <button id="select-performance" type="button">Select report</button>
+              <a href="./canvas-lab.html">Canvas renderer comparison</a>
+            </div>
+          </fieldset>
           <fieldset class="dealer">
             <legend>Seeded dealer</legend>
             <label>Seed <input id="seed" type="number" step="1" value="5656"></label>

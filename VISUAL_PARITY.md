@@ -26,3 +26,12 @@ Official product and store URLs returned HTTP 403 from this workspace. No curren
 | Overlay and navigation | Modal plus entry fades | Reference transitions unverified. | Shared surfaces and motion tokens. Reduced-motion users get instant navigation and startup. |
 
 The shared 8×8 grid, three-piece tray and line-clear emphasis are broad genre conventions. No element is claimed as a verified match to the reference build. Block Blast assets are excluded from the application and screenshots. Exact scoring parity and the frequency of Classic all-clears remain open research questions.
+
+
+## Phase 8.1 visual alignment
+
+The supplied Alan Studio mark, AlanBlox wordmark and blue block scene guide the branding and startup. Existing Phase 8 assets remain in use. The Classic default uses royal blue, a darker navy board with muted cells, bold white numerals, a gold crown and an unframed three-slot tray. Other worlds retain their individual material colors and textures. The main menu emphasizes the logo and two mode actions, with a resume action where a run exists and compact access to the collection, statistics, achievements and Daily. The About panel identifies Alan Studio and the AlanBlox release version.
+
+The board and tray reserve space independently of score, combo, objectives and feedback. Adventure levels, material collection, statistics and achievements fit by paging or filtering their data. The Daily date entry remains an ordinary browser date control. Only Settings can scroll within the stationary app. Completion, failure and confirmations keep their controls within the checked viewports. Startup now allocates 360 ms to Alan Studio and 500 ms to AlanBlox and respects reduced motion and ordinary in-app navigation.
+
+Official reference URLs were still inaccessible from this environment. The palette, proportions and timing are AlanBlox design choices informed by the supplied assets and the brief. Physical visual review, perceived drag quality and exact comparator parity remain open. [Before-and-after screen gallery](docs/phase-8-1/SCREENS.md) · [Performance and rendering audit](docs/phase-8-1/PERFORMANCE.md)

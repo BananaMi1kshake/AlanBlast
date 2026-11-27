@@ -1,5 +1,5 @@
 import { MATERIALS, visualProfile } from "./themes.js";
-import { placementIndices } from "./geometry.js";
+import { placementIndices, readBoardGeometry } from "./geometry.js";
 import { SHAPES, SIZE } from "./pieces.js";
 import { MOTION } from "./motion.js";
 
@@ -21,19 +21,33 @@ export function createEffects(layer, cells, motion) {
   const live = new Map();
   const ghosts = new Map();
   const particles = new Set();
+  const particlePool = [];
+  const particleAnimations = new WeakMap();
+  let particleLimit = MOTION.particleLimit;
+  let intensity = 1;
 
   function remove(element) {
     live.get(element)?.cancel();
     live.delete(element);
-    particles.delete(element);
+    if (particles.delete(element)) particlePool.push(element);
     element.remove();
   }
 
   function play(element, frames, options) {
     layer.append(element);
-    const animation = element.animate(frames, { easing: "ease-out", fill: "both", ...options });
+    const timing = { easing: "ease-out", fill: "both", ...options };
+    const particle = particles.has(element);
+    let animation = particle && particleAnimations.get(element);
+    if (animation) {
+      animation.effect.setKeyframes(frames);
+      animation.effect.updateTiming(timing);
+      animation.play();
+    } else {
+      animation = element.animate(frames, timing);
+      if (particle) particleAnimations.set(element, animation);
+    }
     live.set(element, animation);
-    animation.onfinish = () => remove(element);
+    animation.onfinish = () => { if (animation.playState === "finished") remove(element); };
   }
 
   function position(element, indices) {
@@ -44,9 +58,11 @@ export function createEffects(layer, cells, motion) {
   }
 
   function burst(indices, count, colors, duration, material, confetti = false) {
-    for (let i = 0; i < count; i++) {
-      if (particles.size >= MOTION.particleLimit) remove(particles.values().next().value);
-      const particle = node(confetti ? "fx-particle confetti" : "fx-particle");
+    const budget = Math.min(particleLimit, Math.round(count * intensity));
+    for (let i = 0; i < budget; i++) {
+      if (particles.size >= particleLimit) remove(particles.values().next().value);
+      const particle = particlePool.pop() ?? node("fx-particle");
+      particle.classList.toggle("confetti", confetti);
       particle.dataset.material = material;
       position(particle, [indices[i % indices.length]]);
       particle.style.backgroundColor = colors[i % colors.length];
@@ -64,19 +80,13 @@ export function createEffects(layer, cells, motion) {
 
   const snaps = new Map();
 
-  function placement(previous, result, slot, x, y) {
+  function placement(previous, result, slot, x, y, paint) {
     if (motion.matches) return;
     const id = previous.hand[slot];
     const { material } = visualProfile(previous);
     const profile = MATERIALS[material];
     const parts = placementIndices(SHAPES[id], x, y);
-    const palette = getComputedStyle(document.documentElement);
-    const colors = new Map();
-    function colorAt(index) {
-      const key = SHAPES[previous.board[index] ?? id].color;
-      if (!colors.has(key)) colors.set(key, palette.getPropertyValue(`--${key}`).trim());
-      return colors.get(key);
-    }
+    const colorAt = index => paint[`--${SHAPES[previous.board[index] ?? id].color}`];
 
     for (const i of parts) {
       if (ghosts.has(i)) remove(ghosts.get(i));
@@ -122,13 +132,13 @@ export function createEffects(layer, cells, motion) {
         ? Array.from({ length: SIZE ** 2 }, (_, index) => index)
         : result.cleared;
       const burstColors = result.fullBoardClear
-        ? ["mint", "sky", "sun", "coral", "lilac", "particle"].map(key => palette.getPropertyValue(`--${key}`).trim())
+        ? ["mint", "sky", "sun", "coral", "lilac", "particle"].map(key => paint[`--${key}`])
         : result.cleared.map(colorAt);
-      const count = result.fullBoardClear ? 48 : Math.min(36, 8 + lines * 7 + Math.min(8, result.game.combo));
+      const count = result.fullBoardClear ? 24 : Math.min(16, 5 + lines * 3 + Math.min(4, result.game.combo));
       burst(sources, count, burstColors, result.fullBoardClear ? MOTION.allClear * .82 : duration + 140,
         material, result.fullBoardClear);
     } else {
-      burst(parts, Math.min(8, parts.length + 3), [colorAt(parts[0]), palette.getPropertyValue("--particle").trim()], MOTION.placement + 110, material);
+      burst(parts, Math.min(4, parts.length + 1), [colorAt(parts[0]), paint["--particle"]], MOTION.placement + 110, material);
     }
 
     // Keep an all-clear total visible if the next piece lands during the celebration.
@@ -168,11 +178,11 @@ export function createEffects(layer, cells, motion) {
     if (motion.matches || !indices?.length || !target) return;
     const destination = target.getBoundingClientRect();
     const bounds = layer.getBoundingClientRect();
+    const grid = readBoardGeometry(cells[0].closest(".board"));
     for (const index of indices) {
       const gem = node("flying-gem");
-      const cell = cells[index].getBoundingClientRect();
-      const x = cell.left + cell.width / 2;
-      const y = cell.top + cell.height / 2;
+      const x = grid.left + (index % SIZE) * grid.stepX + grid.unitX / 2;
+      const y = grid.top + Math.floor(index / SIZE) * grid.stepY + grid.unitY / 2;
       gem.style.left = `${x - bounds.left}px`;
       gem.style.top = `${y - bounds.top}px`;
       const dx = destination.left + destination.width / 2 - x;
@@ -185,12 +195,11 @@ export function createEffects(layer, cells, motion) {
     }
   }
 
-  function celebrate(game) {
+  function celebrate(game, paint) {
     if (motion.matches) return;
     const { material } = visualProfile(game);
-    const style = getComputedStyle(document.documentElement);
-    const colors = ["mint", "sun", "clear-glow"].map(key => style.getPropertyValue(`--${key}`).trim());
-    burst([10, 13, 25, 30, 49, 54], 28, colors, MOTION.combo, material, true);
+    const colors = ["mint", "sun", "clear-glow"].map(key => paint[`--${key}`]);
+    burst([10, 13, 25, 30, 49, 54], 18, colors, MOTION.combo, material, true);
   }
 
   function reset() {
@@ -201,5 +210,14 @@ export function createEffects(layer, cells, motion) {
   }
 
   motion.addEventListener("change", () => { if (motion.matches) reset(); });
-  return { placement, collectGems, celebrate, reset };
+  function configure(options = {}) {
+    const limit = options.particleLimit;
+    const strength = options.intensity;
+    if (Number.isFinite(limit)) particleLimit = Math.min(48, Math.max(0, Math.round(limit)));
+    if (Number.isFinite(strength)) intensity = Math.min(2, Math.max(0, strength));
+    while (particles.size > particleLimit) remove(particles.values().next().value);
+    return { particleLimit, intensity };
+  }
+
+  return { placement, collectGems, celebrate, reset, configure, particleCount: () => particles.size };
 }

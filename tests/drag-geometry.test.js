@@ -1,10 +1,19 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { boardGeometry, pieceSize } from "../js/geometry.js";
-import { boardMoved, dragFrame, grabOffset, INPUT, inputTuning, placementTarget, touchClearance, visualOrigin } from "../js/drag-geometry.js";
+import { boardMoved, dragFrame, dragTarget, grabOffset, INPUT, inputTuning, placementTarget, touchClearance, visualOrigin } from "../js/drag-geometry.js";
 import { SHAPES } from "../js/pieces.js";
 
 const grid = boardGeometry({ left: 16, top: 84, width: 320, height: 320 }, 4, 4);
+
+test("a fast drop uses the full-size target before the piece finishes enlarging", () => {
+  const size = pieceSize(grid, SHAPES[26]);
+  const offsets = grabOffset({ left: 44, top: 455, width: 15, height: 78 }, size, { x: 53, y: 479 }, true, 40, "grab");
+  const pointer = { x: grid.left + grid.stepX * 7 - offsets.endX, y: grid.bottom + 40 };
+  const early = dragFrame(pointer, offsets, .1);
+  assert.notEqual(placementTarget(grid, early.left, early.top).y, 3);
+  assert.deepEqual(dragTarget(grid, pointer, offsets), { x: 7, y: 3 });
+});
 
 test("visual motion is continuous while preview advances only at a cell boundary", () => {
   const shape = SHAPES[0];

@@ -1,8 +1,8 @@
 import { SIZE } from "./pieces.js";
 
 export const INPUT = Object.freeze({
-  touchLift: 1.15, grabAnchor: "grab", touchThreshold: 3, mouseThreshold: 5,
-  pickupMs: 72, returnMs: 125, snapVisual: false, previewOpacity: .55, hysteresis: 0,
+  touchLift: 1.15, grabAnchor: "grab", touchThreshold: 2, mouseThreshold: 5,
+  pickupMs: 56, returnMs: 125, snapVisual: false, previewOpacity: .55, hysteresis: 0,
 });
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -57,6 +57,10 @@ export function placementTarget(grid, left, top, previous, hysteresis = 0) {
     x: snap((left - grid.left) / grid.stepX, previous?.x),
     y: snap((top - grid.top) / grid.stepY, previous?.y),
   };
+}
+
+export function dragTarget(grid, pointer, offset, previous, hysteresis) {
+  return placementTarget(grid, pointer.x + offset.endX, pointer.y + offset.endY, previous, hysteresis);
 }
 
 export function visualOrigin(position, grid, shape, target, snapped) {

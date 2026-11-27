@@ -2,52 +2,61 @@ import { previewStorage } from "./sandbox.js";
 import { isUnlocked, loadAdventure } from "./adventure-storage.js";
 import { levelUrl } from "./adventure-view.js";
 import { loadCampaign } from "./campaign.js";
+import { createPager } from "./pager.js";
 import { registerOffline } from "./pwa.js";
 import { createMotionPreference, loadSettings } from "./settings.js";
-import { MATERIALS, WORLDS } from "./themes.js";
+import { WORLDS } from "./themes.js";
 import { paintWorld } from "./world-art.js";
 
 const $ = id => document.getElementById(id);
 const preview = previewStorage();
+const pager = createPager($("screen-pager"));
+const params = new URLSearchParams(location.search);
+const requested = params.get("world");
+const world = Object.hasOwn(WORLDS, requested) ? requested : null;
 createMotionPreference(loadSettings(preview));
 if (!preview) registerOffline();
 
-function worldCard(world, entries, completed, levels, activeLevel) {
-  const section = document.createElement("section");
-  section.className = "world-card";
-  section.toggleAttribute("data-current", entries.includes(activeLevel));
-  const header = document.createElement("header");
-  const art = document.createElement("div");
+function worldUrl(id) {
+  const query = new URLSearchParams();
+  if (id) query.set("world", id);
+  if (preview) query.set("preview", "1");
+  return "./adventure.html" + (query.size ? "?" + query : "");
+}
+
+function worldTile(id, entries, done, active) {
+  const link = document.createElement("a");
+  link.className = "world-card world-tile";
+  link.href = worldUrl(id);
+  link.toggleAttribute("data-current", active === id);
+  const art = document.createElement("span");
   art.className = "world-art";
   art.setAttribute("aria-hidden", "true");
-  paintWorld(art, WORLDS[world]);
-  const text = document.createElement("div");
-  const title = document.createElement("h2");
-  title.textContent = WORLDS[world].name;
-  const material = document.createElement("p");
-  material.textContent = MATERIALS[WORLDS[world].material].name;
-  text.append(title, material);
-  header.append(art, text);
-  section.append(header);
-  const list = document.createElement("ol");
-  for (const level of entries) {
-    const item = document.createElement("li");
-    const done = completed.includes(level.id);
-    const unlocked = isUnlocked(levels, completed, level.id);
-    const row = document.createElement(unlocked ? "a" : "span");
-    row.className = "level-row";
-    const name = document.createElement("strong");
-    name.textContent = `${levels.indexOf(level) + 1}. ${level.name}`;
-    const status = document.createElement("span");
-    status.textContent = done ? "Completed · Replay" : unlocked ? "Available" : "Locked";
-    row.dataset.status = done ? "complete" : unlocked ? "available" : "locked";
-    if (unlocked) row.href = levelUrl(level.id, { replay: done });
-    row.append(name, status);
-    item.append(row);
-    list.append(item);
-  }
-  section.append(list);
-  return section;
+  paintWorld(art, WORLDS[id]);
+  const label = document.createElement("span");
+  const title = document.createElement("strong");
+  const count = document.createElement("small");
+  title.textContent = WORLDS[id].name;
+  count.textContent = `${entries.filter(level => done.includes(level.id)).length}/${entries.length} cleared`;
+  label.append(title, count);
+  link.append(art, label);
+  return link;
+}
+
+function levelTile(level, completed, levels) {
+  const done = completed.includes(level.id);
+  const unlocked = isUnlocked(levels, completed, level.id);
+  const tile = document.createElement(unlocked ? "a" : "div");
+  tile.className = "level-row";
+  tile.dataset.levelId = level.id;
+  const name = document.createElement("strong");
+  name.textContent = `${levels.indexOf(level) + 1}. ${level.name}`;
+  const status = document.createElement("span");
+  status.textContent = done ? "Replay" : unlocked ? "Play" : "Locked";
+  tile.dataset.status = done ? "complete" : unlocked ? "available" : "locked";
+  if (unlocked) tile.href = levelUrl(level.id, { replay: done });
+  tile.append(name, status);
+  return tile;
 }
 
 async function render() {
@@ -55,28 +64,32 @@ async function render() {
     const levels = await loadCampaign();
     const { completed, current } = loadAdventure(levels, preview);
     const frontier = levels.find(level => !completed.includes(level.id)) ?? levels.at(-1);
-    const activeLevel = current?.run.status === "playing"
-      ? levels.find(level => level.id === current.levelId) : frontier;
+    const active = current?.run.status === "playing" ? levels.find(level => level.id === current.levelId) : frontier;
     $("current-world").textContent = completed.length === levels.length
-      ? "Campaign complete" : `Current world · ${WORLDS[activeLevel.world].name}`;
+      ? "Campaign complete" : `Current world · ${WORLDS[active.world].name}`;
     $("progress-label").textContent = `${completed.length} of ${levels.length} levels complete`;
     $("campaign-progress").max = levels.length;
     $("campaign-progress").value = completed.length;
     const resume = $("resume-level");
-    resume.hidden = current?.run.status !== "playing";
+    resume.hidden = current?.run.status !== "playing" || (world !== null && active.world !== world);
     if (!resume.hidden) {
       resume.href = levelUrl(current.levelId);
-      resume.textContent = "Resume " + activeLevel.name;
+      resume.textContent = "Resume " + active.name;
     }
-    const chapters = [...new Set(levels.map(level => level.chapter ?? 1))];
-    $("world-list").replaceChildren(...chapters.flatMap(chapter => {
-      const title = document.createElement("h2");
-      title.className = "chapter-title";
-      title.textContent = chapter === 1 ? "First tour" : "Second tour";
-      const entries = levels.filter(level => (level.chapter ?? 1) === chapter);
-      return [title, ...[...new Set(entries.map(level => level.world))].map(world =>
-        worldCard(world, entries.filter(level => level.world === world), completed, levels, activeLevel))];
-    }));
+    const list = $("world-list");
+    if (world) {
+      $("world-title").textContent = WORLDS[world].name;
+      $("world-back").href = worldUrl();
+      $("world-back").textContent = "← Worlds";
+      $("current-world").textContent = "Adventure levels";
+      list.className = "level-page";
+      pager.update(levels.filter(level => level.world === world), 4, items => {
+        list.replaceChildren(...items.map(level => levelTile(level, completed, levels)));
+      });
+    } else {
+      list.replaceChildren(...Object.keys(WORLDS).map(id => worldTile(id,
+        levels.filter(level => level.world === id), completed, active.world)));
+    }
   } catch (error) {
     $("current-world").textContent = error.message;
   }

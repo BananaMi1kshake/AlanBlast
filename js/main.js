@@ -1,5 +1,4 @@
 import { browserStorage, createSaveBuffer } from "./save-buffer.js";
-import { bindPlayViewport } from "./play-viewport.js";
 import { takePlayAccess } from "./play-access.js";
 import { bindSaveControls } from "./save-controls.js";
 import { bindInstall } from "./install.js";
@@ -10,7 +9,7 @@ import { loadCampaign } from "./campaign.js";
 import { createDailySession, createTutorialSession, currentDay, loadChallenges } from "./challenges.js";
 import { createClassicSession } from "./classic.js";
 import { bindFeedbackLifecycle, createFeedback } from "./feedback.js";
-import { requestHand } from "./hand-request.js";
+import { closeHandWorker, requestHand } from "./hand-request.js";
 import { createHaptics } from "./haptics.js";
 import { bindInput } from "./input.js";
 import { adventureProgress, completedDailyDates, loadProfile, recordGameplay, restoreDiscoveries } from "./profile.js";
@@ -30,7 +29,7 @@ const buffer = sandbox ? null : createSaveBuffer(browserStorage());
 const storage = sandbox ? memoryStorage() : buffer;
 const $ = id => document.getElementById(id);
 
-bindPlayViewport();
+addEventListener("pagehide", closeHandWorker);
 
 function mount(session, levels, mode = levels ? "adventure" : "classic", newAttempt = session.newlyStarted) {
   const settings = loadSettings(sandbox ? storage : browserStorage());
@@ -39,6 +38,7 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
   const feedback = createFeedback(audio, haptics, settings, () => session.game.material);
   bindFeedbackLifecycle(audio, haptics);
   const preference = createMotionPreference(settings);
+  document.documentElement.dataset.mode = mode;
   const view = createView(preference.motion);
   const pending = $("hand-pending");
   const retryHand = $("retry-hand");
@@ -53,6 +53,12 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
   let cancelDeal;
   let notificationTimer;
   let inputTrace;
+  let diagnostics;
+
+  function sample(samples, start) {
+    samples.push(performance.now() - start);
+    if (samples.length > 120) samples.shift();
+  }
 
   function reportSave(state) {
     const notice = $("save-notice");
@@ -119,9 +125,11 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
     if (event) record(event);
     if (buffer) reportSave(buffer.flush());
     adventure?.render();
+    const renderStarted = diagnostics && performance.now();
     view.render(session.game, session.best, over, lastMove, refill, adventure && {
       gems: session.run.gems, gemTarget: adventure.gemTarget(),
     });
+    if (diagnostics) sample(diagnostics.render, renderStarted);
     return over;
   }
 
@@ -130,7 +138,10 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
     pending.hidden = false;
     retryHand.hidden = true;
     view.tray.setAttribute("aria-busy", "true");
+    const measuredRun = diagnostics;
+    const dealStarted = measuredRun && performance.now();
     cancelDeal = requestHand(session.game.board, session.game.bag, result => {
+      if (measuredRun && measuredRun === diagnostics) sample(measuredRun.deal, dealStarted);
       cancelDeal = undefined;
       view.tray.removeAttribute("aria-busy");
       if (!mayWrite()) return;
@@ -199,6 +210,15 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
       tuneInput(values, onFrame) {
         inputTrace = onFrame;
         return input.configure(values);
+      },
+      tuneEffects: view.effects,
+      monitor(enabled) {
+        diagnostics = enabled ? { render: [], deal: [] } : undefined;
+      },
+      measurements: () => diagnostics && {
+        renderMs: [...diagnostics.render],
+        handMs: [...diagnostics.deal],
+        activeParticles: view.particleCount(),
       },
       load(next, { holdDeal = false } = {}) {
         resetFeedback();

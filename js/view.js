@@ -1,6 +1,6 @@
 import { MATERIALS, visualProfile } from "./themes.js";
-import { footprint, inBounds } from "./geometry.js";
-import { canPlace, completedLines, SHAPES, SIZE } from "./game.js";
+import { SHAPES, SIZE } from "./game.js";
+import { createPreviewState, PREVIEW } from "./preview-state.js";
 import { createEffects } from "./effects.js";
 import { createCounter, MOTION } from "./motion.js";
 
@@ -62,8 +62,13 @@ export function createView(motion) {
   let previousGems = new Set();
   let previousBest = 0;
   let previewKey;
-  let previews = new Map();
+  const markPreview = createPreviewState();
+  const previews = new Uint8Array(SIZE * SIZE);
+  const nextPreview = new Uint8Array(SIZE * SIZE);
+  let previewColor;
   let focused = 0;
+  let paint;
+  const sceneProperties = ["--scene-glow", "--scene-top", "--scene-bottom", "--world-detail", "--world-size"];
 
   function stopThemeFade() {
     sceneFade.getAnimations().forEach(animation => animation.cancel());
@@ -75,10 +80,7 @@ export function createView(motion) {
     stopThemeFade();
     const root = document.documentElement;
     if (animate) {
-      const previousColors = getComputedStyle(root);
-      for (const key of ["--scene-glow", "--scene-top", "--scene-bottom", "--world-detail", "--world-size"]) {
-        sceneFade.style.setProperty(key, previousColors.getPropertyValue(key));
-      }
+      for (const key of sceneProperties) sceneFade.style.setProperty(key, paint[key]);
       sceneFade.hidden = false;
       const fade = sceneFade.animate([{ opacity: 1 }, { opacity: 0 }], {
         duration: MOTION.theme, easing: "ease-in-out", fill: "both",
@@ -88,45 +90,31 @@ export function createView(motion) {
     root.dataset.theme = game.theme;
     root.dataset.palette = profile.palette;
     root.dataset.material = profile.material;
-    themeColor.content = getComputedStyle(root).getPropertyValue("--chrome").trim();
+    const colors = getComputedStyle(root);
+    paint = Object.fromEntries([...sceneProperties, "--chrome", "--mint", "--sky", "--sun",
+      "--coral", "--lilac", "--particle", "--clear-glow"].map(key => [key, colors.getPropertyValue(key).trim()]));
+    themeColor.content = paint["--chrome"];
   }
 
   function preview(game, shape, x, y) {
     if (previewKey?.board === game.board && previewKey.shape === shape && previewKey.x === x && previewKey.y === y) {
       return previewKey.valid;
     }
-    const valid = !!shape && canPlace(game.board, shape, x, y);
+    const valid = markPreview(game.board, shape, x, y, nextPreview);
     previewKey = { board: game.board, shape, x, y, valid };
-    const next = new Map();
-    if (shape) {
-      const projected = valid ? game.board.slice() : null;
-      for (const [column, row] of footprint(shape, x, y)) {
-        if (!inBounds(1, 1, column, row)) continue;
-        const i = row * SIZE + column;
-        next.set(i, valid ? "preview-valid" : "preview-invalid");
-        if (valid) {
-          cells[i].style.setProperty("--preview-color", `var(--${shape.color})`);
-          projected[i] = 0;
-        }
-      }
-      if (valid) {
-        const { rows, columns } = completedLines(projected);
-        if (rows.length || columns.length) {
-          for (let i = 0; i < cells.length; i++) {
-            if (rows.includes(Math.floor(i / SIZE)) || columns.includes(i % SIZE)) {
-              next.set(i, next.has(i) ? "preview-valid preview-line" : "preview-line");
-            }
-          }
-        }
-      }
+    if (valid && previewColor !== shape.color) {
+      previewColor = shape.color;
+      board.style.setProperty("--preview-color", `var(--${shape.color})`);
     }
-    for (const [i, classes] of previews) {
-      if (next.get(i) !== classes) cells[i].classList.remove(...classes.split(" "));
+    for (let i = 0; i < previews.length; i++) {
+      const flags = nextPreview[i];
+      const changed = previews[i] ^ flags;
+      if (!changed) continue;
+      if (changed & PREVIEW.valid) cells[i].classList.toggle("preview-valid", !!(flags & PREVIEW.valid));
+      if (changed & PREVIEW.invalid) cells[i].classList.toggle("preview-invalid", !!(flags & PREVIEW.invalid));
+      if (changed & PREVIEW.line) cells[i].classList.toggle("preview-line", !!(flags & PREVIEW.line));
+      previews[i] = flags;
     }
-    for (const [i, classes] of next) {
-      if (previews.get(i) !== classes) cells[i].classList.add(...classes.split(" "));
-    }
-    previews = next;
     return valid;
   }
 
@@ -142,11 +130,9 @@ export function createView(motion) {
   function render(game, highScore, gameOver, move, refill, adventure) {
     const { fullBoardClear = false, bonus = 0 } = move?.result ?? {};
     if (move && move.result.game === game) {
-      effects.placement(previous, move.result, move.slot, move.x, move.y);
-      if (adventure) {
-        effects.collectGems(move.result.gemsCollected, adventure.gemTarget);
-        if (move.result.won && !fullBoardClear) effects.celebrate(game);
-      }
+      if (adventure) effects.collectGems(move.result.gemsCollected, adventure.gemTarget);
+      effects.placement(previous, move.result, move.slot, move.x, move.y, paint);
+      if (adventure && move.result.won && !fullBoardClear) effects.celebrate(game, paint);
     }
     const gems = new Set(adventure?.gems);
     preview(game);
@@ -174,6 +160,8 @@ export function createView(motion) {
     });
     animateScore(game.score, !!previous && !motion.matches);
     animateBest(highScore, !!previous && !motion.matches);
+    const digits = String(game.score).length;
+    if (digits !== String(previous?.score).length || !previous) score.style.setProperty("--score-digits", digits);
     score.setAttribute("aria-label", String(game.score));
     best.setAttribute("aria-label", String(highScore));
     if (previous && highScore > previousBest && !motion.matches) {
@@ -214,6 +202,8 @@ export function createView(motion) {
       animateBest(previousBest, false);
       best.parentElement.getAnimations().filter(animation => animation.id === "record").forEach(animation => animation.cancel());
     },
+    effects: options => effects.configure(options),
+    particleCount: effects.particleCount,
     announce(message) { status.textContent = message; },
     select(slot) {
       slots.forEach((button, index) => button.setAttribute("aria-pressed", String(index === slot)));

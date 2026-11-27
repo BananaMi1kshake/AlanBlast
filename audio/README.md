@@ -26,7 +26,7 @@ The progression starts on C major pentatonic. It draws pitch from the actual com
 
 All-clear begins in the same move update as the particles and theme change, replaces weaker cues, and keeps them quiet during the flourish. Game over replaces the ordinary placement sound on a terminal move. Restart stops the last run's audio and vibration before its own cue plays. A restored game is quiet until the player interacts.
 
-Haptic defaults live in `js/haptics.js`. Placement uses 8 ms, invalid placement 20 ms, single and double clears 25 and 40 ms, and larger clears 60 ms. High combos use a double pulse and all-clear uses a three-pulse pattern. Availability depends on the browser and device. Native iOS haptics have not been verified, and browsers without the Vibration API leave the control disabled.
+Haptic defaults live in `js/haptics.js`. Placement uses 8 ms, invalid placement 20 ms, single and double clears 25 and 40 ms, and larger clears 60 ms. High combos use a double pulse and all-clear uses a three-pulse pattern. Availability depends on the browser and device. Safari on iOS lacks the Vibration API. On browsers without it the setting is disabled, the preference is retained, and sound and visual feedback continue. [Platform details](../docs/phase-8-1/INPUT.md#vibration-support)
 
 ## Replacing a sound
 

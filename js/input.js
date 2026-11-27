@@ -1,5 +1,5 @@
 import { pieceSize, readBoardGeometry } from "./geometry.js";
-import { boardMoved, dragFrame, grabOffset, INPUT, inputTuning, placementTarget, touchClearance, visualOrigin } from "./drag-geometry.js";
+import { boardMoved, dragFrame, dragTarget, grabOffset, INPUT, inputTuning, touchClearance, visualOrigin } from "./drag-geometry.js";
 import { SHAPES, SIZE } from "./game.js";
 import { makePiece } from "./view.js";
 const directions = {
@@ -12,6 +12,7 @@ export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
   let drag = null;
   let returning;
   let tuning = INPUT;
+  let gridCache;
   const viewport = window.visualViewport;
   const point = event => ({ x: event.clientX, y: event.clientY });
   const transform = ({ left, top, scaleX = 1, scaleY = scaleX }) =>
@@ -25,7 +26,10 @@ export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
       slot: drag.slot, phase: drag.ghost ? "dragging" : "pressed", pointer: drag.pointer,
       floating: drag.visual, target: drag.target, valid: drag.valid, lift: drag.clearance,
       cell: { width: drag.grid.unitX, height: drag.grid.unitY, pitchX: drag.grid.stepX, pitchY: drag.grid.stepY },
-      board: { left: drag.grid.left, top: drag.grid.top, bottom: drag.grid.bottom },
+      board: {
+        left: drag.grid.left, top: drag.grid.top, bottom: drag.grid.bottom,
+        width: SIZE * drag.grid.stepX - drag.grid.gapX, height: drag.grid.bottom - drag.grid.top,
+      },
       viewport: { width: visual.width ?? window.innerWidth, height: visual.height ?? window.innerHeight, scale: viewport?.scale ?? 1 },
       scroll: { x: window.scrollX, y: window.scrollY },
     });
@@ -61,7 +65,7 @@ export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
   function draw(progress) {
     const { pointer, offsets, grid, target, shape, ghost } = drag;
     const frame = dragFrame(pointer, offsets, progress);
-    const next = placementTarget(grid, frame.left, frame.top, target, tuning.hysteresis);
+    const next = dragTarget(grid, pointer, offsets, target, tuning.hysteresis);
     const game = getGame();
     if (!target || next.x !== target.x || next.y !== target.y || drag.previewBoard !== game.board) {
       drag.target = next;
@@ -69,7 +73,7 @@ export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
       drag.valid = view.preview(game, shape, next.x, next.y);
       ghost.classList.toggle("invalid", !drag.valid);
     }
-    const visual = { ...frame, ...visualOrigin(frame, grid, shape, next, tuning.snapVisual) };
+    const visual = tuning.snapVisual ? { ...frame, ...visualOrigin(frame, grid, shape, next, true) } : frame;
     ghost.style.transform = transform(visual);
     drag.visual = visual;
     drag.progress = progress;
@@ -150,7 +154,7 @@ export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
     const trayPiece = button.firstElementChild;
     trayPiece.getAnimations().forEach(animation => animation.cancel());
     const rect = trayPiece.getBoundingClientRect();
-    const grid = readBoardGeometry(board);
+    const grid = gridCache ??= readBoardGeometry(board);
     const size = pieceSize(grid, shape);
     const start = point(event);
     const touch = event.pointerType === "touch";
@@ -168,8 +172,6 @@ export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
 
   document.addEventListener("pointermove", event => {
     if (!drag || event.pointerId !== drag.pointerId) return;
-    checkLayout();
-    if (!drag) return;
     drag.pointer = point(event);
     if (!drag.ghost) {
       if (!pastThreshold()) { report(); return; }
@@ -195,8 +197,8 @@ export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
       begin();
       draw(1);
     } else {
-      // Use the last drawn scale and offset. A release between animation frames
-      // must not advance the pickup and thereby change the visible target.
+      // Sample the release position without advancing the visual enlargement.
+      // The logical target never depends on the enlargement timer.
       draw(drag.progress);
     }
 
@@ -221,7 +223,8 @@ export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
   }
 
   function checkLayout() {
-    if (drag && (boardMoved(drag.grid, readBoardGeometry(board)) || Math.abs(drag.scale - (viewport?.scale ?? 1)) > .01)) reset();
+    gridCache = drag ? readBoardGeometry(board) : undefined;
+    if (drag && (boardMoved(drag.grid, gridCache) || Math.abs(drag.scale - (viewport?.scale ?? 1)) > .01)) reset();
     else if (returning) finishReturn();
   }
 

@@ -1,7 +1,7 @@
 import { BRANDING } from "./branding-assets.js";
 
 export const STARTUP_KEY = "alanblox.startup.v1";
-export const LAUNCH_TIMING = Object.freeze({ studio: 500, game: 650, limit: 1800 });
+export const LAUNCH_TIMING = Object.freeze({ studio: 360, game: 500, limit: 1350 });
 
 export function canPresentStartup({ reduced, hidden, visited, internalNavigation }) {
   return !reduced && !hidden && !visited && !internalNavigation;
@@ -61,6 +61,7 @@ export async function presentStartup(ready, { assets = BRANDING, timing = LAUNCH
     launch.removeAttribute("data-loading");
   });
 
+  launch.style.setProperty("--studio-time", `${timing.studio}ms`);
   root.setAttribute("data-launching", "");
   content.inert = true;
   launch.hidden = false;

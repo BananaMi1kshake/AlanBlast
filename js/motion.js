@@ -11,7 +11,7 @@ export const MOTION = Object.freeze({
   counter: 300,
   settingsOpen: 220,
   settingsClose: 160,
-  particleLimit: 72,
+  particleLimit: 24,
 });
 
 export function createCounter(write, { request, cancel, duration = MOTION.counter }) {
@@ -38,7 +38,8 @@ export function createCounter(write, { request, cancel, duration = MOTION.counte
       start ??= now;
       const progress = Math.min(1, (now - start) / duration);
       const eased = 1 - (1 - progress) ** 3;
-      write(value = Math.round(from + (next - from) * eased));
+      const displayed = Math.round(from + (next - from) * eased);
+      if (displayed !== value) write(value = displayed);
       frame = progress < 1 ? request(step) : undefined;
     }
     frame = request(step);

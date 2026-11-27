@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AlanBlox Canvas experiment</title>
+<link rel="stylesheet" href="../themes.css">
+<link rel="stylesheet" href="../materials.css">
+<link rel="stylesheet" href="../interface.css">
+<style>
+body { margin: 12px auto; width: min(100% - 20px, 420px); }
+h1 { margin-block: 8px; font-size: 1.35rem; }
+canvas { width: min(100%, 390px); height: auto; display: block; margin-block: 10px; touch-action: none; }
+button { padding: 5px 9px; }
+textarea { width: 100%; height: 8em; }
+</style>
+<script type="module" src="./canvas-lab.js"></script>
+<main>
+  <a href="./gameplay-lab.html">← Optimized DOM lab</a>
+  <h1>Canvas 2D experiment</h1>
+  <p id="canvas-description">The loopback lab uses the same board and placement rules with a separate Canvas renderer.</p>
+  <section id="canvas-controls" hidden>
+    <label>Surface <select id="canvas-material"></select></label>
+    <canvas id="canvas-board" aria-label="Experimental board"></canvas>
+    <button type="button" id="canvas-reset">Reset fixture</button>
+    <button type="button" id="canvas-run">Measure 168 drag frames</button>
+    <button type="button" id="canvas-stress">Measure 240 clears</button>
+    <textarea id="canvas-results" aria-label="Copyable Canvas diagnostics" readonly></textarea>
+  </section>
+</main>
+</html>

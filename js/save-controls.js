@@ -9,10 +9,10 @@ export function bindSaveControls({ gameStorage } = {}) {
   const panel = document.querySelector("#save-controls");
   const input = panel.querySelector("#backup-file");
   const status = panel.querySelector("#backup-status");
-  const confirmation = panel.querySelector("#backup-confirmation");
-  const question = panel.querySelector("#backup-question");
-  const confirm = panel.querySelector("#confirm-backup");
-  const cancel = panel.querySelector("#cancel-backup");
+  const confirmation = document.querySelector("#backup-confirmation");
+  const question = confirmation.querySelector("#backup-question");
+  const confirm = confirmation.querySelector("#confirm-backup");
+  const cancel = confirmation.querySelector("#cancel-backup");
   let pending;
   let request = 0;
   document.querySelector("#app-version").textContent = APP_VERSION;
@@ -24,7 +24,7 @@ export function bindSaveControls({ gameStorage } = {}) {
   function clear() {
     request++;
     pending = null;
-    confirmation.hidden = true;
+    if (confirmation.open) confirmation.close();
     status.textContent = "";
   }
 
@@ -32,8 +32,8 @@ export function bindSaveControls({ gameStorage } = {}) {
     pending = action;
     question.textContent = message;
     confirm.textContent = label;
-    confirmation.hidden = false;
-    cancel.focus();
+    confirmation.showModal();
+    cancel.focus({ preventScroll: true });
   }
 
   panel.querySelector("#export-backup").addEventListener("click", async () => {
@@ -79,7 +79,8 @@ export function bindSaveControls({ gameStorage } = {}) {
     ask(() => resetProgress(), "Delete all game progress, records, achievements, and material discoveries from this device?", "Delete progress");
   });
 
-  cancel.addEventListener("click", () => { clear(); panel.querySelector("#export-backup").focus(); });
+  cancel.addEventListener("click", clear);
+  confirmation.addEventListener("cancel", event => { event.preventDefault(); clear(); });
   panel.closest("dialog").addEventListener("close", clear);
   confirm.addEventListener("click", () => {
     if (!pending) return;

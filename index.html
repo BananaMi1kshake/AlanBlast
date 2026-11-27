@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="app-viewport">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -14,6 +14,8 @@
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./modes.css">
   <link rel="stylesheet" href="./design.css">
+  <link rel="stylesheet" href="./viewport.css">
+  <script type="module" src="./js/play-viewport.js"></script>
   <link rel="stylesheet" href="./home.css">
   <link rel="stylesheet" href="./launch.css">
   <link rel="preload" as="image" href="./assets/branding/runtime/studio-logo.webp">
@@ -71,7 +73,8 @@
       <div class="preferences">
         <label><span>Sound effects</span><input type="checkbox" data-preference="sound"></label>
         <label class="volume-control" for="sound-volume"><span>Volume <output id="volume-value" for="sound-volume">65%</output></span><input id="sound-volume" type="range" min="0" max="100" value="65"></label>
-        <label><span>Vibration<small id="haptics-status"></small></span><input type="checkbox" data-preference="vibration"></label>
+        <label><span>Vibration</span><input type="checkbox" data-preference="vibration" aria-describedby="haptics-status"></label>
+        <small id="haptics-status"></small>
         <label><span>Reduced motion<small>Also respects your device setting</small></span><input type="checkbox" data-preference="reducedMotion"></label>
       </div>
       <section id="install-panel">
@@ -88,11 +91,6 @@
           <label class="backup-input">Import save <input type="file" id="backup-file" accept=".json,application/json"></label>
           <button type="button" class="secondary" id="reset-progress">Reset progress</button>
         </div>
-        <div class="save-confirmation" id="backup-confirmation" hidden>
-          <p id="backup-question"></p>
-          <button type="button" class="secondary" id="cancel-backup">Cancel</button>
-          <button type="button" class="primary" id="confirm-backup"></button>
-        </div>
         <p id="backup-status" role="status"></p>
       </details>
       <details><summary>About AlanBlox</summary><p>Version <span id="app-version">0.8.0-rc.2</span></p><p>AlanBlox by Alan Studio is a free, offline block puzzle. Each new hand has at least one solution, and your scores stay on this device.</p></details>
@@ -103,6 +101,14 @@
       <p>Your current board and score will reset. Your personal best will be kept.</p>
       <button type="button" class="secondary" id="cancel-restart">Keep Playing</button>
       <button type="button" class="primary" id="confirm-restart">Restart Game</button>
+    </div>
+  </dialog>
+  <dialog class="compact-dialog" id="backup-confirmation" aria-labelledby="backup-title" aria-describedby="backup-question">
+    <h2 id="backup-title">Confirm save change</h2>
+    <p id="backup-question"></p>
+    <div class="confirmation-actions">
+      <button type="button" class="secondary" id="cancel-backup">Cancel</button>
+      <button type="button" class="primary" id="confirm-backup"></button>
     </div>
   </dialog>
 </body>

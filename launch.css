@@ -12,8 +12,8 @@
 .launch[data-stage="studio"] { background: #fcfaf5; }
 .launch[data-stage="studio"] [data-brand-art="studio"] {
   display: grid;
-  width: min(52vw, 245px);
-  animation: launch-studio 500ms ease both;
+  width: min(46vw, 220px, 52dvh);
+  animation: launch-studio var(--studio-time, 360ms) ease both;
 }
 .launch[data-stage="game"] {
   background: var(--brand-backdrop, none) center / cover no-repeat,
@@ -24,7 +24,7 @@
   width: min(86vw, 640px);
   max-width: 90%;
   place-items: center;
-  animation: launch-game .54s cubic-bezier(.19,.72,.23,.99) both;
+  animation: launch-game .36s cubic-bezier(.19,.72,.23,.99) both;
 }
 .launch img, .menu-hero img { display: block; width: 100%; height: auto; object-fit: contain; }
 .launch-progress {

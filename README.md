@@ -156,6 +156,16 @@ See the [Phase 7 guide](PHASE_7.md) for rules, backup format, screenshots, and t
 
 See [release candidate 0.8.0-rc.2](RELEASE_CANDIDATE.md) for the visual review, screenshots, deployment steps, and device checklist.
 
+### Phase 8.1 — Mobile interaction and screen layout
+
+- [x] Continuous drag tracking and cached placement previews
+- [x] Stationary screens with page controls, plus internally scrollable Settings
+- [x] Blue Classic presentation and shorter branded startup
+- [x] Local input tuning, renderer comparison and performance diagnostics
+- [x] Unsupported vibration indication and offline upgrade verification in Chromium
+
+[Input controls, browser verification and device retest](docs/phase-8-1/INPUT.md) · [Performance measurements](docs/phase-8-1/PERFORMANCE.md) · [Screen captures](docs/phase-8-1/SCREENS.md)
+
 ### Release testing
 
 - [ ] GitHub Pages deployment
@@ -193,9 +203,9 @@ The worker receives only the board and remaining bag. A base timeout leaves the 
 
 ### Visual feedback
 
-Input timing defaults live in `js/drag-geometry.js`. Gameplay effect timings live in `js/motion.js`. Pickup takes 72 ms, placement 100 ms, invalid returns 125 ms, tray arrivals 220 ms with a 35 ms stagger, and clear waves 250 ms for one line or 350 ms for several. Floating scores last 600 ms, combo messages 750 ms, and the all-clear celebration 1,200 ms. Score counters take 300 ms, and palette changes take 650 ms. The combo card's three markers track the saved combo window.
+Input timing defaults live in `js/drag-geometry.js`. Gameplay effect timings live in `js/motion.js`. Pickup takes 56 ms, placement 100 ms, invalid returns 125 ms, tray arrivals 220 ms with a 35 ms stagger, and clear waves 250 ms for one line or 350 ms for several. Floating scores last 600 ms, combo messages 750 ms, and the all-clear celebration 1,200 ms. Score counters take 300 ms, and palette changes take 650 ms. The combo card's three markers track the saved combo window.
 
-The game commits each move and its score immediately. Visual effects can overlap and the particle pool is capped at 72 live particles. The in-game or system reduced-motion setting suppresses moving effects and shows exact scores and palette changes immediately. Placement previews, the combo window, and the text notification for a full-board clear remain available.
+The game commits each move and its score immediately. Visual effects can overlap and the particle pool is capped at 24 live particles. The in-game or system reduced-motion setting suppresses moving effects and shows exact scores and palette changes immediately. Placement previews, the combo window, and the text notification for a full-board clear remain available.
 
 ### Placement and settings
 

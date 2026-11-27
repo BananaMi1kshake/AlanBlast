@@ -1,0 +1,135 @@
+/* A stationary application viewport. Settings owns its scroll independently. */
+html.app-viewport {
+  block-size: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+.app-viewport body {
+  position: fixed;
+  inset: var(--screen-top, 0px) 0 auto;
+  inline-size: 100%;
+  block-size: 100vh;
+  block-size: var(--screen-height, 100dvh);
+  min-block-size: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  display: grid;
+  place-items: center;
+}
+.app-viewport .mode-shell {
+  --screen-padding: max(10px, env(safe-area-inset-left, 0px));
+  --screen-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+  inline-size: min(100%, 620px);
+  block-size: 100%;
+  min-block-size: 0;
+  padding: max(6px, env(safe-area-inset-top, 0px)) max(10px, env(safe-area-inset-right, 0px))
+    var(--screen-bottom) var(--screen-padding);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pinch-zoom;
+}
+.app-viewport .mode-shell > * { min-inline-size: 0; }
+.app-viewport #settings {
+  max-block-size: calc(var(--screen-height, 100vh) - max(12px, env(safe-area-inset-top, 0px)) - max(12px, env(safe-area-inset-bottom, 0px)));
+  overflow: auto;
+  touch-action: pan-y pinch-zoom;
+  overscroll-behavior: contain;
+}
+.app-viewport :is(.compact-dialog, #settings:has(#restart-confirm:not([hidden]))) { overflow: hidden; }
+.app-viewport .menu-top { min-height: 36px; }
+.app-viewport .menu-top :is(a,.back-link) { min-height: 36px; padding-block: 5px; }
+.app-viewport .worlds-shell { width: min(100%, 680px); }
+
+.screen-heading { margin: 0; font-size: clamp(1.4rem, 5.4vw, 2rem); text-wrap: balance; }
+.screen-caption { margin: 2px 0 6px; font-size: .83rem; color: var(--muted); }
+.screen-pager {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  gap: 6px;
+  margin-block-start: 7px;
+}
+.screen-pager output { text-align: center; font-size: .83rem; font-weight: 750; }
+.screen-pager button { padding-inline: 4px; }
+.screen-pager button:disabled { opacity: .5; }
+
+.app-viewport .adventure-intro { padding: 4px 0; }
+.app-viewport .adventure-intro .screen-heading { font-size: clamp(1.4rem, 5.4vw, 2rem); }
+.app-viewport .adventure-intro p { margin: 2px 0 4px; }
+.app-viewport .adventure-intro progress { height: 8px; margin: 3px 0 6px; }
+.app-viewport .world-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.app-viewport .world-tile {
+  text-decoration: none; color: var(--ink); padding: 6px 7px; border-radius: 13px; min-height: 50px;
+  display: flex; gap: 5px; align-items: center;
+}
+.world-tile .world-art, .collection-card .world-art { flex: 0 0 39px; height: 33px; transform: none; }
+.world-tile strong, .collection-card strong { display: block; font-size: .8rem; line-height: 1.15; }
+.world-tile small, .collection-card small { color: var(--menu-quiet); font-size: .7rem; }
+.app-viewport .level-page { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.level-page .level-row {
+  min-height: 52px; padding: 6px 8px; display: flex; flex-direction: column; align-items: start;
+  border: 1px solid var(--panel-stroke); border-radius: 12px; background: #243a72;
+}
+.level-page .level-row strong { font-size: .8rem; }
+.world-tile[data-current] { border-color: var(--accent); }
+.level-page [data-status="locked"] { opacity: .8; }
+
+.app-viewport .page-tabs { gap: 5px; margin: 1px 0 5px; }
+.app-viewport .page-tabs a { padding: 8px 4px 6px; font-size: .82rem; }
+.app-viewport .progress-cards { gap: 6px; }
+.app-viewport .material-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.app-viewport .collection-card {
+  padding: 5px 6px; gap: 5px; min-height: 48px; border-radius: 12px; text-align: start;
+}
+.app-viewport .collection-card strong { color: var(--ink); }
+#appearance-toggle { width: auto; min-height: 34px; padding: 5px 10px; margin: 0 0 6px; }
+#appearance-controls label { font-size: .82rem; }
+.compact-dialog { margin: auto; max-height: calc(var(--screen-height, 100dvh) - 24px); }
+.compact-dialog .world-art { margin-block: 3px 8px; }
+#stats-tabs { margin: 2px 0 6px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+#stats-tabs button { min-height: 38px; padding: 4px; font-size: .8rem; }
+#stats-tabs button[aria-pressed="true"] { background: #3d60ac; }
+#progress-content .achievement-card { padding: 6px 9px; border-radius: 12px; min-height: 51px; }
+#progress-content .achievement-card :is(h2,strong) { font-size: .82rem; }
+#progress-content .achievement-card p { margin: 2px 0; font-size: .78rem; line-height: 1.2; }
+#progress-content .stat-list { gap: 4px 10px; margin: 0; }
+#progress-content .stat-list dt, #progress-content .stat-list dd { padding-block: 5px; font-size: .88rem; }
+.app-viewport .daily-shell .daily-card { padding: 9px; }
+.app-viewport .daily-shell .daily-card .mode-action { margin-block-start: 7px; }
+.app-viewport .daily-shell .daily-calendar { margin: 5px 0 7px; }
+
+@media (orientation: landscape) and (max-height: 480px) {
+  .app-viewport .world-list, .app-viewport .material-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .app-viewport .level-page { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .app-viewport .achievement-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  #progress-content .stat-list { grid-template-columns: repeat(3, minmax(0, 1fr) minmax(0, auto)); }
+  #progress-content .stat-list dd { overflow-wrap: anywhere; }
+  .app-viewport .adventure-intro { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; }
+  .app-viewport .adventure-intro #progress-label { align-self: center; }
+  .app-viewport .adventure-intro progress { grid-column: 1 / -1; }
+  .app-viewport .adventure-intro #resume-level { min-height: 34px; padding: 3px 9px; }
+  .app-viewport .home #menu-content {
+    width: min(100%, 680px);
+    display: grid;
+    grid-template: "logo settings" min-content "logo actions" minmax(0, 1fr) "extras extras" min-content "learn learn" min-content / 1fr 1fr;
+    column-gap: 14px;
+    align-items: center;
+  }
+  .app-viewport .hero-action { min-height: 54px; padding: 5px 8px; grid-template-columns: minmax(0, 1fr) 50px; }
+  .app-viewport .hero-action .action-label { font-size: clamp(19px, 4vw, 24px); }
+  .app-viewport .hero-action .mode-art { width: 50px; min-height: 36px; scale: .8; }
+  .app-viewport .home .mode-cards { gap: 8px; }
+  .app-viewport .home .adventure-actions { gap: 7px; }
+  .app-viewport .home #resume-adventure { min-height: 34px; font-size: .78rem; padding: 4px 8px; }
+  .app-viewport .home .menu-top { grid-area: settings; }
+  .app-viewport .home .menu-hero { grid-area: logo; }
+  .app-viewport .home .menu-hero [data-brand-art="game"] { width: min(100%, 290px); }
+  .app-viewport .home .mode-cards { grid-area: actions; }
+  .app-viewport .home .menu-extras { grid-area: extras; margin-block: 8px 4px; }
+  .app-viewport .home .menu-extras a { min-height: 39px; display: flex; gap: 5px; justify-content: center; }
+  .app-viewport .home .tutorial-invitation { grid-area: learn; }
+  .app-viewport .home #app-update { grid-column: 1 / -1; order: 9; }
+}
+
+.confirmation-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+.confirmation-actions .secondary { margin: 0; }
