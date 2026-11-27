@@ -19,6 +19,7 @@ try {
   const requested = new URLSearchParams(location.search).get("date");
   input.value = dailyDate(requested) !== null && requested <= input.max ? requested : input.max;
   function render() {
+    input.max = currentDay();
     const date = input.value;
     const session = date <= input.max ? createDailySession(levels, date) : null;
     before.disabled = !session || date === input.min;

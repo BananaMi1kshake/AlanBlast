@@ -1,3 +1,5 @@
+import { bindSaveControls } from "./save-controls.js";
+import { bindInstall } from "./install.js";
 import { createAdventureSession } from "./adventure-storage.js";
 import { createAdventureView } from "./adventure-view.js";
 import { createAudio } from "./audio.js";
@@ -59,6 +61,7 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
 
   const input = bindInput(view, () => session.game, (slot, x, y) => {
     const material = session.game.material;
+    const theme = session.game.theme;
     const shape = SHAPES[session.game.hand[slot]];
     const result = session.play(slot, x, y);
     if (!result) return false;
@@ -73,7 +76,7 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
       over, material, gems, won: result.won });
     const summary = lines ? `Cleared ${lines} ${lines === 1 ? "line" : "lines"}. ` : "";
     const combo = lines ? ` Combo ${game.combo}, ${game.combo} times line points.` : "";
-    const bonus = fullBoardClear ? ` Full-board clear! ${result.bonus} bonus points${!adventure || session.level.transitionOnAllClear ? " and a new world." : "."}` : "";
+    const bonus = fullBoardClear ? ` Full-board clear! ${result.bonus} bonus points${theme === game.theme ? "." : " and a new world."}` : "";
     const gemText = gems ? ` Collected ${gems} ${gems === 1 ? "gem" : "gems"}.` : "";
     const end = adventure ? (result.won ? " Level complete." : over ? " Level failed." : "")
       : over ? " Game over. No remaining piece fits." : "";
@@ -192,6 +195,8 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
 
 if (!sandbox) {
   registerOffline();
+  bindInstall();
+  bindSaveControls();
   addEventListener("pageshow", event => { if (event.persisted) location.reload(); });
 }
 

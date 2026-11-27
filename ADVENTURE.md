@@ -1,18 +1,18 @@
 # AlanBlox Adventure
 
-Adventure is a campaign of 16 original puzzles, with two levels in each of the eight existing material worlds. The opening levels introduce placements and gems. Later levels combine intersecting clears, ordered openings, limited placements, and combos that span multiple trays.
+Adventure is a campaign of 48 original puzzles. Each of the eight material worlds has two levels in the first tour and four in the second. The original 16 keep their IDs, initial boards, trays, and unlock order. Finishing the first tour opens the second. The opening levels introduce placements and gems. Later levels combine intersecting clears, ordered openings, limited placements, and combos that span multiple trays.
 
 | Objective | Levels using it |
 | --- | ---: |
-| Collect gems | 13 |
-| Reach a score | 8 |
-| Clear rows | 6 |
-| Reach a combo | 5 |
-| Clear rows or columns | 4 |
-| Clear the board | 4 |
-| Clear columns | 2 |
+| Collect gems | 35 |
+| Reach a score | 29 |
+| Clear rows | 22 |
+| Reach a combo | 27 |
+| Clear rows or columns | 10 |
+| Clear the board | 9 |
+| Clear columns | 5 |
 
-Fifteen levels combine objectives, 13 have a placement limit, and four supply more than one tray. The shipped completion witnesses range from one to six placements.
+Forty-seven levels combine objectives, 45 have a placement limit, and 15 supply more than one tray. The shipped completion witnesses range from one to nine placements.
 
 ## Gameplay and progression
 
@@ -38,6 +38,7 @@ Levels are local data in `adventure/levels.json`, in unlock order under `{ "vers
 | --- | --- |
 | `id`, `name` | Unique stable ID using lowercase letters, digits, and hyphens, and the display name |
 | `world`, `material`, `palette` | IDs from `js/themes.js`. Use the world's paired material and palette for a consistent campaign. |
+| `chapter` | Optional tour number. Omit it for the original first tour. |
 | `difficulty` | `Intro`, `Strategy`, or `Expert` |
 | `board` | Eight strings of eight characters. `.` is empty and `A`–`E` are occupied colors. Begin with no already-complete rows or columns. |
 | `gems` | Unique zero-based occupied board indices, calculated as `y * 8 + x` |
@@ -54,7 +55,7 @@ Objective types are `score` (cumulative points, including bonuses), `gems` (uniq
 2. Start from the seeded draft generator, import a level JSON file, or edit the definition. Paint board colors and gem positions, then edit the world, material, palette, trays, objectives, and placement limit in the JSON panel. Select **Apply JSON** to redraw the editor from the definition.
 3. Choose **Validate**. The worker checks the schema, then replays a supplied witness or searches legal moves, simulating both row and column clears and every objective. It uses a bounded search of up to 40,000 placements. A timeout means the search was inconclusive. Fix the draft or provide a recorded witness and validate that path.
 4. Inspect the reported moves. Select a witness step to replay it in the sandbox, or choose **Playtest** to start at move zero. Try legal paths that miss the intended goal as well as the witness.
-5. Choose **Export JSON** after validation. Give a new level its own stable ID and add it in the appropriate world in the catalog. Run `node scripts/validate-adventure.js` and `npm test`. The campaign validator checks each supplied witness through the production engine and a separate array-based implementation of the rules. All 16 shipped witnesses passed both replays. A witness proves one completion path exists.
+5. Choose **Export JSON** after validation. Give a new level its own stable ID and append it to the catalog to preserve current unlocks. Run `node scripts/validate-adventure.js` and `npm test`. The campaign validator checks each supplied witness through the production engine and a separate array-based implementation of the rules. All 48 shipped witnesses passed both replays. A witness proves one completion path exists.
 
 The editor is available on localhost or a loopback address. Its embedded game uses an in-memory sandbox, so editing, replaying, and playtesting cannot change the regular Classic best or Adventure progression.
 
@@ -68,9 +69,9 @@ The editor is available on localhost or a loopback address. Its embedded game us
 - Load once online under the GitHub Pages project path, allow the worker to install, then switch the browser offline. Reload the menu, world selection, and an Adventure level. Resume Classic and spend a tray to check the offline dealer.
 - Run a witness in the editor, then recheck normal progression and the Classic high score.
 
-The campaign is smaller than the 50-level target. Gems are authored on the starting board. Optional piece-embedded gems and level-specific cosmetic transitions are future extensions.
+The campaign ships 48 of the 50 targeted levels. Gems are authored on the starting board. The tutorial uses the same placement engine and opts into the Classic material transition on its final step.
 
-## Browser screenshots
+## Phase 6 gameplay screenshots
 
 | View | Capture |
 | --- | --- |

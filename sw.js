@@ -32,6 +32,8 @@ const shell = [
   "./icons/icon-maskable-192.png",
   "./icons/icon-maskable-512.png",
   "./js/install.js",
+  "./js/backup.js",
+  "./js/save-controls.js",
   "./icons/icon-512.png",
   "./icons/apple-touch-icon.png",
   "./js/main.js",

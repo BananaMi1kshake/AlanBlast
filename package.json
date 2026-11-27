@@ -1,6 +1,7 @@
 {
   "name": "alanblox",
   "private": true,
+  "version": "0.7.0",
   "type": "module",
   "scripts": {
     "test": "node --test"

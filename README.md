@@ -12,9 +12,11 @@ The project focuses on responsive controls, rewarding audiovisual feedback, colo
 
 ## Features and roadmap
 
-### Playable in Phase 6
+### Playable in Phase 7
 
-- Shared 8×8 puzzle board with endless Classic and a 16-level Adventure campaign.
+- Shared 8×8 puzzle board with endless Classic and a 48-level Adventure campaign.
+- Offline Daily Challenges, an interactive tutorial, a collectible material library, local statistics, and achievements.
+- Portable local save backups and opt-in installation guidance.
 - Main menu with separate Classic and Adventure resume options.
 - Adventure gem, score, line, combo, and all-clear objectives, with sequential world unlocks.
 - Three block pieces per round.
@@ -62,7 +64,7 @@ AlanBlox is built around five fundamental principles:
 
 ## Classic audit and development tools
 
-See the [Classic parity and scoring audit](CLASSIC_PARITY.md) for evidence, the solver audit, simulation results, and an Adventure architecture proposal. Run `node scripts/simulate-classic.js` for the full seeded strategy data. The [materials guide](MATERIALS.md) documents the eight worlds, texture and audio assets, isolated gameplay lab, and preview instructions.
+See the [Classic parity and scoring audit](CLASSIC_PARITY.md) for evidence, the solver audit, simulation results, and the original Adventure architecture proposal. Run `node scripts/simulate-classic.js` for the full seeded strategy data. The [materials guide](MATERIALS.md) documents the eight worlds, texture and audio assets, isolated gameplay lab, and preview instructions.
 
 ## Development Roadmap
 
@@ -134,6 +136,16 @@ See the [Classic parity and scoring audit](CLASSIC_PARITY.md) for evidence, the 
 - [x] Sixteen independently validated levels across eight material worlds
 - [x] Gem collection, objective progress, replay, and level editor
 - [x] Classic cleanup experiment in the gameplay laboratory
+
+### Phase 7 — Release candidate
+
+- [x] Developer-provided PWA icons and install guidance
+- [x] Second Adventure tour with 32 independently validated puzzles
+- [x] Material discovery, appearance preferences, local statistics, and achievements
+- [x] Verified UTC Daily Challenges and tutorial
+- [x] Versioned backup export, validated import, and confirmed reset
+
+See the [Phase 7 guide](PHASE_7.md) for rules, backup format, screenshots, and the release-candidate checklist.
 
 ### Release testing
 
@@ -218,7 +230,7 @@ The benchmark checks 10,000 seeded deals using a separate array-based backtracki
 1. Once the reviewed changes are in the desired publishing branch, open **Settings → Pages** in GitHub.
 2. Under **Build and deployment**, choose **Deploy from a branch**, select that branch and **/ (root)**, then save.
 3. Open the HTTPS URL shown in Pages once the deployment succeeds. For the existing repository it is expected to be `https://bananami1kshake.github.io/AlanBlast/`.
-4. Load the site online once and give the service worker time to cache the app. Use the browser's install command where supported or Safari's **Add to Home Screen** on iOS. Reload offline to check the deployment.
+4. Load the site online once and give the service worker time to cache the app. Use **Settings → Install AlanBlox** to open the native prompt or view the browser’s installation instructions. Reload offline to check the deployment.
 
 All app paths are relative, so the board and offline cache work at the project URL as well as on localhost. Increment the shell cache version in `sw.js` whenever changing a cached asset. Close open instances of the app to let an updated service worker take over.
 
@@ -230,7 +242,7 @@ AI development agents should refer to `AGENTS.md` for project-specific requireme
 
 ## Project Status
 
-Classic and the 16-level Adventure campaign are playable. See the [Adventure guide](ADVENTURE.md) and [Classic V2 generation report](GENERATION_V2.md) for validation and open playtesting work.
+Classic, the 48-level Adventure campaign, and Daily Challenge are playable in release candidate 0.7.0. See the [Phase 7 guide](PHASE_7.md) for verification and open device testing.
 
 ## Disclaimer
 

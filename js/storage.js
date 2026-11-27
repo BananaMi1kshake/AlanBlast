@@ -2,7 +2,7 @@ import { HAND_SIZE, SHAPES, SIZE } from "./game.js";
 import { RULES } from "./scoring.js";
 import { DEFAULT_THEME, THEMES, visualProfile } from "./themes.js";
 
-const KEY = "alanblox.save.v1";
+export const CLASSIC_KEY = "alanblox.save.v1";
 
 function isScore(value) {
   return Number.isSafeInteger(value) && value >= 0;
@@ -16,7 +16,7 @@ function isCell(value) {
   return value === null || isShape(value);
 }
 
-function isGame(value) {
+export function isSavedGame(value) {
   return value && isScore(value.score)
     && Array.isArray(value.board) && value.board.length === SIZE ** 2 && value.board.every(isCell)
     && Array.isArray(value.hand) && value.hand.length === HAND_SIZE
@@ -27,9 +27,9 @@ function isGame(value) {
 
 export function loadProgress(storage) {
   try {
-    const saved = JSON.parse((storage ?? globalThis.localStorage).getItem(KEY));
+    const saved = JSON.parse((storage ?? globalThis.localStorage).getItem(CLASSIC_KEY));
     let game = null;
-    if (isGame(saved?.game)) {
+    if (isSavedGame(saved?.game)) {
       const { combo, comboWindow, hand, exhausted, theme } = saved.game;
       const active = isScore(combo) && combo > 0;
       const window = active ? (isScore(comboWindow) && comboWindow <= RULES.comboWindow
@@ -52,7 +52,7 @@ export function loadProgress(storage) {
 
 export function saveProgress(game, highScore, storage) {
   try {
-    (storage ?? globalThis.localStorage).setItem(KEY, JSON.stringify({ game, highScore }));
+    (storage ?? globalThis.localStorage).setItem(CLASSIC_KEY, JSON.stringify({ game, highScore }));
   } catch {
     // Private browsing and storage restrictions should not interrupt play.
   }

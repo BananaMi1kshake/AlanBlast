@@ -35,3 +35,7 @@ Use **Single line**, **Intersecting clears**, or **Full-board clear** then put t
 Chromium exercised all 38 drag orientations, five portrait and desktop viewport sizes, both drag input types, a viewport resize during touch drag, and keyboard placement. The lab verified isolated storage, intersecting clears, material/texture migration, a full-board world transition, and reduced motion. A 150-move run peaked at the 72-particle cap and the effects layer emptied after settling. One same-process trace measured approximately 1.53 MB before and 1.74 MB after garbage collection, including modules loaded by the test itself. This does not establish a long-run memory trend.
 
 In two full-board-clear traces under Chromium 4× CPU throttling, median frame interval was about 16.7 ms and p95 ranged from 33 to 50 ms. Individual frames were missed under throttling. Synthetic desktop and mobile emulation leave physical iOS/Android frame rate, haptics, and standalone install behavior unverified.
+
+## Material collection
+
+Phase 7 lets players discover materials through Adventure completions and Classic all-clears. The automatic, favorite-first, and fixed-favorite options apply to the next Classic run. Adventure uses each puzzle’s authored material. See the [Phase 7 discovery rules](PHASE_7.md#material-discovery-and-appearance).

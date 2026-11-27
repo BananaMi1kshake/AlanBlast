@@ -134,3 +134,11 @@
 .tutorial-invitation a { color: #aee9ff; }
 .tutorial-invitation button { border: 0; color: #d4dcf0; background: transparent; padding: .65rem; }
 #tutorial-tip { font-size: .8rem; margin: .35rem 0; text-align: left; color: #dce8fa; }
+
+.save-actions { display: grid; gap: .55rem; margin-top: .7rem; }
+.backup-input { display: grid; gap: .35rem; color: #dce8fa; font-size: .9rem; }
+.backup-input input { max-width: 100%; }
+.save-confirmation { margin-top: .7rem; padding: .6rem; border: 1px solid #ffd39188; border-radius: .6rem; }
+.save-confirmation button { margin-bottom: .35rem; }
+#backup-status:empty { display: none; }
+#settings { max-height: 90dvh; overflow-y: auto; }

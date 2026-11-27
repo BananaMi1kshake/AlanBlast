@@ -35,7 +35,7 @@ export function createAdventureView(session, levels, restart, sandbox, mode) {
     $("mode-back").setAttribute("aria-label", exit.textContent);
   }
   document.querySelector("#restart-confirm p").textContent = "This resets the current level. Completed levels are kept.";
-  if (daily) document.querySelector("#restart-confirm p").textContent = "This resets today's board and keeps the best result for this puzzle.";
+  if (daily) document.querySelector("#restart-confirm p").textContent = "This resets the challenge board and keeps the best result for this date.";
   if (tutorial) document.querySelector("#restart-confirm p").textContent = "This resets the current tutorial step.";
   retryButton.addEventListener("click", restart);
 

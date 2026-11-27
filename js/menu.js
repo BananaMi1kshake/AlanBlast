@@ -1,3 +1,4 @@
+import { bindSaveControls } from "./save-controls.js";
 import { saveTutorial, tutorialStatus } from "./challenges.js";
 import { bindInstall } from "./install.js";
 import { loadAdventure } from "./adventure-storage.js";
@@ -28,6 +29,7 @@ bindSettings(settings, preference, {
 });
 registerOffline();
 bindInstall();
+bindSaveControls();
 
 $("skip-tutorial").addEventListener("click", () => {
   saveTutorial("skipped");
