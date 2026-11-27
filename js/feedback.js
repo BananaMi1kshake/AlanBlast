@@ -1,12 +1,14 @@
-export function moveFeedback({ lines, combo, fullBoardClear, record, over }) {
-  if (fullBoardClear) return { sounds: [{ name: "allClear" }], vibration: "allClear" };
+export function moveFeedback({ lines, combo, fullBoardClear, record, over, gems = 0, won = false }) {
+  const withGem = (sounds, delay) => gems ? [...sounds, { name: "gem", delay }] : sounds;
+  if (fullBoardClear) return { sounds: withGem([{ name: "allClear" }], .65), vibration: "allClear" };
+  if (won) return { sounds: withGem([{ name: "levelComplete" }], .3), vibration: lines ? "clear2" : "place" };
   const clear = lines ? `clear${Math.min(lines, 4)}` : "place";
   const vibration = lines && combo >= 7 ? "combo" : clear === "clear4" ? "clear3" : clear;
-  if (over) return { sounds: [{ name: "gameOver" }], vibration };
+  if (over) return { sounds: withGem([{ name: "gameOver" }], .18), vibration };
   const sounds = [{ name: clear, combo }];
   if (lines && combo > 1) sounds.push({ name: "combo", combo, delay: .18 + .055 * Math.min(lines - 1, 3) });
   if (record) sounds.push({ name: "record", delay: lines ? .44 : .12 });
-  return { sounds, vibration };
+  return { sounds: withGem(sounds, .14), vibration };
 }
 
 export function createFeedback(audio, haptics, settings, currentMaterial = () => undefined) {

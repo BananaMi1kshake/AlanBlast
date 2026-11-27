@@ -161,6 +161,35 @@ export function createEffects(layer, cells, motion) {
     }
   }
 
+  function collectGems(indices, target) {
+    if (motion.matches || !indices?.length || !target) return;
+    const destination = target.getBoundingClientRect();
+    const bounds = layer.getBoundingClientRect();
+    for (const index of indices) {
+      const gem = node("flying-gem");
+      const cell = cells[index].getBoundingClientRect();
+      const x = cell.left + cell.width / 2;
+      const y = cell.top + cell.height / 2;
+      gem.style.left = `${x - bounds.left}px`;
+      gem.style.top = `${y - bounds.top}px`;
+      const dx = destination.left + destination.width / 2 - x;
+      const dy = destination.top + destination.height / 2 - y;
+      play(gem, [
+        { transform: "translate(-50%, -50%) scale(.75)", opacity: 1 },
+        { transform: "translate(-50%, -85%) scale(1.2)", opacity: 1, offset: .2 },
+        { transform: `translate(${dx}px, ${dy}px) scale(.4)`, opacity: 0 },
+      ], { duration: MOTION.floatingScore });
+    }
+  }
+
+  function celebrate(game) {
+    if (motion.matches) return;
+    const { material } = visualProfile(game);
+    const style = getComputedStyle(document.documentElement);
+    const colors = ["mint", "sun", "clear-glow"].map(key => style.getPropertyValue(`--${key}`).trim());
+    burst([10, 13, 25, 30, 49, 54], 28, colors, MOTION.combo, material, true);
+  }
+
   function reset() {
     for (const element of live.keys()) remove(element);
     for (const animation of snaps.values()) animation.cancel();
@@ -169,5 +198,5 @@ export function createEffects(layer, cells, motion) {
   }
 
   motion.addEventListener("change", () => { if (motion.matches) reset(); });
-  return { placement, reset };
+  return { placement, collectGems, celebrate, reset };
 }

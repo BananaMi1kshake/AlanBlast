@@ -12,9 +12,11 @@ The project focuses on responsive controls, rewarding audiovisual feedback, colo
 
 ## Features and roadmap
 
-### Playable through Phase 5.6
+### Playable in Phase 6
 
-- Classic 8×8 puzzle board.
+- Shared 8×8 puzzle board with endless Classic and a 16-level Adventure campaign.
+- Main menu with separate Classic and Adventure resume options.
+- Adventure gem, score, line, combo, and all-clear objectives, with sequential world unlocks.
 - Three block pieces per round.
 - Intuitive drag-and-drop controls.
 - Row and column clears, including both in one move.
@@ -126,7 +128,14 @@ See the [Classic parity and scoring audit](CLASSIC_PARITY.md) for evidence, the 
 - [x] Seeded V1/V2 comparisons and intermediate witness replay
 - [x] Independent solver benchmark and balance report
 
-### Phase 6 — Release
+### Phase 6 — Adventure
+
+- [x] Mode selection, shared gameplay, and independent saves
+- [x] Sixteen independently validated levels across eight material worlds
+- [x] Gem collection, objective progress, replay, and level editor
+- [x] Classic cleanup experiment in the gameplay laboratory
+
+### Release testing
 
 - [ ] GitHub Pages deployment
 - [ ] Android browser testing
@@ -139,7 +148,9 @@ See the [Classic parity and scoring audit](CLASSIC_PARITY.md) for evidence, the 
 
 Drag a piece from the tray to the board. On touchscreens the piece floats above your finger so you can see the target. You can also select a piece and tap its top-left target on the board. With a keyboard, activate a piece, use the arrow keys to move its preview, and press Enter or Space to place it. Escape cancels the selection.
 
-The tray refills after all three pieces are placed. Each new hand can be completed in at least one placement sequence on the board at deal time. Your choices can still leave unplaceable pieces. The game ends if none of the revealed pieces fits, or if the dealer proves no new hand has a legal completion sequence. Restart resets the board, session score, combo, and palette to Ocean, and keeps the best score.
+**Classic.** The tray refills after all three pieces are placed. Each new hand can be completed in at least one placement sequence on the board at deal time. Your choices can still leave unplaceable pieces. The game ends if none of the revealed pieces fits, or if the dealer proves no new hand has a legal completion sequence. Restart resets the board, session score, combo, and palette to Ocean, and keeps the best score.
+
+**Adventure.** Choose a world and complete its objectives using a fixed set of trays. Some levels limit placements. Completion unlocks the next level and leaves earlier levels available for replay. See the [Adventure guide](ADVENTURE.md) for the rules, level format, editor, validation, and playtesting checklist.
 
 ### Scoring and combos
 
@@ -149,7 +160,7 @@ These are provisional AlanBlox rules. Scoring parity with Block Blast has not be
 - Clearing **n** rows or columns together earns **10 × n + 5 × n × (n − 1) / 2** line points before the combo multiplier. One, two, three, and four lines are worth **10, 25, 45, and 70**. Rows and columns are identified before removal, and each shared cell is removed once.
 - Each clearing placement advances the combo once, including moves that clear multiple lines, and refreshes its window to three placements. The first clear uses **×1**, and subsequent clearing moves use the new combo count as the multiplier. There is no gameplay cap.
 - A valid placement without a clear uses one step of the window. A clear after one or two misses continues the combo. Three misses expire it, and the next clear starts again at ×1. Invalid or canceled moves, a new deal, elapsed time, and reloading do not consume the window.
-- A move that leaves the board empty after line removal adds a flat **100 points** and advances the palette through **Ocean → Sunset Loom → Forest Workshop → Midnight Geode → Candy Bounce → Glacier → Moonlit Kiln → Sunset Bakery → Ocean**. The multiplier applies to line points only.
+- A move that leaves the board empty after line removal adds a flat **100 points** and, in Classic, advances the palette through **Ocean → Sunset Loom → Forest Workshop → Midnight Geode → Candy Bounce → Glacier → Moonlit Kiln → Sunset Bakery → Ocean**. The multiplier applies to line points only.
 
 Tune the provisional constants in `js/scoring.js`. Scores are carried forward as earned. Saves keep the revealed pieces, proposal bag, score, best score, world, material, combo count, and combo window. Phase 1 saves start with zero combo and the first palette. An active Phase 2 combo starts with a fresh three-placement window because it had just cleared a line under the old rules. Existing revealed hands are kept, including hands dealt under the old rules.
 
@@ -189,6 +200,7 @@ Run the automated tests with Node.js 20 or newer. No dependency installation is 
 npm test
 node scripts/benchmark-hands.js v2
 node scripts/simulate-generation.js v2
+node scripts/validate-adventure.js
 ```
 
 The benchmark checks 10,000 seeded deals using a separate array-based backtracking solver and adds 250 full-board tests for proven impossibility. It reports time by board scenario, candidate rejections, fallbacks, and per-orientation frequencies. Timings cover generation only, excluding worker startup and independent validation.
@@ -210,10 +222,6 @@ The benchmark checks 10,000 seeded deals using a separate array-based backtracki
 
 All app paths are relative, so the board and offline cache work at the project URL as well as on localhost. Increment the shell cache version in `sw.js` whenever changing a cached asset. Close open instances of the app to let an updated service worker take over.
 
-## Classic audit and development tools
-
-See the [Classic parity and scoring audit](CLASSIC_PARITY.md) for evidence, the solver audit, simulation results, and an Adventure architecture proposal. Run `node scripts/simulate-classic.js` for the full seeded strategy data. The [materials guide](MATERIALS.md) documents the eight worlds, texture and audio assets, isolated gameplay lab, and preview instructions.
-
 ## Development
 
 AlanBlox is developed with the assistance of OpenAI Codex.
@@ -222,7 +230,7 @@ AI development agents should refer to `AGENTS.md` for project-specific requireme
 
 ## Project Status
 
-Phases 1 through 5.6 are playable. The next phase covers release testing and polish.
+Classic and the 16-level Adventure campaign are playable. See the [Adventure guide](ADVENTURE.md) and [Classic V2 generation report](GENERATION_V2.md) for validation and open playtesting work.
 
 ## Disclaimer
 

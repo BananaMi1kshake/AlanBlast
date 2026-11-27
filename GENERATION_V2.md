@@ -73,3 +73,33 @@ Chromium emulated touch on a simultaneous clear, checked the one bonus and celeb
 Serve the checkout and open `http://localhost:8000/tools/gameplay-lab.html`. Choose a board scenario or enter a fixture. In **Seeded dealer**, enter a seed, request a strategy or choose Weighted, and edit its four relative weights. **Deal V2** applies the result only to the sandbox. **Compare V1 and V2** uses the same board and a fresh seeded bag for each result. **Inspect current hand** reports the requested witness goal, its status and check count. **Start board** and **Step** buttons replay intermediate boards. The lab preserves the existing bounded count of complete sequences and does not write normal saves.
 
 For manual evaluation, play multiple fresh runs with the default weights and record first and later clear moves, missed opportunities, and whether the offered pieces still feel varied. Compare standard, default, and heavier packs on the same devices. Test all-clears with two or one slots remaining, simultaneous lines, interruption and reload, and offline play after switching caches. Actual iOS and Android timing and touch behavior remain unverified. Player behavior and uncensored long-run survival cannot be inferred from these short seeded simulations.
+
+## Phase 6 cleanup experiment
+
+The lab-only experimental dealer first obtains the usual V2 result with the same strategy weights. For cleanup requests, it examines the reserved outcome and up to three more proposals from the shuffle bag, with a cap of 1,800 placement checks per probe. It favors a lower geometry cost: four times the occupied cell count, six times the occupied cells outside the best covering row-and-column pair, plus twice the isolated occupied cell count. The cost prefers setups that leave fewer fragments and are easier to cover with intersecting lines. An alternative must demonstrate a complete legal placement sequence and meet the existing cleanup target. V2's all-clear exact-tiling and beam search remain in use. There is no extra search on Standard, line-clear, or all-clear requests, and the experiment looks at one tray at a time.
+
+Run `node scripts/simulate-generation.js experimental` and compare with `v2`. With seed 89,791,248, both configurations ran 24 sessions per strategy, with five player strategies and a cap of 120 moves per session.
+
+| Simulated result | V2 | Experimental |
+| --- | ---: | ---: |
+| Confirmed all-clear opportunities | 16 / 3,233 | 17 / 3,271 |
+| Inconclusive opportunity checks | 217 | 211 |
+| Sessions with an all-clear | 11 / 120 | 12 / 120 |
+| Sessions with repeat clears | 0 | 0 |
+| All-clear goals delivered | 11 / 294 | 12 / 299 |
+| Cleanup goals delivered | 441 / 639 | 464 / 647 |
+| Selected geometry-based alternatives | 0 | 173 |
+| Single-cell pieces | 3.24% | 3.19% |
+| Five-cell-or-larger pieces | 22.51% | 23.18% |
+
+For both dealers, the independent benchmark verified 10,000 generated hands and 250 full boards. It found zero impossible hands returned and zero timeouts. Each also passed 20 targeted witness checks per goal. The timing figures are cloud Node measurements of the generation algorithm.
+
+| Benchmark | V2 | Experimental |
+| --- | ---: | ---: |
+| Rejected candidates | 25,154 | 24,814 |
+| Solvability fallback searches, including full boards | 693 | 704 |
+| Mean generation time | 0.622 ms | 0.684 ms |
+| p95 | 3.874 ms | 4.188 ms |
+| Worst observed | 31.772 ms | 29.967 ms |
+
+V2 remains the live default. One additional observed all-clear and zero repeat clears leave the experiment unproven as a balance change. Use **Compare V2 and experimental** in the gameplay lab to inspect both results on the same seeded board. Mobile hardware timing and human playtesting remain open.

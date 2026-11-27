@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adventure Level Editor · AlanBlox</title>
+  <link rel="stylesheet" href="../themes.css">
+  <link rel="stylesheet" href="../materials.css">
+  <link rel="stylesheet" href="../interface.css">
+  <link rel="stylesheet" href="./gameplay-lab.css">
+  <link rel="stylesheet" href="./adventure-editor.css">
+  <script type="module">
+    if (["localhost", "127.0.0.1", "[::1]"].includes(location.hostname)) import("./adventure-editor.js");
+  </script>
+</head>
+<body>
+  <main class="lab">
+    <h1>Adventure Level Editor</h1>
+    <p id="local-only">Serve this page on localhost to use the development tool.</p>
+    <div id="editor" class="lab-grid" hidden>
+      <section aria-label="Editor controls">
+        <label for="seed">Seed</label><input id="seed" type="number" step="1" value="6501">
+        <label for="world">World</label><select id="world"></select>
+        <div class="actions"><button id="generate" type="button">Generate draft</button></div>
+        <label for="paint">Paint</label>
+        <select id="paint">
+          <option value="A">Mint block</option><option value="B">Blue block</option>
+          <option value="C">Gold block</option><option value="D">Coral block</option>
+          <option value="E">Purple block</option><option value=".">Erase block</option><option value="gem">Toggle gem</option>
+        </select>
+        <div id="editor-board" class="editor-board" aria-label="Starting board"></div>
+        <label for="definition">Level JSON</label>
+        <textarea id="definition" spellcheck="false" rows="19"></textarea>
+        <div class="actions">
+          <button id="read-json" type="button">Apply JSON to board</button>
+          <button id="validate" type="button">Validate level</button>
+          <button id="playtest" type="button">Playtest</button>
+          <button id="export" type="button">Export JSON</button>
+        </div>
+        <label for="import">Import level JSON</label><input id="import" type="file" accept=".json,application/json">
+        <pre id="result" role="status"></pre>
+        <div id="steps" class="actions" aria-label="Witness replay steps"></div>
+      </section>
+      <iframe id="sandbox" title="Isolated Adventure playtest"></iframe>
+    </div>
+  </main>
+</body>
+</html>

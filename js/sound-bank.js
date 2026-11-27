@@ -66,5 +66,11 @@ export const SOUNDS = Object.freeze({
   newGame: { label: "New game", priority: 3, notes: () => [
     note(55, 0, .16, .18, "sine"), note(62, .06, .18, .15), note(67, .13, .26, .16, "sine"),
   ] },
+  gem: { label: "Adventure gem", priority: 2, notes: () => [
+    note(77, 0, .12, .13, "sine"), note(84, .07, .18, .12, "sine"),
+  ] },
+  levelComplete: { label: "Adventure victory", priority: 3, notes: () => [
+    note(60, 0, .23, .17), note(67, .12, .28, .16), note(76, .24, .44, .15, "sine"),
+  ] },
   ui: { label: "UI control", priority: 0, notes: () => [note(76, 0, .055, .10, "sine", 81)] },
 });

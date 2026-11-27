@@ -1,7 +1,19 @@
 const prefix = `alanblox:${self.registration.scope}:shell-`;
-const cacheName = `${prefix}9`;
+const cacheName = `${prefix}10`;
 const shell = [
   "./index.html",
+  "./play.html",
+  "./adventure.html",
+  "./modes.css",
+  "./adventure/levels.json",
+  "./js/menu.js",
+  "./js/world-select.js",
+  "./js/world-art.js",
+  "./js/pwa.js",
+  "./js/campaign.js",
+  "./js/adventure.js",
+  "./js/adventure-storage.js",
+  "./js/adventure-view.js",
   "./styles.css",
   "./themes.css",
   "./materials.css",
@@ -11,6 +23,8 @@ const shell = [
   "./icons/icon-512.png",
   "./icons/apple-touch-icon.png",
   "./js/main.js",
+  "./js/classic.js",
+  "./js/sandbox.js",
   "./js/audio.js",
   "./js/sound-bank.js",
   "./js/feedback.js",
@@ -41,6 +55,7 @@ const textures = [
 const shellUrls = new Set([...shell, ...textures].map(path => new URL(path, self.registration.scope).href));
 const home = self.registration.scope;
 const index = new URL("./index.html", home).href;
+const pages = new Set([index, new URL("./play.html", home).href, new URL("./adventure.html", home).href]);
 const audioDirectory = new URL("./audio/", home).href;
 
 async function cacheCustomSounds(cache) {
@@ -93,8 +108,8 @@ self.addEventListener("fetch", event => {
   const url = new URL(request.url);
   if (request.mode === "navigate") {
     url.search = "";
-    if (url.href === home || url.href === index) {
-      event.respondWith(caches.open(cacheName).then(cache => cache.match(index))
+    if (url.href === home || pages.has(url.href)) {
+      event.respondWith(caches.open(cacheName).then(cache => cache.match(url.href === home ? index : url.href))
         .then(response => response ?? fetch(request)));
     }
   } else if (shellUrls.has(url.href) || url.href.startsWith(audioDirectory)) {
