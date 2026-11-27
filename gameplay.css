@@ -48,8 +48,11 @@ html.play-page {
 }
 
 .playfield .board-frame {
-  width: min(100%, 100cqh);
+  width: min(100%, var(--playfield-height, 100%));
   min-width: 0;
+}
+@supports (width: 1cqh) {
+  .playfield .board-frame { width: min(100%, 100cqh); }
 }
 
 .game-shell .tray button { height: clamp(62px, 12dvh, 104px); }

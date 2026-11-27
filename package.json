@@ -1,10 +1,11 @@
 {
   "name": "alanblox",
   "private": true,
-  "version": "0.8.0-rc.1",
+  "version": "0.8.0-rc.2",
   "type": "module",
   "scripts": {
     "test": "node --test",
+    "verify:input": "node scripts/verify-input-browser.js",
     "verify:release": "npm test && node scripts/validate-adventure.js && node scripts/benchmark-hands.js v2"
   }
 }

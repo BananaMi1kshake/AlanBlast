@@ -52,6 +52,7 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
   let lastMove;
   let cancelDeal;
   let notificationTimer;
+  let inputTrace;
 
   function reportSave(state) {
     const notice = $("save-notice");
@@ -110,7 +111,7 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
     }
     if (session.waiting) deal();
     return true;
-  }, feedback.cue);
+  }, feedback.cue, { inspect: toolAccess && !adventure ? frame => inputTrace?.(frame) : undefined });
 
   function update(refill = false, event) {
     const over = session.over;
@@ -195,6 +196,10 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
   if (toolAccess && !adventure) {
     window.alanbloxLab = {
       snapshot: () => structuredClone({ game: session.game, highScore: session.best }),
+      tuneInput(values, onFrame) {
+        inputTrace = onFrame;
+        return input.configure(values);
+      },
       load(next, { holdDeal = false } = {}) {
         resetFeedback();
         audio.stop();

@@ -16,6 +16,7 @@ export function bindInput(view, getGame, place, playSound, { inspect } = {}) {
   const point = event => ({ x: event.clientX, y: event.clientY });
   const transform = ({ left, top, scaleX = 1, scaleY = scaleX }) =>
     `translate3d(${left}px, ${top}px, 0) scale(${scaleX}, ${scaleY})`;
+  board.style.setProperty("--preview-opacity", tuning.previewOpacity);
 
   function report() {
     if (!inspect) return;

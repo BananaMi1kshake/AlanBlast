@@ -15,10 +15,17 @@ export function bindPlayViewport() {
   window.addEventListener("pageshow", update);
   update();
 
+  if (!CSS.supports("width", "1cqh") && "ResizeObserver" in window) {
+    const field = document.querySelector(".playfield");
+    new ResizeObserver(([entry]) => {
+      field.style.setProperty("--playfield-height", `${entry.contentRect.height}px`);
+    }).observe(field);
+  }
+
   // The fixed layout and touch-action handle modern browsers. On WebKit this
   // also suppresses single-finger page bounce from the gameplay surface.
   document.body.addEventListener("touchmove", event => {
     if (event.cancelable && event.touches.length === 1 && !(viewport?.scale > 1.01)
-      && !event.target.closest("dialog, .game-over")) event.preventDefault();
+      && !event.target.closest?.("dialog, .game-over")) event.preventDefault();
   }, { passive: false });
 }

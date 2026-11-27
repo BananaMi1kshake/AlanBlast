@@ -42,6 +42,29 @@
               <button type="button" id="reset">Reset lab</button>
             </div>
           </form>
+          <details id="input-panel" open>
+            <summary>Input tuning</summary>
+            <form id="input-tuning">
+              <label>Touch clearance (cell pitches) <input type="number" name="touchLift" min="0" max="2.5" step=".05"></label>
+              <label>Grab anchor <select name="grabAnchor"><option value="grab">Where picked up</option><option value="center">Center</option></select></label>
+              <label>Touch threshold (px) <input type="number" name="touchThreshold" min="1" max="16" step="1"></label>
+              <label>Mouse threshold (px) <input type="number" name="mouseThreshold" min="1" max="16" step="1"></label>
+              <label>Pickup (ms) <input type="number" name="pickupMs" min="0" max="250" step="1"></label>
+              <label>Return (ms) <input type="number" name="returnMs" min="0" max="350" step="1"></label>
+              <label>Floating piece <select name="snapVisual"><option value="false">Continuous</option><option value="true">Grid-snapped comparison</option></select></label>
+              <label>Preview opacity <input type="number" name="previewOpacity" min=".15" max=".90" step=".01"></label>
+              <label>Hysteresis (cell pitches) <input type="number" name="hysteresis" min="0" max=".30" step=".01"></label>
+              <label>Debug overlay <input type="checkbox" id="input-overlay" checked></label>
+              <div class="actions">
+                <button type="submit">Apply input tuning</button><button id="export-input" type="button">Export tuning</button>
+                <button id="reset-input" type="button">Restore defaults</button>
+              </div>
+            </form>
+            <label>Shape <select id="input-shape"></select></label>
+            <label>Fixture <select id="input-fixture"><option value="open">Open board</option><option value="exact">Exact fit</option></select></label>
+            <label>Corner <select id="input-corner"><option value="tl">Top left</option><option value="tr">Top right</option><option value="bl">Bottom left</option><option value="br">Bottom right</option></select></label>
+            <div class="actions"><button id="load-input-shape" type="button">Load shape fixture</button></div>
+          </details>
           <fieldset class="dealer">
             <legend>Seeded dealer</legend>
             <label>Seed <input id="seed" type="number" step="1" value="5656"></label>
@@ -58,7 +81,15 @@
           <pre id="result" role="status"></pre>
           <div id="steps" class="actions" aria-label="Witness board steps"></div>
         </section>
-        <iframe id="sandbox" title="Isolated playable AlanBlox sandbox"></iframe>
+        <div class="lab-preview">
+          <label for="input-viewport">Sandbox viewport</label>
+          <select id="input-viewport">
+            <option value="">Responsive</option><option>320×568</option><option>375×667</option><option>390×844</option><option>430×932</option>
+            <option>667×320</option><option>844×390</option><option>960×780</option>
+          </select>
+          <pre id="input-telemetry" aria-label="Drag telemetry">Pick up a piece to inspect the drag.</pre>
+          <iframe id="sandbox" title="Isolated playable AlanBlox sandbox"></iframe>
+        </div>
       </div>
       <h2>Materials side by side</h2>
       <div id="samples"></div>

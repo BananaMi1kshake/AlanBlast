@@ -24,3 +24,10 @@
 .dealer label { display: flex; justify-content: space-between; gap: 5px; }
 #weights { display: grid; gap: 3px; }
 #weights input[type="number"] { width: 58px; }
+
+#input-panel { margin-top: 12px; padding: 8px; border: 1px solid var(--cell); border-radius: 9px; }
+#input-panel summary { cursor: pointer; font-weight: 750; margin-bottom: 8px; }
+#input-panel > label { display: flex; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
+.lab-preview { min-width: 0; overflow-x: auto; }
+#input-telemetry { white-space: pre-wrap; font-size: .8rem; min-height: 6.5em; }
+#sandbox { box-sizing: content-box; }
