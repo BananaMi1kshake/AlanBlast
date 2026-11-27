@@ -27,6 +27,7 @@
     <section class="scoreboard" aria-label="Scores">
       <div class="score-card"><span>Score</span><strong id="score">0</strong></div>
       <div class="score-card best"><span>Best</span><strong id="high-score">0</strong></div>
+      <div class="score-card"><span>Combo</span><strong id="combo">0</strong></div>
     </section>
 
     <div class="board-frame">
@@ -42,6 +43,7 @@
 
     <section class="pieces" aria-label="Available pieces">
       <p id="controls">Drag a piece onto the board.<span class="sr-only"> You can also select a piece, then tap a cell or use the arrow keys and Enter to place it.</span></p>
+      <p id="clear-notice" hidden></p>
       <div id="tray" class="tray">
         <button type="button" data-slot="0"></button>
         <button type="button" data-slot="1"></button>

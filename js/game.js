@@ -1,7 +1,10 @@
+import { scorePlacement } from "./scoring.js";
+import { DEFAULT_THEME, nextTheme } from "./themes.js";
+
 export const SIZE = 8;
 export const HAND_SIZE = 3;
-const LINE_POINTS = 10;
 
+// Shape IDs are saved as array indices. Append new templates to keep old saves compatible.
 const templates = [
   ["Single", "mint", ["#"]],
   ["Horizontal pair", "sky", ["##"]],
@@ -28,6 +31,19 @@ const templates = [
   ["Zigzag, right", "mint", [".##", "##."]],
   ["Vertical zigzag, left", "mint", ["#.", "##", ".#"]],
   ["Vertical zigzag, right", "mint", [".#", "##", "#."]],
+  ["Horizontal five", "sky", ["#####"]],
+  ["Vertical five", "sky", ["#", "#", "#", "#", "#"]],
+  ["Wide rectangle", "sun", ["###", "###"]],
+  ["Tall rectangle", "sun", ["##", "##", "##"]],
+  ["Elbow, upper left", "coral", ["###", "#.."]],
+  ["Elbow, upper right", "coral", ["###", "..#"]],
+  ["Elbow, lower left", "coral", ["#..", "###"]],
+  ["Elbow, lower right", "coral", ["..#", "###"]],
+  ["Elbow, left foot", "coral", [".#", ".#", "##"]],
+  ["Elbow, right foot", "coral", ["#.", "#.", "##"]],
+  ["Elbow, left cap", "coral", ["##", ".#", ".#"]],
+  ["Elbow, right cap", "coral", ["##", "#.", "#."]],
+  ["Cross", "lilac", [".#.", "###", ".#."]],
 ];
 
 export const SHAPES = templates.map(([name, color, rows]) => ({
@@ -53,7 +69,7 @@ export function drawHand(remainder, random = Math.random) {
 }
 
 export function createGame(random = Math.random) {
-  return { board: Array(SIZE * SIZE).fill(null), score: 0, ...drawHand([], random) };
+  return { board: Array(SIZE * SIZE).fill(null), score: 0, combo: 0, theme: DEFAULT_THEME, ...drawHand([], random) };
 }
 
 export function canPlace(board, shape, x, y) {
@@ -106,6 +122,11 @@ export function placePiece(game, slot, x, y, random = Math.random) {
 
   hand[slot] = null;
   const next = hand.every(piece => piece === null) ? drawHand(game.bag, random) : { hand, bag: game.bag };
-  const points = shape.cells.length + LINE_POINTS * (rows.length + columns.length);
-  return { game: { board, score: game.score + points, ...next }, points, rows, columns, cleared };
+  const fullBoardClear = board.every(cell => cell === null);
+  const { points, combo, bonus } = scorePlacement(shape.cells.length, rows.length + columns.length, game.combo, fullBoardClear);
+  const theme = fullBoardClear ? nextTheme(game.theme) : game.theme;
+  return {
+    game: { board, score: game.score + points, combo, theme, ...next },
+    points, rows, columns, cleared, fullBoardClear, bonus,
+  };
 }

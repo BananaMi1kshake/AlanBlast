@@ -12,13 +12,15 @@ The project focuses on responsive controls, rewarding audiovisual feedback, colo
 
 ## Features and roadmap
 
-### Playable in Phase 1
+### Playable through Phase 2
 
 - Classic 8×8 puzzle board.
 - Three block pieces per round.
 - Intuitive drag-and-drop controls.
 - Row and column clears, including both in one move.
-- Basic scoring and game-over detection.
+- Escalating multi-line scores and consecutive-clear combos.
+- Full-board bonuses and six rotating color palettes.
+- Game-over detection.
 - Fair and transparent piece generation.
 - Persistent high scores.
 - Automatic game progress saving.
@@ -79,10 +81,11 @@ AlanBlox is built around five fundamental principles:
 
 ### Phase 2 — Gameplay Balancing
 
-- [ ] Combo system
-- [ ] Streak system
-- [ ] Full-board clear bonuses
-- [ ] Difficulty balancing
+- [x] Configurable block, line, simultaneous-clear, and combo scoring
+- [x] Consecutive-clear streak with visible combo count
+- [x] Full-board clear bonuses and palette changes
+- [x] Expanded shape library and statistical shuffle-bag tests
+- [x] Phase 1 save migration
 
 ### Phase 3 — Game Feel
 
@@ -96,7 +99,7 @@ AlanBlox is built around five fundamental principles:
 ### Phase 4 — Visual Design
 
 - [ ] Original visual identity
-- [ ] Multiple color palettes
+- [x] Six original color palettes
 - [ ] Dynamic theme transitions
 - [ ] Full-board clear celebrations
 - [ ] Menu design
@@ -123,13 +126,25 @@ AlanBlox is built around five fundamental principles:
 
 Drag a piece from the tray to the board. On touchscreens the piece floats above your finger so you can see the target. You can also select a piece and tap its top-left target on the board. With a keyboard, activate a piece, use the arrow keys to move its preview, and press Enter or Space to place it. Escape cancels the selection.
 
-Each placement earns one point per block and ten points for each completed row or column. A move can complete multiple lines. All lines are identified on the same board, their union is cleared, and each line earns points. The tray refills after all three pieces are placed. When none of the remaining pieces fits, the game ends. Restart clears the board and current score while keeping the best score on that browser.
+The tray refills after all three pieces are placed. When none of the remaining pieces fits, the game ends. Restart resets the board, session score, combo, and palette to Mint, and keeps the best score on that browser.
+
+### Scoring and combos
+
+- Every accepted placement earns **1 point per block**. Each row or column completed by that move counts as one line. All completed lines are identified before removing any blocks, and a shared cell is removed once.
+- Clearing **n** lines in one move earns **10 × n + 5 × n × (n − 1) / 2** line points. For one, two, three, and four lines, that is **10, 25, 45, and 70** before the combo multiplier.
+- Each accepted move that clears one or more lines increments the combo by one. The first clear uses **×1**, then the multiplier rises with the combo up to **×5**. The combo count can keep growing. The multiplier applies to all line points from the move, including simultaneous-clear rewards.
+- An accepted placement that clears no lines resets the combo to zero. Invalid or canceled moves, time between moves, dealing a new hand, and reloading leave it intact.
+- If a placement leaves the board entirely empty after line removal, it earns a flat **100-point bonus** and advances the palette through **Mint → Tidal → Orchard → Dusk → Desert → Glacier → Mint**. The combo multiplier applies only to line points, so the block points and full-board bonus stay fixed.
+
+The default scoring values live in `js/scoring.js`. A save from Phase 1 keeps its board, score, best score, remaining pieces, and undealt bag. It starts with combo zero and the Mint palette. Existing scores are carried forward as earned.
 
 ### Piece selection
 
-Each bag contains one copy of every one of the 25 oriented templates in `js/game.js`. The game shuffles it with Fisher–Yates, choosing a random index from 0 through the current index at each step using the browser's `Math.random()`. It deals three consecutive templates at a time. If fewer than three remain in the bag, it uses those first and finishes the hand from a newly shuffled bag. An orientation may repeat across a bag boundary. Shapes have fixed orientations.
+Each fresh bag contains one copy of every one of the 38 oriented templates in `js/game.js`. Phase 2 adds both five-cell bars, both 2×3 rectangles, eight four-cell elbows, and a cross while preserving existing shape IDs. The game shuffles the bag with Fisher–Yates, choosing a random index from 0 through the current index at each step using the browser's `Math.random()`.
 
-The draw never consults the board, score, or previous performance. All pieces fit an empty board, and a later piece or hand can be blocked by the current board. The undealt bag order is saved along with the board and remaining hand so a reload preserves them.
+The game deals three consecutive templates at a time. If fewer than three remain, it deals those first and finishes the hand from a freshly shuffled bag. An orientation can repeat across that boundary. Shapes have fixed orientations, and equal representation applies per orientation. Families with more orientations consequently appear more often. A restored Phase 1 bag finishes in its original order before the expanded catalog takes effect.
+
+The draw uses only the undealt bag and randomness. Board position, score, playtime, spending, and player identity do not influence it. All pieces fit an empty board, and a later piece or hand can be blocked by the current board. There are no rescue rerolls. The undealt bag order is saved so reloading preserves it.
 
 ## Running locally
 
@@ -162,7 +177,7 @@ AI development agents should refer to `AGENTS.md` for project-specific requireme
 
 ## Project Status
 
-Phase 1 is playable. Later phases cover scoring depth and game feel.
+Phases 1 and 2 are playable. Later phases focus on game feel and audiovisual polish.
 
 ## Disclaimer
 

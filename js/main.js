@@ -1,5 +1,6 @@
 import { createGame, isGameOver, placePiece } from "./game.js";
 import { bindInput } from "./input.js";
+import { comboMultiplier } from "./scoring.js";
 import { loadProgress, saveProgress } from "./storage.js";
 import { createView } from "./view.js";
 
@@ -14,18 +15,20 @@ const input = bindInput(view, () => game, (slot, x, y) => {
   if (!result) return false;
   input.reset();
   game = result.game;
-  const over = update(result.cleared);
+  const over = update(result);
   const lines = result.rows.length + result.columns.length;
   const summary = lines ? `Cleared ${lines} ${lines === 1 ? "line" : "lines"}. ` : "";
-  view.announce(`${summary}Scored ${result.points} points.${over ? " Game over. No remaining piece fits." : ""}`);
+  const combo = lines ? ` Combo ${game.combo}, ${comboMultiplier(game.combo)} times line points.` : "";
+  const bonus = result.fullBoardClear ? ` Full-board clear! ${result.bonus} bonus points and a new palette.` : "";
+  view.announce(`${summary}Scored ${result.points} points.${combo}${bonus}${over ? " Game over. No remaining piece fits." : ""}`);
   if (over) playAgain.focus({ preventScroll: true });
   return true;
 });
 
-function update(cleared) {
+function update(result) {
   highScore = Math.max(highScore, game.score);
   const over = isGameOver(game);
-  view.render(game, highScore, over, cleared);
+  view.render(game, highScore, over, result);
   saveProgress(game, highScore);
   return over;
 }
