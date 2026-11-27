@@ -1,0 +1,63 @@
+{"version": 1, "levels": [
+    {
+      "id": "practice-a-row",
+      "name": "Practice a row",
+      "world": "mint",
+      "palette": "mint",
+      "material": "classic",
+      "difficulty": "Intro",
+      "board": ["........", "E.......", "........", "........", "EBD...BD", "........", "........", "........"],
+      "gems": [],
+      "hands": [[3, 2, 0]],
+      "objectives": [{"type": "rows", "target": 1}],
+      "maxMoves": 1,
+      "tip": "Drag the horizontal three-block piece into the gap. The preview lights up the row it would clear. You can also tap a piece and its target, or use the keyboard.",
+      "validation": {"version": 1, "witness": [{"slot": 0, "x": 3, "y": 4}]}
+    },
+    {
+      "id": "practice-a-column",
+      "name": "Practice a column",
+      "world": "mint",
+      "palette": "mint",
+      "material": "classic",
+      "difficulty": "Intro",
+      "board": ["...B....", "...C....", "........", "........", "...A....", "...B....", "...C....", "E..D...."],
+      "gems": [],
+      "hands": [[0, 2, 5]],
+      "objectives": [{"type": "columns", "target": 1}],
+      "maxMoves": 1,
+      "tip": "Use the upright pair to complete the column. A blocked preview means the piece would overlap a block or the board edge.",
+      "validation": {"version": 1, "witness": [{"slot": 1, "x": 3, "y": 2}]}
+    },
+    {
+      "id": "keep-the-combo",
+      "name": "Keep the combo",
+      "world": "mint",
+      "palette": "mint",
+      "material": "classic",
+      "difficulty": "Intro",
+      "board": ["ACEBDAC.", "........", "........", "........", "........", "........", "........", "........"],
+      "gems": [],
+      "hands": [[0], [25, 1, 0]],
+      "objectives": [{"type": "combo", "target": 2}],
+      "maxMoves": 4,
+      "tip": "Clear the first row, then build an entire row from the next tray. Two moves without a clear are allowed. The third move needs a clear to keep the combo.",
+      "validation": {"version": 1, "witness": [{"slot": 0, "x": 7, "y": 0}, {"slot": 0, "x": 0, "y": 4}, {"slot": 1, "x": 5, "y": 4}, {"slot": 2, "x": 7, "y": 4}]}
+    },
+    {
+      "id": "clear-the-board",
+      "name": "Clear the board",
+      "world": "mint",
+      "palette": "mint",
+      "material": "classic",
+      "difficulty": "Intro",
+      "board": ["...B....", "...C....", "...D....", "...E....", "EBD.CEBD", "...B....", "...C....", "...D...."],
+      "gems": [],
+      "hands": [[0, 2, 1]],
+      "objectives": [{"type": "lines", "target": 2}, {"type": "allClear", "target": 1}],
+      "maxMoves": 1,
+      "tip": "Fill the intersection to clear a row and a column together. When the board empties, you earn a bonus and the material changes.",
+      "transitionOnAllClear": true,
+      "validation": {"version": 1, "witness": [{"slot": 0, "x": 3, "y": 4}]}
+    }
+]}

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101d41">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" href="./icons/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="./themes.css">
+  <link rel="stylesheet" href="./materials.css">
+  <link rel="stylesheet" href="./interface.css">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./modes.css">
+  <title>Progress · AlanBlox</title>
+  <script type="module" src="./js/progress-view.js"></script>
+</head>
+<body>
+  <main class="mode-shell">
+    <header class="menu-top"><a class="mode-back" href="./index.html">← Menu</a><span class="menu-brand">AlanBlox</span></header>
+    <nav class="page-tabs" aria-label="Progress">
+      <a href="?view=materials" data-tab="materials">Materials</a>
+      <a href="?view=stats" data-tab="stats">Statistics</a>
+      <a href="?view=achievements" data-tab="achievements">Achievements</a>
+    </nav>
+    <h1 id="progress-title"></h1>
+    <p id="progress-description" role="status"></p>
+    <form id="appearance-controls" class="world-card" hidden>
+      <label>Classic appearance
+        <select id="appearance-mode">
+          <option value="automatic">Automatic rotation</option>
+          <option value="starting">Favorite first, then rotate</option>
+          <option value="fixed">Fixed favorite</option>
+        </select>
+      </label>
+      <label>Favorite material <select id="favorite-material"></select></label>
+      <p>Applies when you start a new Classic game.</p>
+    </form>
+    <div class="progress-cards" id="progress-content"></div>
+  </main>
+</body>
+</html>

@@ -3,6 +3,7 @@ export function memoryStorage() {
   return {
     getItem(key) { return data.get(key) ?? null; },
     setItem(key, value) { data.set(key, value); },
+    removeItem(key) { data.delete(key); },
   };
 }
 

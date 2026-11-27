@@ -1,3 +1,6 @@
+import { bindSaveControls } from "./save-controls.js";
+import { saveTutorial, tutorialStatus } from "./challenges.js";
+import { bindInstall } from "./install.js";
 import { loadAdventure } from "./adventure-storage.js";
 import { levelUrl } from "./adventure-view.js";
 import { createAudio } from "./audio.js";
@@ -5,6 +8,7 @@ import { loadCampaign } from "./campaign.js";
 import { bindFeedbackLifecycle, createFeedback } from "./feedback.js";
 import { isGameOver } from "./game.js";
 import { createHaptics } from "./haptics.js";
+import { restoreDiscoveries } from "./profile.js";
 import { registerOffline } from "./pwa.js";
 import { bindSettings, createMotionPreference, loadSettings } from "./settings.js";
 import { loadProgress } from "./storage.js";
@@ -24,8 +28,16 @@ bindSettings(settings, preference, {
   onInteraction: () => feedback.cue("ui"),
 });
 registerOffline();
+bindInstall();
+bindSaveControls();
+
+$("skip-tutorial").addEventListener("click", () => {
+  saveTutorial("skipped");
+  $("tutorial-invitation").hidden = true;
+});
 
 async function render() {
+  $("tutorial-invitation").hidden = tutorialStatus() !== null;
   const classic = loadProgress();
   $("classic-best").textContent = classic.highScore;
   const ended = classic.game && isGameOver(classic.game);
@@ -36,6 +48,7 @@ async function render() {
   try {
     const levels = await loadCampaign();
     const { completed, current } = loadAdventure(levels);
+    restoreDiscoveries(levels, completed);
     const frontier = levels.find(level => !completed.includes(level.id)) ?? levels.at(-1);
     paintWorld($("adventure-art"), WORLDS[frontier.world]);
     $("adventure-progress").textContent = `${completed.length} of ${levels.length} levels complete`;

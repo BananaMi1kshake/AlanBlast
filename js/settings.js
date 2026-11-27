@@ -1,15 +1,20 @@
+import { MATERIALS } from "./themes.js";
 import { MOTION } from "./motion.js";
 
-const KEY = "alanblox.settings.v1";
-const defaults = { sound: true, volume: .65, vibration: true, reducedMotion: false };
+export const SETTINGS_KEY = "alanblox.settings.v1";
+export const APPEARANCE_MODES = ["automatic", "starting", "fixed"];
+const defaults = { sound: true, volume: .65, vibration: true, reducedMotion: false,
+  materialMode: "automatic", favoriteMaterial: "classic" };
 
 export function loadSettings(storage) {
   const settings = { ...defaults };
   try {
-    const saved = JSON.parse((storage ?? localStorage).getItem(KEY));
+    const saved = JSON.parse((storage ?? localStorage).getItem(SETTINGS_KEY));
     for (const key of ["sound", "vibration", "reducedMotion"]) {
       if (typeof saved?.[key] === "boolean") settings[key] = saved[key];
     }
+    if (APPEARANCE_MODES.includes(saved?.materialMode)) settings.materialMode = saved.materialMode;
+    if (Object.hasOwn(MATERIALS, saved?.favoriteMaterial)) settings.favoriteMaterial = saved.favoriteMaterial;
     if (Number.isFinite(saved?.volume)) settings.volume = Math.min(1, Math.max(0, saved.volume));
   } catch {
     // Private browsing and storage failures leave defaults usable.
@@ -19,7 +24,7 @@ export function loadSettings(storage) {
 
 export function saveSettings(settings, storage) {
   try {
-    (storage ?? localStorage).setItem(KEY, JSON.stringify(settings));
+    (storage ?? localStorage).setItem(SETTINGS_KEY, JSON.stringify(settings));
   } catch {
     // Preferences still apply for the current page.
   }

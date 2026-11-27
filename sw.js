@@ -1,9 +1,17 @@
 const prefix = `alanblox:${self.registration.scope}:shell-`;
-const cacheName = `${prefix}10`;
+const cacheName = `${prefix}11`;
 const shell = [
   "./index.html",
   "./play.html",
   "./adventure.html",
+  "./progress.html",
+  "./daily.html",
+  "./js/challenges.js",
+  "./js/daily-view.js",
+  "./challenges/daily-v1.json",
+  "./challenges/tutorial.json",
+  "./js/profile.js",
+  "./js/progress-view.js",
   "./modes.css",
   "./adventure/levels.json",
   "./js/menu.js",
@@ -20,6 +28,12 @@ const shell = [
   "./interface.css",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
+  "./icons/favicon.png",
+  "./icons/icon-maskable-192.png",
+  "./icons/icon-maskable-512.png",
+  "./js/install.js",
+  "./js/backup.js",
+  "./js/save-controls.js",
   "./icons/icon-512.png",
   "./icons/apple-touch-icon.png",
   "./js/main.js",
@@ -55,7 +69,7 @@ const textures = [
 const shellUrls = new Set([...shell, ...textures].map(path => new URL(path, self.registration.scope).href));
 const home = self.registration.scope;
 const index = new URL("./index.html", home).href;
-const pages = new Set([index, new URL("./play.html", home).href, new URL("./adventure.html", home).href]);
+const pages = new Set([index, new URL("./play.html", home).href, new URL("./adventure.html", home).href, new URL("./progress.html", home).href, new URL("./daily.html", home).href]);
 const audioDirectory = new URL("./audio/", home).href;
 
 async function cacheCustomSounds(cache) {

@@ -1,3 +1,4 @@
+import { challengeUrl } from "./challenges.js";
 import { FAILURES, objectiveProgress, remainingMoves } from "./adventure.js";
 import { isUnlocked } from "./adventure-storage.js";
 
@@ -10,7 +11,7 @@ export function levelUrl(id, { replay = false } = {}) {
   return `./play.html?${query}`;
 }
 
-export function createAdventureView(session, levels, restart, sandbox) {
+export function createAdventureView(session, levels, restart, sandbox, mode) {
   const hud = $("adventure-hud");
   const overlay = $("adventure-result");
   const list = $("level-objectives");
@@ -19,15 +20,23 @@ export function createAdventureView(session, levels, restart, sandbox) {
   const retryButton = $("retry-level");
   const controls = new Map();
   let renderedLevel;
+  const daily = mode === "daily";
+  const tutorial = mode === "tutorial";
+  const exit = $("level-selection");
+  const back = daily ? "./daily.html?date=" + session.day : tutorial ? "./index.html" : "./adventure.html";
+  exit.href = back;
+  exit.textContent = daily ? "Challenge dates" : tutorial ? "Main menu" : "Level selection";
   hud.hidden = false;
   if (sandbox) {
     $("mode-back").hidden = true;
-    overlay.querySelector('[href="./adventure.html"]').hidden = true;
+    exit.hidden = true;
   } else {
-    $("mode-back").href = "./adventure.html";
-    $("mode-back").setAttribute("aria-label", "Level selection");
+    $("mode-back").href = back;
+    $("mode-back").setAttribute("aria-label", exit.textContent);
   }
   document.querySelector("#restart-confirm p").textContent = "This resets the current level. Completed levels are kept.";
+  if (daily) document.querySelector("#restart-confirm p").textContent = "This resets the challenge board and keeps the best result for this date.";
+  if (tutorial) document.querySelector("#restart-confirm p").textContent = "This resets the current tutorial step.";
   retryButton.addEventListener("click", restart);
 
   function render() {
@@ -49,7 +58,11 @@ export function createAdventureView(session, levels, restart, sandbox) {
         controls.set(goal.type, { chip, value });
       }
       const number = levels.indexOf(level) + 1;
-      $("level-name").textContent = number ? `${number}. ${level.name}` : level.name;
+      $("level-name").textContent = daily ? `${session.day} · ${level.name}`
+        : number ? `${number}. ${level.name}` : level.name;
+      const tip = $("tutorial-tip");
+      tip.hidden = !tutorial;
+      if (tutorial) tip.textContent = level.tip;
     }
     for (const goal of goals) {
       const { chip, value } = controls.get(goal.type);
@@ -63,6 +76,7 @@ export function createAdventureView(session, levels, restart, sandbox) {
     if (overlay.hidden) return;
     const won = run.status === "won";
     $("completion-tag").hidden = !won;
+    $("completion-tag").textContent = daily ? "DAILY CHALLENGE COMPLETE" : tutorial ? "LESSON COMPLETE" : "LEVEL COMPLETE";
     title.textContent = won ? level.name : "Level failed";
     $("adventure-result-summary").textContent = won
       ? goals.map(goal => `${goal.label} ${goal.target}/${goal.target}`).join(" · ")
@@ -70,8 +84,13 @@ export function createAdventureView(session, levels, restart, sandbox) {
     $("adventure-final-score").textContent = run.game.score;
     const next = levels[levels.indexOf(level) + 1];
     nextButton.hidden = !won || sandbox;
-    nextButton.href = next && isUnlocked(levels, session.completed, next.id) ? levelUrl(next.id) : "./adventure.html";
-    nextButton.textContent = next ? "Continue" : "Finish campaign";
+    nextButton.href = next && isUnlocked(levels, session.completed, next.id)
+      ? (tutorial ? challengeUrl("tutorial", next.id) : levelUrl(next.id)) : back;
+    nextButton.textContent = next ? "Continue" : daily ? "Challenge dates" : tutorial ? "Finish tutorial" : "Finish campaign";
+    exit.hidden = sandbox || (won && !next);
+    if (daily && session.best) {
+      $("adventure-result-summary").textContent += ` · Best ${session.best}`;
+    }
     retryButton.className = won && !sandbox ? "secondary" : "primary";
     retryButton.textContent = won ? "Replay" : "Retry";
   }

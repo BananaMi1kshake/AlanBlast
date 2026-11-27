@@ -10,10 +10,10 @@ const $ = id => document.getElementById(id);
 createMotionPreference(loadSettings());
 registerOffline();
 
-function worldCard(world, entries, completed, levels, activeWorld) {
+function worldCard(world, entries, completed, levels, activeLevel) {
   const section = document.createElement("section");
   section.className = "world-card";
-  section.toggleAttribute("data-current", world === activeWorld);
+  section.toggleAttribute("data-current", entries.includes(activeLevel));
   const header = document.createElement("header");
   const art = document.createElement("div");
   art.className = "world-art";
@@ -66,9 +66,15 @@ async function render() {
       resume.href = levelUrl(current.levelId);
       resume.textContent = "Resume " + activeLevel.name;
     }
-    const worlds = [...new Set(levels.map(level => level.world))];
-    $("world-list").replaceChildren(...worlds.map(world =>
-      worldCard(world, levels.filter(level => level.world === world), completed, levels, activeLevel.world)));
+    const chapters = [...new Set(levels.map(level => level.chapter ?? 1))];
+    $("world-list").replaceChildren(...chapters.flatMap(chapter => {
+      const title = document.createElement("h2");
+      title.className = "chapter-title";
+      title.textContent = chapter === 1 ? "First tour" : "Second tour";
+      const entries = levels.filter(level => (level.chapter ?? 1) === chapter);
+      return [title, ...[...new Set(entries.map(level => level.world))].map(world =>
+        worldCard(world, entries.filter(level => level.world === world), completed, levels, activeLevel))];
+    }));
   } catch (error) {
     $("current-world").textContent = error.message;
   }
