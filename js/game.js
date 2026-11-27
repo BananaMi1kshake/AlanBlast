@@ -37,7 +37,7 @@ export function isGameOver(game) {
   });
 }
 
-function completedLines(board) {
+export function completedLines(board) {
   const rows = [];
   const columns = [];
   for (let line = 0; line < SIZE; line++) {

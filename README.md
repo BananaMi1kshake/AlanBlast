@@ -12,7 +12,7 @@ The project focuses on responsive controls, rewarding audiovisual feedback, colo
 
 ## Features and roadmap
 
-### Playable through Phase 2.5
+### Playable through Phase 3
 
 - Classic 8×8 puzzle board.
 - Three block pieces per round.
@@ -24,16 +24,12 @@ The project focuses on responsive controls, rewarding audiovisual feedback, colo
 - Every new three-piece hand has a legal completion sequence when dealt.
 - Persistent high scores.
 - Automatic game progress saving.
+- Tactile block pickup, projected line clears, animated scoring, and visual celebrations.
 
 ### Planned polish
 
-- Smooth block placement animations.
-- Satisfying line-clearing effects.
-- Dynamic particle effects.
-- Animated score counters.
 - Escalating combo sound effects.
 - Haptic feedback on supported devices.
-- Seamless color palette transitions.
 
 ### Accessibility
 
@@ -95,19 +91,18 @@ AlanBlox is built around five fundamental principles:
 
 ### Phase 3 — Game Feel
 
-- [ ] Block placement animations
-- [ ] Line-clearing animations
-- [ ] Particle effects
-- [ ] Animated scoring
+- [x] Block pickup, return, tray refill, and placement animations
+- [x] Directional line clears and color-matched particles
+- [x] Score counters, floating points, and record feedback
 - [ ] Screen shake
-- [ ] Celebration effects
+- [x] Combo milestones and full-board celebrations
 
 ### Phase 4 — Visual Design
 
 - [ ] Original visual identity
 - [x] Six original color palettes
-- [ ] Dynamic theme transitions
-- [ ] Full-board clear celebrations
+- [x] Dynamic theme transitions
+- [x] Full-board clear celebrations
 - [ ] Menu design
 
 ### Phase 5 — Audio and Haptics
@@ -155,6 +150,12 @@ Tune the provisional constants in `js/scoring.js`. Scores are carried forward as
 
 Filtering changes the distribution of revealed hands. The proposal bag still contains each orientation once per shuffle, but pieces that fit more boards survive filtering more often. Fallback may also repeat a shape. The board affects generation only through solvability. The generator uses no score, high score, session length, losses, player identity, engagement, or spending. Revealed pieces are never replaced, and the deal guarantees one solution, with other placements free to fail.
 
+### Visual feedback
+
+Timing defaults live in `js/motion.js`. Pickup and placement take 100 ms, invalid returns 180 ms, tray arrivals 220 ms with a 35 ms stagger, and clear waves 250 ms for one line or 350 ms for several. Floating scores last 600 ms, combo messages 750 ms, and the all-clear celebration 1,200 ms. Score counters take 300 ms, and palette changes take 650 ms. The combo card's three markers track the saved combo window.
+
+The game commits each move and its score immediately. Visual effects can overlap and the particle pool is capped at 72 live particles. The system's reduced-motion setting suppresses moving effects and shows exact scores and palette changes immediately. Placement previews, the combo window, and the text notification for a full-board clear remain available.
+
 ## Running locally
 
 From the repository root, serve the app with Python and open `http://localhost:8000/`:
@@ -189,7 +190,7 @@ AI development agents should refer to `AGENTS.md` for project-specific requireme
 
 ## Project Status
 
-Phases 1 through 2.5 are playable. Later phases focus on game feel and audiovisual polish.
+Phases 1 through 3 are playable. Later phases focus on visual identity, audio, and haptics.
 
 ## Disclaimer
 
