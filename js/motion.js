@@ -1,7 +1,5 @@
 export const MOTION = Object.freeze({
-  pickup: 100,
   placement: 100,
-  return: 180,
   refill: 220,
   refillStagger: 35,
   singleClear: 250,
@@ -11,7 +9,6 @@ export const MOTION = Object.freeze({
   allClear: 1200,
   theme: 650,
   counter: 300,
-  touchLift: 56,
   settingsOpen: 220,
   settingsClose: 160,
   particleLimit: 72,

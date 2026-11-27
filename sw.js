@@ -70,6 +70,7 @@ const shell = [
   "./js/material-library.js",
   "./js/material-rotation.js",
   "./js/input.js",
+  "./js/drag-geometry.js",
   "./js/view.js",
   "./js/storage.js",
   "./js/settings.js",
