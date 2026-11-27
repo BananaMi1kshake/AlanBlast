@@ -1,3 +1,6 @@
+import { createAudio } from "./audio.js";
+import { bindFeedbackLifecycle, createFeedback } from "./feedback.js";
+import { createHaptics } from "./haptics.js";
 import { createGame, isGameOver, needsHand, placePiece } from "./game.js";
 import { requestHand } from "./hand-request.js";
 import { bindInput } from "./input.js";
@@ -8,6 +11,10 @@ import { createView } from "./view.js";
 const DEAL_TIMEOUT = 10000;
 const RETRY_TIMEOUT = 30000;
 const settings = loadSettings();
+const audio = createAudio();
+const haptics = createHaptics();
+const feedback = createFeedback(audio, haptics, settings);
+bindFeedbackLifecycle(audio, haptics);
 const preference = createMotionPreference(settings);
 const view = createView(preference.motion);
 const playAgain = document.querySelector("#play-again");
@@ -24,11 +31,13 @@ const input = bindInput(view, () => game, (slot, x, y) => {
   if (!result) return false;
   input.reset();
   const record = result.game.score > highScore;
+  const firstRecord = record && !game.record;
   game = result.game;
   if (record) game.record = true;
   lastMove = { result, slot, x, y };
   const over = update();
   const lines = result.rows.length + result.columns.length;
+  feedback.move({ lines, combo: game.combo, fullBoardClear: result.fullBoardClear, record: firstRecord, over });
   const summary = lines ? `Cleared ${lines} ${lines === 1 ? "line" : "lines"}. ` : "";
   const combo = lines ? ` Combo ${game.combo}, ${game.combo} times line points.` : "";
   const bonus = result.fullBoardClear ? ` Full-board clear! ${result.bonus} bonus points and a new palette.` : "";
@@ -36,7 +45,7 @@ const input = bindInput(view, () => game, (slot, x, y) => {
   if (over) playAgain.focus({ preventScroll: true });
   if (needsHand(game)) deal();
   return true;
-});
+}, feedback.cue);
 
 function update(refill = false) {
   highScore = Math.max(highScore, game.score);
@@ -65,6 +74,7 @@ function deal(timeout = DEAL_TIMEOUT, focusTray = false) {
       game = { ...game, exhausted: true };
       update();
       view.announce("Game over. No solvable hand exists.");
+      feedback.cue("gameOver");
       playAgain.focus({ preventScroll: true });
       return;
     }
@@ -82,11 +92,22 @@ function restart() {
   lastMove = undefined;
   update();
   view.announce("New game.");
+  feedback.restart();
   deal(DEAL_TIMEOUT, true);
 }
 
-retryHand.addEventListener("click", () => deal(RETRY_TIMEOUT, true));
-bindSettings(settings, preference, { onOpen: input.reset, onRestart: restart });
+retryHand.addEventListener("click", () => {
+  feedback.cue("ui");
+  deal(RETRY_TIMEOUT, true);
+});
+bindSettings(settings, preference, {
+  onOpen: input.reset, onRestart: restart,
+  onChange: event => {
+    feedback.configure();
+    if (event.isTrusted) audio.activate();
+  },
+  onInteraction: () => feedback.cue("ui"), vibrationSupported: haptics.supported,
+});
 playAgain.addEventListener("click", restart);
 update();
 if (needsHand(game)) deal();

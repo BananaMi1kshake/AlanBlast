@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="../themes.css">
+  <link rel="stylesheet" href="../interface.css">
+  <link rel="stylesheet" href="./sound-preview.css">
+  <title>AlanBlox Sound Preview</title>
+  <script type="module">
+    if (["localhost", "127.0.0.1", "[::1]"].includes(location.hostname)) {
+      import("./sound-preview.js");
+    }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>AlanBlox Sound Preview</h1>
+    <p id="local-only">Serve this page on localhost to use the development tool.</p>
+    <div id="preview" hidden>
+      <div class="controls">
+        <label for="combo-level">Combo level <input id="combo-level" type="number" value="1" min="1" step="1"></label>
+        <label for="preview-volume">Volume <output id="preview-percent">65%</output>
+          <input type="range" id="preview-volume" min="0" max="100" value="65"></label>
+        <button id="stop" type="button">Stop feedback</button>
+      </div>
+      <h2>Sound events</h2>
+      <div class="buttons" id="sounds"></div>
+      <h2>Vibration patterns</h2>
+      <p id="vibration-status" role="status"></p>
+      <div class="buttons" id="vibrations"></div>
+    </div>
+  </main>
+</body>
+</html>

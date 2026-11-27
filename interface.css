@@ -179,6 +179,9 @@ dialog p { color: var(--muted); font-size: .87rem; line-height: 1.45; }
   cursor: pointer;
 }
 .preferences small { display: block; color: var(--muted); font-size: .69rem; font-weight: 450; }
+.preferences small:empty { display: none; }
+.preferences .volume-control input { width: min(44%, 145px); margin: 0; }
+.volume-control output { margin-left: 4px; color: var(--muted); font-size: .74rem; font-variant-numeric: tabular-nums; }
 .preferences input { width: 20px; height: 20px; accent-color: var(--accent); flex: none; }
 dialog details { border-bottom: 1px solid #ffffff18; }
 dialog summary { padding: 10px 0; font-size: .88rem; font-weight: 700; cursor: pointer; }

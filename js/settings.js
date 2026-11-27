@@ -1,15 +1,16 @@
 import { MOTION } from "./motion.js";
 
 const KEY = "alanblox.settings.v1";
-const defaults = { sound: true, vibration: true, reducedMotion: false };
+const defaults = { sound: true, volume: .65, vibration: true, reducedMotion: false };
 
 export function loadSettings(storage) {
   const settings = { ...defaults };
   try {
     const saved = JSON.parse((storage ?? localStorage).getItem(KEY));
-    for (const key of Object.keys(settings)) {
+    for (const key of ["sound", "vibration", "reducedMotion"]) {
       if (typeof saved?.[key] === "boolean") settings[key] = saved[key];
     }
+    if (Number.isFinite(saved?.volume)) settings.volume = Math.min(1, Math.max(0, saved.volume));
   } catch {
     // Private browsing and storage failures leave defaults usable.
   }
@@ -39,7 +40,7 @@ export function createMotionPreference(settings) {
   return { motion, sync };
 }
 
-export function bindSettings(settings, preference, { onOpen, onRestart }) {
+export function bindSettings(settings, preference, { onOpen, onRestart, onChange, onInteraction, vibrationSupported }) {
   const dialog = document.querySelector("#settings");
   const opener = document.querySelector("#open-settings");
   const panel = document.querySelector("#settings-panel");
@@ -110,13 +111,43 @@ export function bindSettings(settings, preference, { onOpen, onRestart }) {
     else dialog.getAnimations().forEach(animation => animation.cancel());
   });
 
+  const slider = dialog.querySelector("#sound-volume");
+  const volumeValue = dialog.querySelector("#volume-value");
+  const soundToggle = dialog.querySelector('[data-preference="sound"]');
+  const vibrationToggle = dialog.querySelector('[data-preference="vibration"]');
+  if (!vibrationSupported) {
+    vibrationToggle.disabled = true;
+    dialog.querySelector("#haptics-status").textContent = "Unavailable in this browser";
+  }
+  slider.value = String(Math.round(settings.volume * 100));
+  slider.disabled = !settings.sound;
+  volumeValue.value = `${slider.value}%`;
+
+  function commit(event) {
+    saveSettings(settings);
+    preference.sync();
+    onChange(event);
+  }
+
   for (const input of dialog.querySelectorAll("[data-preference]")) {
     const key = input.dataset.preference;
     input.checked = settings[key];
-    input.addEventListener("change", () => {
+    input.addEventListener("change", event => {
       settings[key] = input.checked;
-      saveSettings(settings);
-      preference.sync();
+      slider.disabled = !soundToggle.checked;
+      commit(event);
+      onInteraction();
     });
   }
+  slider.addEventListener("input", event => {
+    settings.volume = Number(slider.value) / 100;
+    volumeValue.value = `${slider.value}%`;
+    commit(event);
+  });
+  slider.addEventListener("change", onInteraction);
+
+  opener.addEventListener("click", onInteraction);
+  dialog.addEventListener("click", event => {
+    if (event.target.closest("button, summary") && !event.target.closest("#confirm-restart")) onInteraction();
+  });
 }

@@ -77,8 +77,9 @@
     <div id="settings-panel">
       <button type="button" class="primary" id="resume">Resume Game</button>
       <div class="preferences">
-        <label><span>Sound<small>Playback coming in Phase 5</small></span><input type="checkbox" data-preference="sound"></label>
-        <label><span>Vibration<small>Haptics coming in Phase 5</small></span><input type="checkbox" data-preference="vibration"></label>
+        <label><span>Sound effects</span><input type="checkbox" data-preference="sound"></label>
+        <label class="volume-control" for="sound-volume"><span>Volume <output id="volume-value" for="sound-volume">65%</output></span><input id="sound-volume" type="range" min="0" max="100" value="65"></label>
+        <label><span>Vibration<small id="haptics-status"></small></span><input type="checkbox" data-preference="vibration"></label>
         <label><span>Reduced motion<small>Also respects your device setting</small></span><input type="checkbox" data-preference="reducedMotion"></label>
       </div>
       <details><summary>How to Play</summary><p>Drag one of the three pieces onto the board. Complete a row or column to clear it. Use all three pieces to get a new hand. Clear again within three moves to keep your combo going.</p><p>You can also choose a piece and tap its top-left target cell, or use the arrow keys and Enter.</p></details>

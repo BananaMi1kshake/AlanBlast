@@ -1,0 +1,9 @@
+main { max-width: 680px; margin-inline: auto; padding: 28px 18px; }
+main h1 { font-size: 1.8rem; }
+main h2 { margin-bottom: 8px; font-size: 1.15rem; }
+.controls, .buttons { display: flex; align-items: end; flex-wrap: wrap; gap: 8px 12px; }
+.controls label { display: grid; gap: 4px; }
+.controls input { width: 130px; accent-color: var(--accent); }
+.controls output { color: var(--muted); }
+button { border: 1px solid var(--cell); border-radius: 9px; padding: 8px 12px; background: var(--board); }
+button:disabled { cursor: default; opacity: .55; }
