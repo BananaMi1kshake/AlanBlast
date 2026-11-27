@@ -17,6 +17,8 @@ AlanBlox synthesizes all default sounds with Web Audio. The game sends cues afte
 | `allClear` | Ascending flourish and resolving chord synchronized to the full-board animation |
 | `record` | Short tag on the first new best in a run, when space in the cue permits |
 | `gameOver` | Descending cadence when the run ends |
+| `gem` | High two-note pickup when a move collects Adventure gems |
+| `levelComplete` | Resolving Adventure victory chord |
 | `newGame` | Three-note cue on Play Again or confirmed restart |
 | `ui` | Quiet settings and button feedback |
 

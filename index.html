@@ -12,71 +12,51 @@
   <link rel="stylesheet" href="./materials.css">
   <link rel="stylesheet" href="./interface.css">
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./modes.css">
   <title>AlanBlox</title>
-  <script type="module" src="./js/main.js"></script>
+  <script type="module" src="./js/menu.js"></script>
 </head>
 <body>
-  <div id="scene-fade" aria-hidden="true" hidden></div>
-  <main class="game-shell">
-    <header class="masthead">
-      <div class="brand">
-        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-        <h1>AlanBlox</h1>
-      </div>
-      <button class="icon-button" type="button" id="open-settings" aria-label="Settings" aria-haspopup="dialog" title="Settings">
+  <main class="mode-shell">
+    <header class="menu-top">
+      <span class="menu-brand">AlanBlox</span>
+      <button class="icon-button" type="button" id="open-settings" aria-label="Settings" aria-haspopup="dialog">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3.5h4l.7 2.2 1.6.9 2.2-.5 2 3.5-1.5 1.7v1.8l1.5 1.7-2 3.5-2.2-.5-1.6.9-.7 2.2h-4l-.7-2.2-1.6-.9-2.2.5-2-3.5L5 13.3v-1.8L3.5 9.8l2-3.5 2.2.5 1.6-.9z"/><circle cx="12" cy="12.4" r="2.7"/></svg>
       </button>
     </header>
-
-    <section class="scoreboard" aria-label="Scores">
-      <div class="personal-best">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v6a5 5 0 0 1-10 0zm0 2H4v2a3 3 0 0 0 3 3m10-5h3v2a3 3 0 0 1-3 3m-5 4v4m-4 1h8"/></svg>
-        <span class="sr-only">Personal best</span><strong id="high-score">0</strong>
+    <section class="menu-hero" aria-label="AlanBlox">
+      <div class="title-emblem" aria-hidden="true">
+        <i class="block" data-color="sky"></i><i class="block" data-color="sun"></i><i class="block" data-color="mint"></i>
       </div>
-      <div class="current-score"><span class="sr-only">Score</span><strong id="score">0</strong></div>
-      <div class="combo-card">
-        <span>Combo</span><strong id="combo">0</strong>
-        <div id="combo-window" class="combo-window" aria-hidden="true"><i></i><i></i><i></i></div>
-      </div>
+      <h1>Choose your game</h1>
     </section>
-
-    <div class="board-frame">
-      <div id="board" class="board" role="grid" aria-label="Puzzle board" aria-describedby="controls" aria-rowcount="8" aria-colcount="8"></div>
-      <div id="effects" class="fx-layer" aria-hidden="true"></div>
-      <section id="game-over" class="game-over" aria-labelledby="game-over-title" hidden>
-        <div class="game-over-content">
-          <p id="record-badge" hidden>New personal best</p>
-          <h2 id="game-over-title">Game Over</h2>
-          <p id="game-over-message">No remaining piece fits.</p>
-          <dl class="final-stats">
-            <div><dt>Final score</dt><dd id="final-score">0</dd></div>
-            <div><dt>Personal best</dt><dd id="final-best">0</dd></div>
-          </dl>
-          <button type="button" class="primary" id="play-again">Play Again</button>
+    <div class="mode-cards">
+      <section class="mode-card classic-card">
+        <div class="mode-card-copy">
+          <h2>Classic</h2>
+          <p>Keep the board open and chase your best.</p>
+          <p class="mode-metric">Personal best <strong id="classic-best">0</strong></p>
         </div>
+        <div class="mode-art" id="classic-art" aria-hidden="true"></div>
+        <a id="classic-link" class="primary mode-action" href="./play.html">Play Classic</a>
+      </section>
+      <section class="mode-card adventure-card" id="adventure-card">
+        <div class="mode-card-copy">
+          <h2>Adventure</h2>
+          <p>Collect gems and solve puzzles across eight worlds.</p>
+          <p class="mode-metric" id="adventure-progress">Loading levels…</p>
+        </div>
+        <div class="mode-art" id="adventure-art" aria-hidden="true"></div>
+        <a class="primary mode-action" href="./adventure.html">Explore Adventure</a>
+        <a id="resume-adventure" class="secondary mode-action" href="./play.html?mode=adventure" hidden>Resume level</a>
       </section>
     </div>
-
-    <section class="pieces" aria-label="Available pieces">
-      <p id="controls" class="sr-only">Drag a piece onto the board. You can also select it and tap a cell, or use the arrow keys and Enter to place it.</p>
-      <div id="tray" class="tray">
-        <button type="button" data-slot="0" disabled></button>
-        <button type="button" data-slot="1" disabled></button>
-        <button type="button" data-slot="2" disabled></button>
-      </div>
-      <div class="deal-status">
-        <p id="clear-notice" hidden></p>
-        <p id="hand-pending" hidden></p>
-        <button id="retry-hand" type="button" hidden>Retry deal</button>
-      </div>
-    </section>
-    <p id="status" class="sr-only" role="status"></p>
   </main>
 
   <dialog id="settings" aria-labelledby="settings-title">
     <h2 id="settings-title">Settings</h2>
     <div id="settings-panel">
-      <button type="button" class="primary" id="resume">Resume Game</button>
+      <button type="button" class="primary" id="resume">Back to menu</button>
       <div class="preferences">
         <label><span>Sound effects</span><input type="checkbox" data-preference="sound"></label>
         <label class="volume-control" for="sound-volume"><span>Volume <output id="volume-value" for="sound-volume">65%</output></span><input id="sound-volume" type="range" min="0" max="100" value="65"></label>
@@ -85,7 +65,7 @@
       </div>
       <details><summary>How to Play</summary><p>Drag one of the three pieces onto the board. Complete a row or column to clear it. Use all three pieces to get a new hand. Clear again within three moves to keep your combo going.</p><p>You can also choose a piece and tap its top-left target cell, or use the arrow keys and Enter.</p></details>
       <details><summary>About AlanBlox</summary><p>AlanBlox is a free, offline block puzzle. Each new hand has at least one solution, and your scores stay on this device.</p></details>
-      <button type="button" class="secondary" id="request-restart">Restart Game</button>
+      <button type="button" class="secondary" id="request-restart" hidden>Restart Game</button>
     </div>
     <div id="restart-confirm" hidden>
       <h3>Start a new game?</h3>

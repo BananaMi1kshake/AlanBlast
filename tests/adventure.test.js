@@ -44,6 +44,8 @@ test("Adventure can fail by limit, tray supply, or blocked geometry", () => {
   const blocked = { ...fixture, board, gems: [], maxMoves: undefined,
     objectives: [{ type: "score", target: 500 }], hands: [[0, 8, 8]] };
   assert.equal(playLevel(blocked, startLevel(blocked), 0, 1, 0).run.reason, "blocked");
+  const blockedOpening = { ...blocked, hands: [[8, 8]] };
+  assert.equal(startLevel(blockedOpening).reason, "blocked");
 });
 
 test("specific trays refill in order and combo objectives keep achieved progress", () => {

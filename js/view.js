@@ -59,6 +59,7 @@ export function createView(motion) {
   const animateScore = createCounter(value => { score.textContent = value; }, scheduler);
   const animateBest = createCounter(value => { best.textContent = value; }, scheduler);
   let previous;
+  let previousGems = new Set();
   let previousBest = 0;
   let previewKey;
   let previews = new Map();
@@ -138,18 +139,25 @@ export function createView(motion) {
     best.parentElement.getAnimations().forEach(animation => animation.cancel());
   });
 
-  function render(game, highScore, gameOver, move, refill) {
+  function render(game, highScore, gameOver, move, refill, adventure) {
     const { fullBoardClear = false, bonus = 0 } = move?.result ?? {};
     if (move && move.result.game === game) {
       effects.placement(previous, move.result, move.slot, move.x, move.y);
+      if (adventure) {
+        effects.collectGems(move.result.gemsCollected, adventure.gemTarget);
+        if (move.result.won && !fullBoardClear) effects.celebrate(game);
+      }
     }
+    const gems = new Set(adventure?.gems);
     preview(game);
     cells.forEach((cell, index) => {
       const id = game.board[index];
-      if (previous?.board[index] === id) return;
+      const gem = gems.has(index);
+      if (previous?.board[index] === id && previousGems.has(index) === gem) return;
+      cell.toggleAttribute("data-gem", gem);
       if (id === null) delete cell.dataset.color;
       else cell.dataset.color = SHAPES[id].color;
-      cell.setAttribute("aria-label", `Row ${Math.floor(index / SIZE) + 1}, column ${index % SIZE + 1}, ${id === null ? "empty" : "filled"}`);
+      cell.setAttribute("aria-label", `Row ${Math.floor(index / SIZE) + 1}, column ${index % SIZE + 1}, ${id === null ? "empty" : "filled"}${gem ? ", gem" : ""}`);
     });
     slots.forEach((button, index) => {
       const shape = SHAPES[game.hand[index]];
@@ -183,8 +191,8 @@ export function createView(motion) {
     }
     clearNotice.hidden = !fullBoardClear;
     clearNotice.textContent = fullBoardClear ? `Full-board clear! +${bonus} bonus` : "";
-    overlay.hidden = !gameOver;
-    if (gameOver) {
+    overlay.hidden = !gameOver || !!adventure;
+    if (gameOver && !adventure) {
       finalScore.textContent = game.score;
       finalBest.textContent = highScore;
       recordBadge.hidden = game.record !== true;
@@ -192,6 +200,7 @@ export function createView(motion) {
     overMessage.textContent = game.exhausted ? "No solvable hand exists." : "No remaining piece fits.";
     board.inert = gameOver;
     previous = game;
+    previousGems = gems;
     previousBest = highScore;
   }
 

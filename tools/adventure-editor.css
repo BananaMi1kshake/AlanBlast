@@ -1,0 +1,10 @@
+#definition { display: block; width: 100%; max-width: 100%; resize: vertical; margin-top: 5px; }
+.editor-board { display: grid; grid-template-columns: repeat(8,1fr); gap: 2px; margin: 8px 0; max-width: 310px; }
+.editor-board button { aspect-ratio: 1; padding: 0; background: var(--cell); border: 1px solid #fff3; color: white; border-radius: 4px; }
+.editor-board [data-color="A"] { background: #267959; }
+.editor-board [data-color="B"] { background: #3167a6; }
+.editor-board [data-color="C"] { background: #9b5f12; }
+.editor-board [data-color="D"] { background: #a34b44; }
+.editor-board [data-color="E"] { background: #674d9a; }
+#editor label:not(:first-child) { margin-inline-start: 5px; }
+#editor-board + label { margin-inline-start: 0 !important; }

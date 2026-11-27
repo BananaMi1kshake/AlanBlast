@@ -1,0 +1,102 @@
+:root { --menu-quiet: #9ab8e1; --menu-stroke: #cadaff34; }
+.mode-shell {
+  width: min(calc(100% - 32px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)), 560px);
+  margin-inline: auto;
+  padding-block: max(8px, env(safe-area-inset-top, 0px)) max(24px, env(safe-area-inset-bottom, 0px));
+}
+.menu-top { display: flex; min-height: 55px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--menu-stroke); }
+.menu-brand { font-weight: 900; letter-spacing: -.035em; }
+.menu-hero { text-align: center; padding: clamp(20px, 5vh, 46px) 0 20px; }
+.menu-hero h1, .adventure-intro h1 { font-size: clamp(29px, 8vw, 52px); font-weight: 900; letter-spacing: -.055em; }
+.title-emblem { display: grid; grid-template-columns: repeat(2, 24px); grid-auto-rows: 24px; width: fit-content; gap: 4px; margin: 0 auto 11px; transform: rotate(-9deg); }
+.mode-cards { display: grid; gap: 12px; }
+.mode-card, .world-card {
+  position: relative;
+  border: 1px solid var(--menu-stroke);
+  border-radius: 21px;
+  padding: 17px;
+  background: linear-gradient(135deg, #1f3462, #101a36 80%);
+  box-shadow: 0 9px 24px #050a1d57, inset 0 1px #eef5ff15;
+}
+.mode-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px 11px; }
+.mode-card h2, .world-card h2 { margin: 0; letter-spacing: -.035em; font-size: 1.4rem; }
+.mode-card p { margin: 4px 0; color: var(--muted); font-size: .88rem; }
+.mode-card .mode-metric { margin-top: 9px; font-variant-numeric: tabular-nums; color: var(--menu-quiet); font-weight: 650; }
+.mode-metric strong { color: var(--medal); }
+.adventure-card { background: linear-gradient(137deg, #3a2860, #1a1b3a 72%); }
+.mode-art, .world-art { display: grid; place-content: center; gap: 4px; }
+.mode-art { grid-template-columns: repeat(3, 18px); grid-auto-rows: 18px; width: 71px; min-height: 70px; transform: rotate(-10deg); }
+.mode-art .block:nth-child(1) { grid-column: 2; }
+.mode-art .block:nth-child(4) { grid-column: 2; }
+.classic-card .mode-art .block:nth-child(1) { grid-column: 1; }
+.classic-card .mode-art .block:nth-child(4) { grid-column: 1; }
+.mode-action { grid-column: 1 / -1; }
+.primary[href], .secondary[href] { display: grid; place-items: center; text-decoration: none; }
+
+.back-link { display: inline-flex; align-items: center; min-height: 44px; gap: 5px; color: var(--ink); font-weight: 750; text-decoration: none; font-size: .86rem; }
+.game-shell .back-link { justify-content: center; min-width: 38px; margin-left: -6px; font-size: 1.28rem; border-radius: 9px; }
+.back-link:hover { color: var(--accent); }
+
+.adventure-intro { padding: 23px 0 15px; }
+.adventure-intro p { margin: 5px 0 11px; color: var(--accent); font-weight: 750; }
+.adventure-intro label { font-size: .8rem; color: var(--muted); }
+.adventure-intro progress { display: block; margin: 6px 0 10px; width: 100%; accent-color: var(--accent); }
+.world-list { display: grid; gap: 10px; }
+.world-card { padding: 12px; }
+.world-card[data-current] { border-color: var(--accent); }
+.world-card header { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+.world-card h2 { font-size: 1.15rem; }
+.world-card p { margin: 2px 0 0; color: var(--muted); font-size: .76rem; }
+.world-art { width: 51px; height: 45px; grid-template-columns: repeat(3, 12px); grid-auto-rows: 12px; gap: 2px; transform: rotate(-7deg); }
+.world-art .block:nth-child(1), .world-art .block:nth-child(4) { grid-column: 2; }
+.world-card ol { margin: 0; padding: 0; list-style: none; }
+.level-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 43px; border-top: 1px solid var(--menu-stroke); padding: 5px 4px; color: var(--ink); text-decoration: none; font-size: .86rem; }
+.level-row span { color: var(--menu-quiet); font-size: .72rem; white-space: nowrap; }
+.level-row[data-status="complete"] span { color: var(--mint); }
+.level-row[data-status="locked"] { color: var(--menu-quiet); opacity: .76; }
+
+.adventure-play .game-shell { max-width: min(100% - 24px, max(184px, 100dvh - 295px)); }
+.adventure-play .scoreboard { min-height: auto; margin-bottom: 5px; }
+.adventure-play .personal-best { display: none; }
+.adventure-play .current-score strong { font-size: clamp(28px, 8vw, 48px); }
+.adventure-play .combo-card { min-height: 20px; }
+.adventure-hud { margin-bottom: 9px; }
+.level-context { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; font-size: .88rem; }
+.level-context span { color: var(--accent); font-size: .72rem; white-space: nowrap; }
+.objective-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 3px; margin-top: 5px; }
+.objective-chip { display: flex; align-items: center; justify-content: space-between; gap: 2px; min-width: 0; padding: 5px; border-radius: 6px; background: var(--board); color: var(--muted); font-size: .72rem; }
+.objective-chip[data-objective="gems"] span::before { content: "◆ "; color: #b2f9ff; }
+.objective-chip strong { color: var(--ink); }
+.objective-chip[data-complete="true"] strong { color: var(--accent); }
+.cell[data-gem]::before, .flying-gem {
+  content: "";
+  width: 52%;
+  height: 52%;
+  position: absolute;
+  top: 24%;
+  left: 24%;
+  inset-inline-end: auto;
+  clip-path: polygon(18% 3%, 81% 3%, 100% 33%, 50% 100%, 0 33%);
+  background: conic-gradient(from 20deg at 50% 34%, #dbfff8 0 18%, #36a9d9 18% 44%, #0a4a86 44% 58%, #8ae7ff 58% 80%, #fff 80%);
+  pointer-events: none;
+  box-shadow: inset 0 0 0 2px #fff;
+}
+.cell[data-gem].preview-line::before { inset: 24% auto auto 24%; }
+.flying-gem { width: 21px; height: 21px; z-index: 4; }
+.adventure-play .fx-layer:has(.flying-gem) { z-index: 3; }
+.adventure-result .completion-tag { margin: 0 0 6px; color: var(--accent); font-weight: 900; letter-spacing: .11em; }
+.adventure-result h2 { font-size: clamp(20px, 6vw, 36px); }
+.adventure-result .result-points { color: var(--ink); }
+.result-actions { display: grid; gap: 4px; }
+.result-actions :is(a,button) { min-height: 34px; padding: 4px 8px; font-size: .83rem; }
+
+:root:not([data-reduced-motion]) .mode-shell { animation: mode-enter 200ms ease-out both; }
+@keyframes mode-enter { from { opacity: .65; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@media (min-width: 700px) {
+  .worlds-shell { width: min(calc(100% - 48px), 850px); }
+  .world-list { grid-template-columns: 1fr 1fr; }
+}
+@media (max-height: 640px) {
+  .menu-hero { padding-block: 12px; }
+  .adventure-play .pieces { margin-top: 10px; }
+}

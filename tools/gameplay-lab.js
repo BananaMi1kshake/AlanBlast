@@ -225,4 +225,4 @@ preset("demo");
 $("preset").value = "demo";
 $("local-only").hidden = true;
 $("lab").hidden = false;
-iframe.src = "../index.html?lab=1";
+iframe.src = "../play.html?lab=1";

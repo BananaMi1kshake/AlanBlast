@@ -1,137 +1,199 @@
+import { createAdventureSession } from "./adventure-storage.js";
+import { createAdventureView } from "./adventure-view.js";
 import { createAudio } from "./audio.js";
-import { bindFeedbackLifecycle, createFeedback } from "./feedback.js";
-import { createHaptics } from "./haptics.js";
+import { loadCampaign } from "./campaign.js";
 import { createClassicSession } from "./classic.js";
-import { isLoopback, memoryStorage } from "./sandbox.js";
+import { bindFeedbackLifecycle, createFeedback } from "./feedback.js";
 import { requestHand } from "./hand-request.js";
+import { createHaptics } from "./haptics.js";
 import { bindInput } from "./input.js";
+import { registerOffline } from "./pwa.js";
+import { isLoopback, memoryStorage } from "./sandbox.js";
 import { bindSettings, createMotionPreference, loadSettings } from "./settings.js";
 import { createView } from "./view.js";
 
 const DEAL_TIMEOUT = 10000;
 const RETRY_TIMEOUT = 30000;
-const labMode = new URLSearchParams(location.search).has("lab");
-const labAccess = labMode && window.parent !== window && isLoopback(location.hostname);
-const labStorage = labMode ? memoryStorage() : undefined;
-const session = createClassicSession(labStorage);
-const settings = loadSettings(labStorage);
-const audio = createAudio();
-const haptics = createHaptics();
-const feedback = createFeedback(audio, haptics, settings, () => session.game.material);
-bindFeedbackLifecycle(audio, haptics);
-const preference = createMotionPreference(settings);
-const view = createView(preference.motion);
-const playAgain = document.querySelector("#play-again");
-const pending = document.querySelector("#hand-pending");
-const retryHand = document.querySelector("#retry-hand");
-let lastMove;
-let cancelDeal;
+const params = new URLSearchParams(location.search);
+const adventureMode = params.get("mode") === "adventure";
+const sandbox = params.has("lab") || params.has("editor");
+const toolAccess = sandbox && window.parent !== window && isLoopback(location.hostname);
+const storage = sandbox ? memoryStorage() : undefined;
+const $ = id => document.getElementById(id);
 
-const input = bindInput(view, () => session.game, (slot, x, y) => {
-  const material = session.game.material;
-  const result = session.play(slot, x, y);
-  if (!result) return false;
-  input.reset();
-  const { record, firstRecord, game } = result;
-  lastMove = { result, slot, x, y };
-  const over = update();
-  const lines = result.rows.length + result.columns.length;
-  feedback.move({ lines, combo: game.combo, fullBoardClear: result.fullBoardClear, record: firstRecord, over, material });
-  const summary = lines ? `Cleared ${lines} ${lines === 1 ? "line" : "lines"}. ` : "";
-  const combo = lines ? ` Combo ${game.combo}, ${game.combo} times line points.` : "";
-  const bonus = result.fullBoardClear ? ` Full-board clear! ${result.bonus} bonus points and a new world.` : "";
-  view.announce(`${summary}Scored ${result.points} points.${record ? " New high score." : ""}${combo}${bonus}${over ? " Game over. No remaining piece fits." : ""}`);
-  if (over) playAgain.focus({ preventScroll: true });
-  if (session.waiting) deal();
-  return true;
-}, feedback.cue);
+function mount(session, levels) {
+  const settings = loadSettings(storage);
+  const audio = createAudio();
+  const haptics = createHaptics();
+  const feedback = createFeedback(audio, haptics, settings, () => session.game.material);
+  bindFeedbackLifecycle(audio, haptics);
+  const preference = createMotionPreference(settings);
+  const view = createView(preference.motion);
+  const pending = $("hand-pending");
+  const retryHand = $("retry-hand");
+  const playAgain = $("play-again");
+  const adventure = levels ? createAdventureView(session, levels, restart, sandbox) : null;
+  document.body.classList.toggle("adventure-play", !!adventure);
+  if (sandbox) $("mode-back").hidden = true;
+  let lastMove;
+  let cancelDeal;
 
-function update(refill = false) {
-  const over = session.over;
-  session.persist();
-  view.render(session.game, session.best, over, lastMove, refill);
-  return over;
-}
-
-function deal(timeout = DEAL_TIMEOUT, focusTray = false) {
-  pending.textContent = "Finding a playable hand…";
-  pending.hidden = false;
-  retryHand.hidden = true;
-  view.tray.setAttribute("aria-busy", "true");
-  cancelDeal = requestHand(session.game.board, session.game.bag, result => {
-    cancelDeal = undefined;
-    view.tray.removeAttribute("aria-busy");
-    if (result.status === "timeout" || result.status === "error") {
-      pending.textContent = result.status === "timeout" ? "The hand search timed out." : "The hand search could not run.";
-      view.announce(pending.textContent);
-      retryHand.hidden = false;
-      return;
+  const input = bindInput(view, () => session.game, (slot, x, y) => {
+    const material = session.game.material;
+    const result = session.play(slot, x, y);
+    if (!result) return false;
+    input.reset();
+    lastMove = { result, slot, x, y };
+    const over = update(result.refill);
+    const { game, fullBoardClear } = result;
+    const lines = result.rows.length + result.columns.length;
+    const gems = result.gemsCollected?.length ?? 0;
+    feedback.move({ lines, combo: game.combo, fullBoardClear, record: result.firstRecord,
+      over, material, gems, won: result.won });
+    const summary = lines ? `Cleared ${lines} ${lines === 1 ? "line" : "lines"}. ` : "";
+    const combo = lines ? ` Combo ${game.combo}, ${game.combo} times line points.` : "";
+    const bonus = fullBoardClear ? ` Full-board clear! ${result.bonus} bonus points${adventure ? "." : " and a new world."}` : "";
+    const gemText = gems ? ` Collected ${gems} ${gems === 1 ? "gem" : "gems"}.` : "";
+    const end = adventure ? (result.won ? " Level complete." : over ? " Level failed." : "")
+      : over ? " Game over. No remaining piece fits." : "";
+    view.announce(`${summary}Scored ${result.points} points.${result.record ? " New high score." : ""}${combo}${bonus}${gemText}${end}`);
+    if (over) {
+      if (adventure) adventure.focusResult();
+      else playAgain.focus({ preventScroll: true });
     }
-    pending.hidden = true;
-    if (result.status === "impossible") {
-      session.applyDeal(result);
-      update();
-      view.announce("Game over. No solvable hand exists.");
-      feedback.cue("gameOver");
-      playAgain.focus({ preventScroll: true });
-      return;
-    }
-    session.applyDeal(result);
-    update(true);
-    if (focusTray || view.board.contains(document.activeElement)) view.slots[0].focus({ preventScroll: true });
-  }, timeout);
-}
+    if (session.waiting) deal();
+    return true;
+  }, feedback.cue);
 
-function restart() {
-  cancelDeal?.();
-  input.reset();
-  view.resetFeedback();
-  session.restart();
-  lastMove = undefined;
-  update();
-  view.announce("New game.");
-  feedback.restart();
-  deal(DEAL_TIMEOUT, true);
-}
+  function update(refill = false) {
+    const over = session.over;
+    session.persist();
+    adventure?.render();
+    view.render(session.game, session.best, over, lastMove, refill, adventure && {
+      gems: session.run.gems, gemTarget: adventure.gemTarget(),
+    });
+    return over;
+  }
 
-retryHand.addEventListener("click", () => {
-  feedback.cue("ui");
-  deal(RETRY_TIMEOUT, true);
-});
-bindSettings(settings, preference, {
-  onOpen: input.reset, onRestart: restart, storage: labStorage,
-  onChange: event => {
-    feedback.configure();
-    if (event.isTrusted) audio.activate();
-  },
-  onInteraction: () => feedback.cue("ui"), vibrationSupported: haptics.supported,
-});
-playAgain.addEventListener("click", restart);
-update();
-if (session.waiting) deal();
-
-if (labAccess) {
-  window.alanbloxLab = {
-    snapshot: () => structuredClone({ game: session.game, highScore: session.best }),
-    load(next, { holdDeal = false } = {}) {
-      cancelDeal?.();
-      input.reset();
-      view.resetFeedback();
-      audio.stop();
-      haptics.stop();
-      session.load(next);
-      lastMove = undefined;
-      pending.hidden = true;
-      retryHand.hidden = true;
+  function deal(timeout = DEAL_TIMEOUT, focusTray = false) {
+    pending.textContent = "Finding a playable hand…";
+    pending.hidden = false;
+    retryHand.hidden = true;
+    view.tray.setAttribute("aria-busy", "true");
+    cancelDeal = requestHand(session.game.board, session.game.bag, result => {
+      cancelDeal = undefined;
       view.tray.removeAttribute("aria-busy");
-      update();
-      if (!holdDeal && session.waiting) deal();
+      if (result.status === "timeout" || result.status === "error") {
+        pending.textContent = result.status === "timeout" ? "The hand search timed out." : "The hand search could not run.";
+        view.announce(pending.textContent);
+        retryHand.hidden = false;
+        return;
+      }
+      pending.hidden = true;
+      session.applyDeal(result);
+      if (result.status === "impossible") {
+        update();
+        view.announce("Game over. No solvable hand exists.");
+        feedback.cue("gameOver");
+        playAgain.focus({ preventScroll: true });
+        return;
+      }
+      update(true);
+      if (focusTray || view.board.contains(document.activeElement)) view.slots[0].focus({ preventScroll: true });
+    }, timeout);
+  }
+
+  function resetFeedback() {
+    cancelDeal?.();
+    input.reset();
+    view.resetFeedback();
+    lastMove = undefined;
+  }
+
+  function restart() {
+    resetFeedback();
+    session.restart();
+    update();
+    view.announce(adventure ? "Level restarted." : "New game.");
+    feedback.restart();
+    if (session.waiting) deal(DEAL_TIMEOUT, true);
+    else view.slots.find(button => !button.disabled)?.focus({ preventScroll: true });
+  }
+
+  retryHand.addEventListener("click", () => {
+    feedback.cue("ui");
+    deal(RETRY_TIMEOUT, true);
+  });
+  bindSettings(settings, preference, {
+    onOpen: input.reset, onRestart: restart, storage,
+    onChange: event => {
+      feedback.configure();
+      if (event.isTrusted) audio.activate();
     },
-  };
+    onInteraction: () => feedback.cue("ui"), vibrationSupported: haptics.supported,
+  });
+  playAgain.addEventListener("click", restart);
+  update();
+  if (session.waiting) deal();
+
+  if (toolAccess && !adventure) {
+    window.alanbloxLab = {
+      snapshot: () => structuredClone({ game: session.game, highScore: session.best }),
+      load(next, { holdDeal = false } = {}) {
+        resetFeedback();
+        audio.stop();
+        haptics.stop();
+        session.load(next);
+        pending.hidden = true;
+        retryHand.hidden = true;
+        view.tray.removeAttribute("aria-busy");
+        update();
+        if (!holdDeal && session.waiting) deal();
+      },
+    };
+  }
+  if (toolAccess && adventure) {
+    window.alanbloxAdventureEditor = {
+      load(level, history = []) {
+        resetFeedback();
+        audio.stop();
+        haptics.stop();
+        session.load(level, history);
+        update();
+      },
+      snapshot: () => structuredClone(session.run),
+    };
+  }
 }
 
-if (!labMode && "serviceWorker" in navigator) {
-  navigator.serviceWorker.register(new URL("../sw.js", import.meta.url)).catch(error => {
-    console.warn("Offline setup failed.", error);
-  });
+if (!sandbox) {
+  registerOffline();
+  addEventListener("pageshow", event => { if (event.persisted) location.reload(); });
+}
+
+if (adventureMode) {
+  try {
+    const levels = await loadCampaign();
+    const session = createAdventureSession(levels, params.get("level"), storage);
+    if (!session) location.replace("./adventure.html");
+    else {
+      if (params.has("replay")) {
+        session.restart();
+        params.delete("replay");
+        history.replaceState(null, "", `?${params}`);
+      }
+      mount(session, levels);
+    }
+  } catch (error) {
+    $("play-error").hidden = false;
+    $("play-error").textContent = error.message;
+  }
+} else {
+  const session = createClassicSession(storage);
+  if (params.has("new") && !sandbox) {
+    if (session.over) session.restart();
+    params.delete("new");
+    history.replaceState(null, "", location.pathname + (params.size ? `?${params}` : ""));
+  }
+  mount(session);
 }

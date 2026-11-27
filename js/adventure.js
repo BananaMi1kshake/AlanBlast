@@ -43,13 +43,15 @@ export function levelError(level) {
 const slots = hand => [...hand, ...Array(3 - hand.length).fill(null)];
 
 export function startLevel(level) {
+  const game = {
+    ...createGame(), board: decodeBoard(level.board), hand: slots(level.hands[0]), theme: level.world,
+    palette: level.palette, material: level.material,
+  };
+  const blocked = isGameOver(game);
   return {
-    game: {
-      ...createGame(), board: decodeBoard(level.board), hand: slots(level.hands[0]), theme: level.world,
-      palette: level.palette, material: level.material,
-    },
+    game,
     gems: [...level.gems], rows: 0, columns: 0, collected: 0, allClear: 0, peakCombo: 0,
-    nextHand: 1, history: [], status: "playing", reason: null,
+    nextHand: 1, history: [], status: blocked ? "failed" : "playing", reason: blocked ? "blocked" : null,
   };
 }
 
