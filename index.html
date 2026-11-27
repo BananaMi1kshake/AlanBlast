@@ -15,6 +15,7 @@
   <script type="module" src="./js/main.js"></script>
 </head>
 <body>
+  <div id="scene-fade" aria-hidden="true" hidden></div>
   <main class="game-shell">
     <header class="masthead">
       <div class="brand">
@@ -58,9 +59,9 @@
     <section class="pieces" aria-label="Available pieces">
       <p id="controls" class="sr-only">Drag a piece onto the board. You can also select it and tap a cell, or use the arrow keys and Enter to place it.</p>
       <div id="tray" class="tray">
-        <button type="button" data-slot="0"></button>
-        <button type="button" data-slot="1"></button>
-        <button type="button" data-slot="2"></button>
+        <button type="button" data-slot="0" disabled></button>
+        <button type="button" data-slot="1" disabled></button>
+        <button type="button" data-slot="2" disabled></button>
       </div>
       <div class="deal-status">
         <p id="clear-notice" hidden></p>

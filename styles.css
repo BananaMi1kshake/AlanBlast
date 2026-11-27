@@ -65,6 +65,7 @@
 .tray button {
   display: grid;
   place-items: center;
+  height: clamp(74px, 18vw, 114px);
   height: clamp(74px, 23cqi, 114px);
   min-width: 0;
   padding: 0;
@@ -80,10 +81,9 @@
 .deal-status p { margin: 0 0 4px; }
 .deal-status #clear-notice { color: var(--clear-glow); font-weight: 750; }
 .deal-status button { border: 0; border-radius: 8px; padding: 6px 12px; background: var(--board); }
-.piece { opacity: .20; }
 
 .piece {
-  --unit: clamp(8px, 4cqi, 21px);
+  --unit: clamp(8px, 3.7vw, 14px);
   --gap: 2px;
   display: grid;
   grid-template: repeat(var(--rows), var(--unit-y, var(--unit))) / repeat(var(--columns), var(--unit-x, var(--unit)));
@@ -158,3 +158,8 @@
 
 
 .fx-banner.all-clear .fx-title { color: var(--clear-glow); }
+
+
+@supports (width: 1cqi) {
+  .piece { --unit: clamp(8px, 4cqi, 21px); }
+}

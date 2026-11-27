@@ -12,7 +12,7 @@ The project focuses on responsive controls, rewarding audiovisual feedback, colo
 
 ## Features and roadmap
 
-### Playable through Phase 3
+### Playable through Phase 4
 
 - Classic 8×8 puzzle board.
 - Three block pieces per round.
@@ -99,11 +99,11 @@ AlanBlox is built around five fundamental principles:
 
 ### Phase 4 — Visual Design
 
-- [ ] Original visual identity
+- [x] Original visual identity and a centered mobile-first gameplay screen
 - [x] Six original color palettes
 - [x] Dynamic theme transitions
 - [x] Full-board clear celebrations
-- [ ] Menu design
+- [x] Settings with persistent preferences, restart confirmation, and a game-over summary
 
 ### Phase 5 — Audio and Haptics
 
@@ -127,7 +127,7 @@ AlanBlox is built around five fundamental principles:
 
 Drag a piece from the tray to the board. On touchscreens the piece floats above your finger so you can see the target. You can also select a piece and tap its top-left target on the board. With a keyboard, activate a piece, use the arrow keys to move its preview, and press Enter or Space to place it. Escape cancels the selection.
 
-The tray refills after all three pieces are placed. Each new hand can be completed in at least one placement sequence on the board at deal time. Your choices can still leave unplaceable pieces. The game ends if none of the revealed pieces fits, or if the dealer proves no new hand has a legal completion sequence. Restart resets the board, session score, combo, and palette to Mint, and keeps the best score.
+The tray refills after all three pieces are placed. Each new hand can be completed in at least one placement sequence on the board at deal time. Your choices can still leave unplaceable pieces. The game ends if none of the revealed pieces fits, or if the dealer proves no new hand has a legal completion sequence. Restart resets the board, session score, combo, and palette to Ocean, and keeps the best score.
 
 ### Scoring and combos
 
@@ -137,9 +137,9 @@ These are provisional AlanBlox rules. Scoring parity with Block Blast has not be
 - Clearing **n** rows or columns together earns **10 × n + 5 × n × (n − 1) / 2** line points before the combo multiplier. One, two, three, and four lines are worth **10, 25, 45, and 70**. Rows and columns are identified before removal, and each shared cell is removed once.
 - Each clearing placement advances the combo once, including moves that clear multiple lines, and refreshes its window to three placements. The first clear uses **×1**, and subsequent clearing moves use the new combo count as the multiplier. There is no gameplay cap.
 - A valid placement without a clear uses one step of the window. A clear after one or two misses continues the combo. Three misses expire it, and the next clear starts again at ×1. Invalid or canceled moves, a new deal, elapsed time, and reloading do not consume the window.
-- A move that leaves the board empty after line removal adds a flat **100 points** and advances the palette through **Mint → Tidal → Orchard → Dusk → Desert → Glacier → Mint**. The multiplier applies to line points only.
+- A move that leaves the board empty after line removal adds a flat **100 points** and advances the palette through **Ocean → Sunset → Forest → Midnight → Candy → Glacier → Ocean**. The multiplier applies to line points only.
 
-Tune the provisional constants in `js/scoring.js`. Scores are carried forward as earned. Saves keep the revealed pieces, proposal bag, score, best score, palette, combo count, and combo window. Phase 1 saves start with zero combo and Mint. An active Phase 2 combo starts with a fresh three-placement window because it had just cleared a line under the old rules. Existing revealed hands are kept, including hands dealt under the old rules.
+Tune the provisional constants in `js/scoring.js`. Scores are carried forward as earned. Saves keep the revealed pieces, proposal bag, score, best score, palette, combo count, and combo window. Phase 1 saves start with zero combo and the first palette. An active Phase 2 combo starts with a fresh three-placement window because it had just cleared a line under the old rules. Existing revealed hands are kept, including hands dealt under the old rules.
 
 ### Solvable hand generation
 
@@ -154,7 +154,13 @@ Filtering changes the distribution of revealed hands. The proposal bag still con
 
 Timing defaults live in `js/motion.js`. Pickup and placement take 100 ms, invalid returns 180 ms, tray arrivals 220 ms with a 35 ms stagger, and clear waves 250 ms for one line or 350 ms for several. Floating scores last 600 ms, combo messages 750 ms, and the all-clear celebration 1,200 ms. Score counters take 300 ms, and palette changes take 650 ms. The combo card's three markers track the saved combo window.
 
-The game commits each move and its score immediately. Visual effects can overlap and the particle pool is capped at 72 live particles. The system's reduced-motion setting suppresses moving effects and shows exact scores and palette changes immediately. Placement previews, the combo window, and the text notification for a full-board clear remain available.
+The game commits each move and its score immediately. Visual effects can overlap and the particle pool is capped at 72 live particles. The in-game or system reduced-motion setting suppresses moving effects and shows exact scores and palette changes immediately. Placement previews, the combo window, and the text notification for a full-board clear remain available.
+
+### Placement and settings
+
+The game reads board origin, spacing, and cell size from the layout grid. Placement pop animations can change a cell's visual bounds, so those bounds are excluded from pointer geometry. The floating piece, projected cells, and final placement snap to the same grid anchor. Preview, gameplay validation, and solver masks use the same shape footprint. The touch lift is reduced when the visible viewport leaves too little space beneath the board.
+
+The settings gear opens a modal with Resume, Restart, How to Play, and About. Restart asks for confirmation and keeps the personal best. The reduced-motion switch applies immediately and respects the operating-system preference. Sound and vibration preferences are saved for Phase 5. Theme saves retain their original palette positions as those positions now render the six updated designs.
 
 ## Running locally
 
@@ -173,6 +179,14 @@ node scripts/benchmark-hands.js
 
 The benchmark checks 10,000 seeded deals using a separate array-based backtracking solver and adds 250 full-board tests for proven impossibility. It reports time by board scenario, candidate rejections, fallbacks, and per-orientation frequencies. Timings cover generation only, excluding worker startup and independent validation.
 
+### Manual playtesting
+
+1. Run the local server and open the game. Drag long horizontal and vertical bars into tight gaps at board edges. Check that the translucent cells match the drop, then try a blocked target and confirm that the piece returns to the same slot.
+2. Repeat on a narrow phone viewport, a larger phone, and a desktop window. Pick up a piece immediately after a placement animation and resize during a drag. Check that the drag cancels cleanly on resize and that the next drag aligns.
+3. Clear an intersecting row and column and finish a full-board clear. Check the combo markers, final score, theme change, and remaining tray pieces.
+4. Open Settings during a run. Toggle preferences, cancel a restart, resume, and reload. Confirm that preferences, board, remaining pieces, and score are restored. Then confirm a restart and verify that the personal best is retained.
+5. Play to game over and confirm that the summary shows the final score and record. Load once online, switch DevTools to offline, reload, and place the three pieces to verify that the next deal works offline.
+
 ## Deploying to GitHub Pages
 
 1. Once the reviewed changes are in the desired publishing branch, open **Settings → Pages** in GitHub.
@@ -190,7 +204,7 @@ AI development agents should refer to `AGENTS.md` for project-specific requireme
 
 ## Project Status
 
-Phases 1 through 3 are playable. Later phases focus on visual identity, audio, and haptics.
+Phases 1 through 4 are playable. The next phase covers audio and haptics.
 
 ## Disclaimer
 

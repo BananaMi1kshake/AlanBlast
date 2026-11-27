@@ -47,12 +47,13 @@ export function bindSettings(settings, preference, { onOpen, onRestart }) {
   const resume = document.querySelector("#resume");
   const requestRestart = document.querySelector("#request-restart");
   const confirmRestart = document.querySelector("#confirm-restart");
+  const cancelRestart = document.querySelector("#cancel-restart");
   let closing;
 
   function confirm(visible) {
     panel.hidden = visible;
     confirmation.hidden = !visible;
-    (visible ? confirmRestart : requestRestart).focus();
+    (visible ? cancelRestart : requestRestart).focus();
   }
 
   function finish() {
@@ -98,7 +99,7 @@ export function bindSettings(settings, preference, { onOpen, onRestart }) {
     else close();
   });
   requestRestart.addEventListener("click", () => confirm(true));
-  document.querySelector("#cancel-restart").addEventListener("click", () => confirm(false));
+  cancelRestart.addEventListener("click", () => confirm(false));
   confirmRestart.addEventListener("click", () => {
     finish();
     onRestart();

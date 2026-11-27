@@ -33,6 +33,7 @@ export function createView(motion) {
   const finalBest = document.querySelector("#final-best");
   const recordBadge = document.querySelector("#record-badge");
   const themeColor = document.querySelector('meta[name="theme-color"]');
+  const sceneFade = document.querySelector("#scene-fade");
   const status = document.querySelector("#status");
   const cells = [];
   for (let y = 0; y < SIZE; y++) {
@@ -61,6 +62,29 @@ export function createView(motion) {
   let previewKey;
   let previews = new Map();
   let focused = 0;
+
+  function stopThemeFade() {
+    sceneFade.getAnimations().forEach(animation => animation.cancel());
+    sceneFade.hidden = true;
+  }
+
+  function setTheme(theme, animate) {
+    stopThemeFade();
+    const root = document.documentElement;
+    if (animate) {
+      const previousColors = getComputedStyle(root);
+      for (const key of ["--scene-glow", "--scene-top", "--scene-bottom"]) {
+        sceneFade.style.setProperty(key, previousColors.getPropertyValue(key));
+      }
+      sceneFade.hidden = false;
+      const fade = sceneFade.animate([{ opacity: 1 }, { opacity: 0 }], {
+        duration: MOTION.theme, easing: "ease-in-out", fill: "both",
+      });
+      fade.onfinish = stopThemeFade;
+    }
+    root.dataset.theme = theme;
+    themeColor.content = getComputedStyle(root).getPropertyValue("--chrome").trim();
+  }
 
   function preview(game, shape, x, y) {
     if (previewKey?.board === game.board && previewKey.shape === shape && previewKey.x === x && previewKey.y === y) {
@@ -103,6 +127,7 @@ export function createView(motion) {
 
   motion.addEventListener("change", () => {
     if (!motion.matches || !previous) return;
+    stopThemeFade();
     animateScore(previous.score, false);
     animateBest(previousBest, false);
     for (const slot of slots) slot.firstElementChild?.getAnimations().forEach(animation => animation.cancel());
@@ -150,8 +175,7 @@ export function createView(motion) {
     combo.setAttribute("aria-label", `${game.combo}, ${game.comboWindow} placements left in combo window`);
     comboWindow.forEach((pip, index) => pip.classList.toggle("active", index < game.comboWindow));
     if (game.theme !== previous?.theme) {
-      document.documentElement.dataset.theme = game.theme;
-      themeColor.content = getComputedStyle(document.documentElement).getPropertyValue("--chrome").trim();
+      setTheme(game.theme, !!previous && !motion.matches);
     }
     clearNotice.hidden = !fullBoardClear;
     clearNotice.textContent = fullBoardClear ? `Full-board clear! +${bonus} bonus` : "";

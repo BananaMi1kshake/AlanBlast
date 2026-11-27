@@ -3,21 +3,27 @@
   font-family: system-ui, sans-serif;
   color: var(--ink);
   background-color: var(--chrome);
-  background-image: radial-gradient(ellipse at 50% 13%, var(--scene-glow), transparent 56%),
-    linear-gradient(162deg, var(--scene-top), var(--scene-bottom) 82%);
   min-height: 100%;
   font-synthesis: none;
 }
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
+:root, #scene-fade {
+  background-image: radial-gradient(ellipse at 50% 13%, var(--scene-glow), transparent 56%),
+    linear-gradient(162deg, var(--scene-top), var(--scene-bottom) 82%);
+  background-attachment: fixed;
+}
+#scene-fade { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
 body {
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
   overscroll-behavior: none;
+  isolation: isolate;
   -webkit-tap-highlight-color: transparent;
 }
+body:has(dialog[open]) { overflow: hidden; }
 button { color: inherit; font: inherit; cursor: pointer; touch-action: manipulation; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
@@ -188,12 +194,7 @@ dialog .secondary, #confirm-restart { margin-top: 10px; }
   white-space: nowrap;
 }
 
-:root:not([data-reduced-motion]) {
-  transition: --scene-top var(--theme-duration, 650ms) ease,
-    --scene-bottom var(--theme-duration, 650ms) ease, --scene-glow var(--theme-duration, 650ms) ease,
-    background-color var(--theme-duration, 650ms) ease, color var(--theme-duration, 650ms) ease;
-}
-:root:not([data-reduced-motion]) :is(.board-frame, .cell:not([data-color]), .primary, .personal-best, .combo-card, .block) {
+:root:not([data-reduced-motion]) :is(.board-frame, .primary, .personal-best, .combo-card, .block) {
   transition: background-color var(--theme-duration, 650ms) ease, color var(--theme-duration, 650ms) ease;
 }
 :root:not([data-reduced-motion]) .combo-window i { transition: opacity 120ms ease, transform 120ms ease; }
@@ -204,4 +205,10 @@ dialog .secondary, #confirm-restart { margin-top: 10px; }
   0% { transform: scale(.86); opacity: 0; }
   45% { transform: scale(1.09); opacity: 1; }
   100% { transform: scale(1); }
+}
+
+
+@media (max-height: 610px) {
+  .game-shell { padding-block-start: max(var(--safe-top), 8px); }
+  .scoreboard { min-height: 92px; margin-bottom: 7px; }
 }

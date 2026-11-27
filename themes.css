@@ -1,8 +1,4 @@
 /* Theme slots retain their original save IDs. The names below describe the Phase 4 palettes. */
-@property --scene-top { syntax: "<color>"; inherits: true; initial-value: #122653; }
-@property --scene-bottom { syntax: "<color>"; inherits: true; initial-value: #080e23; }
-@property --scene-glow { syntax: "<color>"; inherits: true; initial-value: #253f79; }
-
 /* Ocean */
 :root {
   --chrome: #101d41;
