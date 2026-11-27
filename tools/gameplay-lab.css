@@ -18,3 +18,9 @@
 @media (max-width: 650px) {
   .lab-grid { grid-template-columns: 1fr; }
 }
+
+
+.dealer { display: grid; gap: 4px; min-width: 0; border: 1px solid var(--cell); border-radius: 9px; margin: 12px 0 0; }
+.dealer label { display: flex; justify-content: space-between; gap: 5px; }
+#weights { display: grid; gap: 3px; }
+#weights input[type="number"] { width: 58px; }

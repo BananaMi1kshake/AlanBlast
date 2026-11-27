@@ -55,7 +55,9 @@ Let **b** be placed cells, **n** the rows plus columns completed together, and *
 
 The examples are assertions in [scoring.test.js](tests/scoring.test.js). No independently verified discrepancy supports changing the values. For manual comparison, log the reference build, OS, before and after scores, the shape and cell count, exact filled rows and columns, prior combo, misses since last clear, and whether the board emptied. Use several repeats per fixture and separate any one-time bonuses.
 
-## Dealer and difficulty
+## V1 dealer and difficulty
+
+This section records the Phase 5.5 baseline. See [Generation V2](GENERATION_V2.md) for the current Classic policy and the measured all-clear comparisons.
 
 The live solver precomputes bitmasks using the same placement footprints as the game. It tries every distinct remaining shape order and every fitting anchor. Duplicate shapes share equivalent branches. After each hypothetical move the solver removes the union of completed rows and columns, including their intersections. A 12-candidate proposal limit leads to deterministic search over the entire permitted library, duplicates included. This fallback can prove impossibility only after exhausting the search space. A worker deadline or operation budget yields **timeout**, with no revealed hand. A restart cancels stale worker work. Once dealt, the hand stays fixed until used or the run ends. Hands restored from versions that predate the guarantee can still contain those versions' revealed pieces.
 

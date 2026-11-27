@@ -2,8 +2,12 @@ import assert from "node:assert/strict";
 import { performance } from "node:perf_hooks";
 import { SHAPES, SIZE } from "../js/pieces.js";
 import { generateHand } from "../js/solver.js";
+import { generateHandV2 } from "../js/generator.js";
 import { clearLines, referenceSolves } from "../tests/reference-solver.js";
 
+const version = process.argv[2] ?? "v1";
+if (!["v1", "v2"].includes(version)) throw new Error("Use v1 or v2.");
+const generate = version === "v2" ? generateHandV2 : generateHand;
 let seed = 20251127;
 function random() {
   seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
@@ -45,6 +49,8 @@ const distribution = Array(SHAPES.length).fill(0);
 const totals = { cases: 0, generated: 0, rejected: 0, fallbacks: 0, provenImpossible: 0, invalid: 0, timeouts: 0 };
 const timings = [];
 const report = [];
+const validatedGoals = {};
+let goalFallbacks = 0;
 for (const [name, cases, makeBoard] of scenarios) {
   let remainder = [];
   const counts = { cases, generated: 0, rejected: 0, fallbacks: 0, provenImpossible: 0, invalid: 0, timeouts: 0 };
@@ -52,7 +58,7 @@ for (const [name, cases, makeBoard] of scenarios) {
   for (let i = 0; i < cases; i++) {
     const board = makeBoard(i);
     const start = performance.now();
-    const result = generateHand(board, remainder, { random });
+    const result = generate(board, remainder, { random });
     elapsed.push(performance.now() - start);
     counts.rejected += result.stats.rejected;
     counts.fallbacks += result.stats.fallbacks;
@@ -60,6 +66,12 @@ for (const [name, cases, makeBoard] of scenarios) {
       counts.generated++;
       remainder = result.bag;
       if (!referenceSolves(board, result.hand)) counts.invalid++;
+      const goal = result.stats.delivered;
+      goalFallbacks += Number(!!result.stats.goalFallback);
+      if (goal && goal !== "standard" && (validatedGoals[goal] ?? 0) < 20) {
+        assert.ok(referenceSolves(board, result.hand, { goal }), `independent ${goal} validation`);
+        validatedGoals[goal] = (validatedGoals[goal] ?? 0) + 1;
+      }
       for (const id of result.hand) distribution[id]++;
     } else if (result.status === "impossible") {
       assert.ok(board.every(cell => cell !== null), "unexpected proof of unsolvability on a playable board");
@@ -88,6 +100,7 @@ distribution.forEach((count, index) => {
   bySize[size] = (bySize[size] ?? 0) + count;
 });
 console.table([...report, { scenario: "Total", ...totals, ...latency(timings) }]);
+console.log("Independent objective checks", validatedGoals, "goal fallbacks:", goalFallbacks);
 console.log("Filtered piece counts by size", bySize);
 console.log("Filtered piece counts by orientation");
 for (const [id, shape] of SHAPES.entries()) console.log(`${shape.name}: ${distribution[id]}`);
