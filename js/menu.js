@@ -1,3 +1,4 @@
+import { applyBranding, presentStartup } from "./startup.js";
 import { bindSaveControls } from "./save-controls.js";
 import { saveTutorial, tutorialStatus } from "./challenges.js";
 import { bindInstall } from "./install.js";
@@ -42,7 +43,7 @@ async function render() {
   $("classic-best").textContent = classic.highScore;
   const ended = classic.game && isGameOver(classic.game);
   const classicLink = $("classic-link");
-  classicLink.textContent = classic.game && !ended ? "Continue Classic" : "Play Classic";
+  $("classic-action").textContent = classic.game && !ended ? "Continue Classic" : "Play Classic";
   classicLink.href = ended ? "./play.html?new=1" : "./play.html";
   paintWorld($("classic-art"), WORLDS.mint, ["sky", "mint", "sun", "mint"]);
   try {
@@ -62,4 +63,7 @@ async function render() {
     $("adventure-progress").textContent = "Adventure levels could not be loaded.";
   }
 }
-addEventListener("pageshow", render);
+applyBranding(document.documentElement);
+const ready = render();
+presentStartup(ready);
+addEventListener("pageshow", event => { if (event.persisted) render(); });
