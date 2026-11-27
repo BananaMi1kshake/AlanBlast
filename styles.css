@@ -255,8 +255,8 @@ h1 span { color: var(--accent); }
   --unit: clamp(10px, 4.3vw, 20px);
   --gap: 2px;
   display: grid;
-  grid-template: repeat(var(--rows), var(--unit)) / repeat(var(--columns), var(--unit));
-  gap: var(--gap);
+  grid-template: repeat(var(--rows), var(--unit-y, var(--unit))) / repeat(var(--columns), var(--unit-x, var(--unit)));
+  gap: var(--gap-y, var(--gap)) var(--gap-x, var(--gap));
   pointer-events: none;
 }
 .piece .block { border-radius: min(5px, calc(var(--unit) / 4)); }

@@ -1,3 +1,4 @@
+import { footprint, inBounds } from "./geometry.js";
 import { canPlace, completedLines, SHAPES, SIZE } from "./game.js";
 import { createEffects } from "./effects.js";
 import { createCounter, MOTION } from "./motion.js";
@@ -68,10 +69,8 @@ export function createView() {
     const next = new Map();
     if (shape) {
       const projected = valid ? game.board.slice() : null;
-      for (const [dx, dy] of shape.cells) {
-        const column = x + dx;
-        const row = y + dy;
-        if (row < 0 || row >= SIZE || column < 0 || column >= SIZE) continue;
+      for (const [column, row] of footprint(shape, x, y)) {
+        if (!inBounds(1, 1, column, row)) continue;
         const i = row * SIZE + column;
         next.set(i, valid ? "preview-valid" : "preview-invalid");
         if (valid) {

@@ -1,3 +1,4 @@
+import { placementIndices } from "./geometry.js";
 import { SHAPES, SIZE } from "./pieces.js";
 import { MOTION } from "./motion.js";
 
@@ -64,7 +65,7 @@ export function createEffects(layer, cells, motion) {
   function placement(previous, result, slot, x, y) {
     if (motion.matches) return;
     const id = previous.hand[slot];
-    const parts = SHAPES[id].cells.map(([dx, dy]) => (y + dy) * SIZE + x + dx);
+    const parts = placementIndices(SHAPES[id], x, y);
     const palette = getComputedStyle(document.documentElement);
     const colors = new Map();
     function colorAt(index) {
