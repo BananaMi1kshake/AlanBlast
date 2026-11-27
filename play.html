@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="play-page">
+<html lang="en" class="app-viewport play-page">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -14,6 +14,8 @@
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./modes.css">
   <link rel="stylesheet" href="./design.css">
+  <link rel="stylesheet" href="./viewport.css">
+  <script type="module" src="./js/play-viewport.js"></script>
   <link rel="stylesheet" href="./gameplay.css">
   <title>AlanBlox</title>
   <script type="module" src="./js/main.js"></script>
@@ -127,11 +129,6 @@
           <label class="backup-input">Import save <input type="file" id="backup-file" accept=".json,application/json"></label>
           <button type="button" class="secondary" id="reset-progress">Reset progress</button>
         </div>
-        <div class="save-confirmation" id="backup-confirmation" hidden>
-          <p id="backup-question"></p>
-          <button type="button" class="secondary" id="cancel-backup">Cancel</button>
-          <button type="button" class="primary" id="confirm-backup"></button>
-        </div>
         <p id="backup-status" role="status"></p>
       </details>
       <details><summary>About AlanBlox</summary><p>Version <span id="app-version">0.8.0-rc.2</span></p><p>AlanBlox by Alan Studio is a free, offline block puzzle. Each new hand has at least one solution, and your scores stay on this device.</p></details>
@@ -142,6 +139,14 @@
       <p>Your current board and score will reset. Your personal best will be kept.</p>
       <button type="button" class="secondary" id="cancel-restart">Keep Playing</button>
       <button type="button" class="primary" id="confirm-restart">Restart Game</button>
+    </div>
+  </dialog>
+  <dialog class="compact-dialog" id="backup-confirmation" aria-labelledby="backup-title" aria-describedby="backup-question">
+    <h2 id="backup-title">Confirm save change</h2>
+    <p id="backup-question"></p>
+    <div class="confirmation-actions">
+      <button type="button" class="secondary" id="cancel-backup">Cancel</button>
+      <button type="button" class="primary" id="confirm-backup"></button>
     </div>
   </dialog>
 </body>

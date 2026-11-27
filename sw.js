@@ -15,6 +15,8 @@ const shell = [
   "./modes.css",
   "./design.css",
   "./gameplay.css",
+  "./viewport.css",
+  "./js/pager.js",
   "./js/play-viewport.js",
   "./home.css",
   "./launch.css",

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="app-viewport">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -13,19 +13,24 @@
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./modes.css">
   <link rel="stylesheet" href="./design.css">
+  <link rel="stylesheet" href="./viewport.css">
+  <script type="module" src="./js/play-viewport.js"></script>
   <title>Progress · AlanBlox</title>
   <script type="module" src="./js/progress-view.js"></script>
 </head>
 <body>
   <main class="mode-shell">
-    <header class="menu-top"><a class="mode-back" href="./index.html">← Menu</a><span class="menu-brand">AlanBlox</span></header>
+    <header class="menu-top"><a class="mode-back" href="./index.html">← Menu</a><span class="menu-brand">AlanBlox</span>
+    <button id="appearance-toggle" type="button" class="secondary" hidden>Classic appearance</button>
+    </header>
     <nav class="page-tabs" aria-label="Progress">
       <a href="?view=materials" data-tab="materials">Materials</a>
       <a href="?view=stats" data-tab="stats">Statistics</a>
       <a href="?view=achievements" data-tab="achievements">Achievements</a>
     </nav>
-    <h1 id="progress-title"></h1>
-    <p id="progress-description" role="status"></p>
+    <h1 id="progress-title" class="screen-heading"></h1>
+    <p id="progress-description" class="screen-caption" role="status"></p>
+    <nav id="stats-tabs" aria-label="Statistics mode" hidden></nav>
     <form id="appearance-controls" class="world-card" hidden>
       <label>Classic appearance
         <select id="appearance-mode">
@@ -38,6 +43,15 @@
       <p>Applies when you start a new Classic game.</p>
     </form>
     <div class="progress-cards" id="progress-content"></div>
+    <nav id="screen-pager" class="screen-pager" aria-label="Pages" hidden>
+      <button type="button" class="secondary">Previous</button><output aria-live="polite"></output><button type="button" class="secondary">Next</button>
+    </nav>
   </main>
+  <dialog id="material-detail" class="compact-dialog" aria-labelledby="material-name">
+    <h2 id="material-name"></h2>
+    <div id="material-art" class="world-art" aria-hidden="true"></div>
+    <p id="material-requirement"></p>
+    <form method="dialog"><button type="submit" class="primary">Back to collection</button></form>
+  </dialog>
 </body>
 </html>

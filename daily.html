@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="app-viewport">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -13,14 +13,16 @@
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./modes.css">
   <link rel="stylesheet" href="./design.css">
+  <link rel="stylesheet" href="./viewport.css">
+  <script type="module" src="./js/play-viewport.js"></script>
   <title>Daily Challenge · AlanBlox</title>
   <script type="module" src="./js/daily-view.js"></script>
 </head>
 <body>
-  <main class="mode-shell">
+  <main class="mode-shell daily-shell">
     <header class="menu-top"><a class="mode-back" href="./index.html">← Menu</a><span class="menu-brand">AlanBlox</span></header>
-    <h1>Daily Challenge</h1>
-    <p>One shared puzzle per UTC date. Replay any earlier challenge.</p>
+    <h1 class="screen-heading">Daily Challenge</h1>
+    <p class="screen-caption">A shared puzzle for every UTC date.</p>
     <label for="challenge-date">Challenge date</label>
     <div class="daily-calendar">
       <button type="button" class="secondary" id="earlier-day" aria-label="Previous date">←</button>

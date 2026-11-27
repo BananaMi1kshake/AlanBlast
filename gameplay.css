@@ -1,23 +1,3 @@
-/* Only play.html owns a fixed viewport. Menus and collection pages keep normal flow. */
-html.play-page {
-  height: 100%;
-  overflow: hidden;
-  overscroll-behavior: none;
-}
-
-.play-page body {
-  position: fixed;
-  inset: var(--play-top, 0px) 0 auto;
-  width: 100%;
-  height: 100vh;
-  height: var(--play-height, 100dvh);
-  min-height: 0;
-  overflow: hidden;
-  overscroll-behavior: none;
-  display: grid;
-  place-items: center;
-}
-
 .play-page .game-shell {
   --safe-left: max(12px, env(safe-area-inset-left, 0px));
   --safe-right: max(12px, env(safe-area-inset-right, 0px));
@@ -35,7 +15,23 @@ html.play-page {
 }
 
 .game-shell .masthead { grid-area: header; }
-.game-shell .scoreboard { grid-area: score; min-height: 0; margin: 0; }
+.game-shell .scoreboard {
+  grid-area: score; min-height: 0; height: 91px; margin: 0;
+  display: grid; align-content: center; justify-items: center;
+}
+.adventure-play .game-shell .scoreboard { height: 65px; margin: 0; }
+.game-shell .current-score { width: 100%; height: 51px; container-type: inline-size; }
+.adventure-play .game-shell .current-score { height: 42px; }
+.game-shell .current-score strong { font-size: var(--score-font, clamp(38px, 9vw, 51px)); white-space: nowrap; }
+@supports (width: 1cqw) {
+  .game-shell .current-score strong {
+    font-size: min(var(--score-font, clamp(38px, 9vw, 51px)), calc(145cqw / var(--score-digits, 1)));
+  }
+}
+.game-shell .deal-status { position: relative; height: 30px; }
+.game-shell .deal-status > * { position: absolute; margin: 0; inset-inline: 0; top: 0; }
+.game-shell #retry-hand { top: auto; bottom: 0; justify-self: center; }
+.game-shell .objective-chip { height: 26px; }
 .game-shell .adventure-hud { grid-area: goals; margin: 0; }
 .game-shell .pieces { grid-area: tray; margin: 0; }
 .playfield {
@@ -68,12 +64,6 @@ html.play-page {
   background: var(--board);
 }
 
-.play-page #settings {
-  max-height: calc(var(--play-height, 100vh) - max(12px, env(safe-area-inset-top, 0px)) - max(12px, env(safe-area-inset-bottom, 0px)));
-  touch-action: pan-y pinch-zoom;
-  overscroll-behavior-y: contain;
-}
-
 @media (orientation: landscape) and (max-height: 560px) {
   .play-page .game-shell {
     width: min(100%, 940px);
@@ -84,7 +74,10 @@ html.play-page {
   .playfield { padding-block-end: clamp(24px, 9dvh, 48px); }
   .game-shell .pieces { align-self: center; }
   .game-shell .tray button { height: clamp(52px, 17dvh, 83px); }
-  .game-shell .current-score strong { font-size: clamp(28px, 10dvh, 49px); }
+  .game-shell .scoreboard { height: 76px; }
+  .adventure-play .game-shell .scoreboard { height: 58px; }
+  .game-shell .current-score { height: 38px; }
+  .game-shell .current-score strong { --score-font: clamp(28px, 10dvh, 38px); }
 }
 
 @media (max-height: 310px) {
@@ -106,3 +99,21 @@ html.play-page {
   box-shadow: inset 0 1px #ffffff75;
 }
 .play-page .fx-particle { box-shadow: none; }
+
+
+.play-page .game-over {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(calc(100% - 26px), 380px);
+  height: fit-content;
+  max-height: calc(var(--screen-height, 100dvh) - 22px);
+  overflow: hidden;
+  border-radius: 20px;
+  border: 1px solid var(--panel-stroke);
+  box-shadow: 0 12px 36px #040e42a0;
+}
+.play-page .game-over .game-over-content { width: min(100%, 340px); }
+@media (orientation: landscape) and (max-height: 480px) {
+  .play-page .game-over .result-actions { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
+}

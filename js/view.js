@@ -160,6 +160,8 @@ export function createView(motion) {
     });
     animateScore(game.score, !!previous && !motion.matches);
     animateBest(highScore, !!previous && !motion.matches);
+    const digits = String(game.score).length;
+    if (digits !== String(previous?.score).length || !previous) score.style.setProperty("--score-digits", digits);
     score.setAttribute("aria-label", String(game.score));
     best.setAttribute("aria-label", String(highScore));
     if (previous && highScore > previousBest && !motion.matches) {

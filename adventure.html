@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="app-viewport">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -14,23 +14,28 @@
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./modes.css">
   <link rel="stylesheet" href="./design.css">
+  <link rel="stylesheet" href="./viewport.css">
+  <script type="module" src="./js/play-viewport.js"></script>
   <title>Adventure · AlanBlox</title>
   <script type="module" src="./js/world-select.js"></script>
 </head>
 <body>
   <main class="mode-shell worlds-shell">
     <header class="menu-top">
-      <a href="./index.html" class="back-link"><span aria-hidden="true">←</span> Menu</a>
+      <a href="./index.html" class="back-link" id="world-back"><span aria-hidden="true">←</span> Menu</a>
       <span class="menu-brand">AlanBlox</span>
     </header>
     <section class="adventure-intro">
-      <h1>Adventure</h1>
+      <h1 class="screen-heading" id="world-title">Adventure</h1>
       <p id="current-world">Loading worlds…</p>
       <label for="campaign-progress" id="progress-label">Campaign progress</label>
       <progress id="campaign-progress" value="0" max="1">0%</progress>
       <a id="resume-level" class="primary" href="./play.html?mode=adventure" hidden>Resume level</a>
     </section>
     <div id="world-list" class="world-list"></div>
+    <nav id="screen-pager" class="screen-pager" aria-label="Pages" hidden>
+      <button type="button" class="secondary">Previous</button><output aria-live="polite"></output><button type="button" class="secondary">Next</button>
+    </nav>
   </main>
 </body>
 </html>

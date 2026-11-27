@@ -1,5 +1,4 @@
 import { browserStorage, createSaveBuffer } from "./save-buffer.js";
-import { bindPlayViewport } from "./play-viewport.js";
 import { takePlayAccess } from "./play-access.js";
 import { bindSaveControls } from "./save-controls.js";
 import { bindInstall } from "./install.js";
@@ -30,7 +29,6 @@ const buffer = sandbox ? null : createSaveBuffer(browserStorage());
 const storage = sandbox ? memoryStorage() : buffer;
 const $ = id => document.getElementById(id);
 
-bindPlayViewport();
 addEventListener("pagehide", closeHandWorker);
 
 function mount(session, levels, mode = levels ? "adventure" : "classic", newAttempt = session.newlyStarted) {
