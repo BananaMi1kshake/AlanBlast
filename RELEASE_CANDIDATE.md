@@ -1,10 +1,18 @@
-# AlanBlox 0.8.0-rc.2
+# AlanBlox 0.8.0-rc.3
 
-Phase 8.1 builds on the Phase 8 release candidate and adds [stationary screens and continuous dragging](docs/phase-8-1/INPUT.md). It includes all 48 Adventure levels, the original 11 Daily puzzles with their date mapping, and the four tutorial lessons. Classic still uses Generation V2 and the existing placement geometry, scoring, combo, and all-clear rules.
+Phase 8.2 builds on the approved Phase 8.1 release and its [stationary screens and continuous dragging](docs/phase-8-1/INPUT.md). It includes all 48 Adventure levels, the original 11 Daily puzzles with their date mapping, and the four tutorial lessons. Classic still uses Generation V2 and the existing placement geometry, scoring, combo, and all-clear rules.
+
+## Phase 8.2 release verification
+
+Phase 8.2 uses the six developer-supplied screens as layout references. Alan Studio and AlanBlox appear on coordinated blue screens, the menu has two prominent play buttons, and default Classic uses a timber frame and a warm playfield. Settings keeps its own scroll. Quick material selection is available during Classic, with the full collection separate. Touch pickup takes 44 ms while the preview and drop continue to share the same logical origin. [Screenshot audit](docs/phase-8-2/VISUAL.md) · [Before and after](docs/phase-8-2/SCREENS.md)
+
+The current suite passed 221 automated tests, replayed 48 Adventure solutions, and validated 10,000 solvable hands. Chromium checked eight screen sizes, touch and keyboard paths, material application and reload, and the shell 14 to 15 upgrade. Physical devices and exact reference parity remain open. [Performance, browser coverage and limitations](docs/phase-8-2/VERIFICATION.md)
+
+The sections below include historical Phase 8 and 8.1 measurements for comparison.
 
 ## Branding and startup
 
-The four referenced images were visible inline. Their source files were unavailable in the workspace. The developer authorized generated replacements. The replacement art follows the supplied direction and is recorded separately from the Phase 7 launcher files. The native launcher remains managed by the operating system. The custom presentation plays Alan Studio for 360 ms then AlanBlox for 500 ms. Reduced motion, repeat navigation in the same tab, and backgrounding suppress or dismiss it. The menu is prepared in parallel, and the waiting label is tied to actual initialization.
+The four referenced images were visible inline. Their source files were unavailable in the workspace. The developer authorized generated replacements. The replacement art follows the supplied direction and is recorded separately from the Phase 7 launcher files. The native launcher remains managed by the operating system. The custom presentation now plays Alan Studio for 320 ms then AlanBlox for 420 ms. Reduced motion, repeat navigation in the same tab, and backgrounding suppress or dismiss it. The menu is prepared in parallel, and the waiting label is tied to actual initialization.
 
 | Asset | Generated source | Cached version |
 | --- | ---: | ---: |
@@ -34,7 +42,7 @@ The app and worker have no third-party runtime dependencies, account endpoints, 
 
 ## Verification and performance
 
-Run `npm run verify:release` from the repository root. This runs all 219 automated tests, the game and independent Adventure replay, and the reproducible 10,000-hand Classic benchmark. The approved Phase 8.1 baseline passed 215 tests. Phase 8.1 viewport and input checks are recorded with the [physical-device retest instructions](docs/phase-8-1/INPUT.md). The same command runs in GitHub Actions. Daily and tutorial witnesses are independently replayed by the core suite. Tests include storage failure recovery, a large 2,048-date Daily backup, old saves, and required assets.
+The Phase 8.1 `npm run verify:release` run covered 219 automated tests, the game and independent Adventure replay, and the reproducible 10,000-hand Classic benchmark. The approved Phase 8.1 baseline passed 215 tests. Phase 8.1 viewport and input checks are recorded with the [physical-device retest instructions](docs/phase-8-1/INPUT.md). The same command runs in GitHub Actions. Daily and tutorial witnesses are independently replayed by the core suite. Tests include storage failure recovery, a large 2,048-date Daily backup, old saves, and required assets.
 
 Chromium covered 320×568, 390×844, 430×932, 768×1024, and 1280×900 viewports. It checked first-run and reduced-motion startup, navigation and resumes, touch drag, mouse drag, keyboard placement, exact-fit previews, multi-tab write protection, and offline assets. It also restored an active game while a hand request was pending. Standalone preference and layout were simulated at 430×932. A native mobile install remains on the checklist. Upgrades from Phase 6 and Phase 7 retained the board and Adventure transcript. The Phase 7 upgrade retained historical Daily results. With one mandatory asset deliberately missing, the old worker stayed active. When the asset was restored, shell 12 installed successfully, activated after the old clients closed, removed the old shell, and opened offline.
 

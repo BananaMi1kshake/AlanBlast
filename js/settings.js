@@ -59,12 +59,13 @@ export function bindSettings(settings, preference, { onOpen, onRestart, onChange
   function confirm(visible) {
     panel.hidden = visible;
     confirmation.hidden = !visible;
-    (visible ? cancelRestart : requestRestart).focus();
+    (visible ? cancelRestart : requestRestart).focus({ preventScroll: true });
   }
 
   function finish() {
     closing?.cancel();
     closing = null;
+    dialog.scrollTop = 0;
     dialog.close();
     dialog.classList.remove("closing");
   }
@@ -89,7 +90,6 @@ export function bindSettings(settings, preference, { onOpen, onRestart, onChange
     panel.hidden = false;
     confirmation.hidden = true;
     dialog.showModal();
-    resume.focus();
     if (!preference.motion.matches) {
       dialog.animate([
         { opacity: 0, transform: "translateY(12px) scale(.985)" },

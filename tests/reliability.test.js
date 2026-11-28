@@ -10,8 +10,8 @@ test("cold startup plays once, respects motion and avoids replay on internal nav
   for (const reason of Object.keys(fresh)) {
     assert.equal(canPresentStartup({ ...fresh, [reason]: true }), false, reason);
   }
-  assert.equal(LAUNCH_TIMING.studio + LAUNCH_TIMING.game, 860);
-  assert.ok(LAUNCH_TIMING.limit <= 1350);
+  assert.equal(LAUNCH_TIMING.studio + LAUNCH_TIMING.game, 740);
+  assert.ok(LAUNCH_TIMING.limit <= 1150);
 });
 
 test("stale gameplay tabs cannot overwrite newer progress or add its rewards", () => {

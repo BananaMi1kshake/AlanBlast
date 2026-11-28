@@ -13,6 +13,7 @@ import { closeHandWorker, requestHand } from "./hand-request.js";
 import { createHaptics } from "./haptics.js";
 import { bindInput } from "./input.js";
 import { adventureProgress, completedDailyDates, loadProfile, recordGameplay, restoreDiscoveries } from "./profile.js";
+import { bindMaterialPicker } from "./material-picker.js";
 import { SHAPES } from "./pieces.js";
 import { registerOffline } from "./pwa.js";
 import { isLoopback, memoryStorage } from "./sandbox.js";
@@ -194,6 +195,18 @@ function mount(session, levels, mode = levels ? "adventure" : "classic", newAtte
       if (event.isTrusted) audio.activate();
     },
     onInteraction: () => feedback.cue("ui"), vibrationSupported: haptics.supported,
+  });
+  if (mode === "classic") bindMaterialPicker({
+    getGame: () => session.game,
+    available: () => loadProfile(storage).materials,
+    onOpen: input.reset,
+    cue: feedback.cue,
+    motion: preference.motion,
+    apply(material) {
+      if (!mayWrite() || !session.equipMaterial(material)) return;
+      lastMove = undefined;
+      update();
+    },
   });
   playAgain.addEventListener("click", restart);
   $("save-conflict-refresh").addEventListener("click", () => location.reload());

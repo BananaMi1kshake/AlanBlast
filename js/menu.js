@@ -14,8 +14,6 @@ import { restoreDiscoveries } from "./profile.js";
 import { registerOffline } from "./pwa.js";
 import { bindSettings, createMotionPreference, loadSettings } from "./settings.js";
 import { loadProgress } from "./storage.js";
-import { WORLDS } from "./themes.js";
-import { paintWorld } from "./world-art.js";
 
 const $ = id => document.getElementById(id);
 const preview = previewStorage();
@@ -47,19 +45,14 @@ $("skip-tutorial").addEventListener("click", () => {
 async function render() {
   $("tutorial-invitation").hidden = tutorialStatus(preview) !== null;
   const classic = loadProgress(preview);
-  $("classic-best").textContent = classic.highScore;
   const ended = classic.game && isGameOver(classic.game);
   const classicLink = $("classic-link");
   $("classic-action").textContent = classic.game && !ended ? "Continue Classic" : "Play Classic";
   classicLink.href = ended ? "./play.html?new=1" : "./play.html";
-  paintWorld($("classic-art"), WORLDS.mint, ["sky", "mint", "sun", "mint"]);
   try {
     const levels = await loadCampaign();
     const { completed, current } = loadAdventure(levels, preview);
     restoreDiscoveries(levels, completed, preview);
-    const frontier = levels.find(level => !completed.includes(level.id)) ?? levels.at(-1);
-    paintWorld($("adventure-art"), WORLDS[frontier.world]);
-    $("adventure-progress").textContent = `${completed.length} of ${levels.length} levels complete`;
     const resume = $("resume-adventure");
     resume.hidden = current?.run.status !== "playing";
     if (!resume.hidden) {
@@ -67,7 +60,7 @@ async function render() {
       resume.textContent = "Resume " + levels.find(level => level.id === current.levelId).name;
     }
   } catch {
-    $("adventure-progress").textContent = "Adventure levels could not be loaded.";
+    $("resume-adventure").hidden = true;
   }
 }
 applyBranding(document.documentElement);

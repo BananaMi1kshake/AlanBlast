@@ -1,47 +1,70 @@
 .launch {
   position: fixed;
-  inset: 0;
+  inset: var(--screen-top, 0px) 0 auto;
+  height: var(--screen-height, 100dvh);
   z-index: 12;
   display: grid;
   place-items: center;
   isolation: isolate;
-  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
-    max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background: var(--launch-scene);
+  transition: opacity var(--launch-fade, 120ms) ease;
+  touch-action: pinch-zoom;
+  user-select: none;
+  -webkit-user-select: none;
 }
-.launch [data-brand-art] { display: none; }
-.launch[data-stage="studio"] { background: #fcfaf5; }
+.launch [data-brand-art], .launch-motif { display: none; }
+.launch[data-stage="studio"]::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: radial-gradient(ellipse min(38vw, 240px) min(32vw, 190px) at center, #fcf3d9 44%, #dce8f7bf 67%, transparent 98%);
+}
 .launch[data-stage="studio"] [data-brand-art="studio"] {
   display: grid;
-  width: min(46vw, 220px, 52dvh);
-  animation: launch-studio var(--studio-time, 360ms) ease both;
-}
-.launch[data-stage="game"] {
-  background: var(--brand-backdrop, none) center / cover no-repeat,
-    radial-gradient(ellipse at 50% 47%, #208bea, #2239ab 60%, #20205d);
+  width: min(40vw, 185px, 47dvh);
+  animation: launch-studio var(--studio-time, 320ms) ease both;
 }
 .launch[data-stage="game"] [data-brand-art="game"] {
+  position: absolute;
+  inset: 29% auto auto;
+  translate: 0 -50%;
   display: grid;
-  width: min(86vw, 640px);
-  max-width: 90%;
+  width: min(80vw, 410px, 72dvh);
   place-items: center;
-  animation: launch-game .36s cubic-bezier(.19,.72,.23,.99) both;
+  animation: launch-game .28s cubic-bezier(.19,.72,.23,.99) both;
 }
+.launch[data-stage="game"] .launch-motif {
+  position: absolute;
+  top: 59%;
+  display: grid;
+  grid-template: repeat(2, 14px) / repeat(2, 14px);
+  gap: 3px;
+  rotate: -17deg;
+}
+.launch-motif i {
+  border-radius: 3px;
+  background: #4bd2ee;
+  box-shadow: inset 0 2px #fff8, inset 0 -2px #157fbb, 0 2px #132b6270;
+}
+.launch-motif i:nth-child(2) { grid-area: 2 / 1; }
+.launch-motif i:nth-child(3) { grid-area: 2 / 2; background: #ffc26a; box-shadow: inset 0 2px #fff8, inset 0 -2px #c87836, 0 2px #132b6270; }
 .launch img, .menu-hero img { display: block; width: 100%; height: auto; object-fit: contain; }
 .launch-progress {
   display: none; position: absolute; bottom: max(15%, calc(env(safe-area-inset-bottom) + 24px));
   background: #112670de; color: white; border-radius: 999px; padding: .5rem .9rem; font-size: .82rem;
 }
 .launch[data-loading] .launch-progress { display: block; }
+.launch[data-leaving] { opacity: 0; }
 @keyframes launch-studio {
-  0%, 100% { opacity: 0; }
-  25%, 78% { opacity: 1; }
+  0% { opacity: 0; }
+  28%, 86% { opacity: 1; }
+  100% { opacity: .88; }
 }
 @keyframes launch-game {
-  from { opacity: .12; transform: scale(.91) translateY(8px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from { opacity: .25; scale: .96; }
+  to { opacity: 1; scale: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
   .launch[data-stage] [data-brand-art] { animation: none; }
 }
-.launch { transition: opacity 140ms ease; }
-.launch[data-leaving] { opacity: 0; }

@@ -38,7 +38,7 @@ In two full-board-clear traces under Chromium 4× CPU throttling, median frame i
 
 ## Material collection
 
-Phase 7 lets players discover materials through Adventure completions and Classic all-clears. The automatic, favorite-first, and fixed-favorite options apply to the next Classic run. Adventure uses each puzzle’s authored material. See the [Phase 7 discovery rules](PHASE_7.md#material-discovery-and-appearance).
+Phase 7 lets players discover materials through Adventure completions and Classic all-clears. The automatic, favorite-first, and fixed-favorite options apply to the next Classic run. During a Classic run, the material button opens a swatch picker for the current or discovered materials. Apply saves the appearance for that run. An automatic all-clear resumes rotation, and a fixed run keeps the chosen look until restart. Adventure uses each puzzle’s authored material. See the [Phase 7 discovery rules](PHASE_7.md#material-discovery-and-appearance).
 
 ## Phase 8 library and discovery
 

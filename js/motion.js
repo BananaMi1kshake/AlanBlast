@@ -9,8 +9,8 @@ export const MOTION = Object.freeze({
   allClear: 1200,
   theme: 650,
   counter: 300,
-  settingsOpen: 220,
-  settingsClose: 160,
+  settingsOpen: 145,
+  settingsClose: 115,
   particleLimit: 24,
 });
 
